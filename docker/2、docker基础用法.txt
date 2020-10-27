@@ -1,0 +1,160 @@
+2、docker基础用法：
+
+要想在linux容器，至少linux内核级需要支持以下两种技术：
+	NameSpaces：名称空间
+	CGroups：控制组
+	
+
+docker只是容器的前端工具，简化容器的使用；
+
+
+docker中的容器：
+	lxc ---> libcontainer ---> runC
+	
+
+OCI（open container initiative）：2015年6月创立，旨在围绕容器格式和运行时指定一个开放的工业化标准；
+
+OFC：open container format；runC是它的实现工具；
+
+
+docker容器镜像官网：dockerhub.com
+					download.docker.com
+docker国内加速镜像站：
+	阿里云
+	清华大学镜像站：mirrors.tuna.tsinghua.edu.cn
+
+
+
+docker架构：
+	c/s架构
+	
+	client端：docker命令管理
+	server端：docker_host,真正运行容器的主机，包括docker container和images
+	registries：docker镜像仓库，存储各类镜像的，分为公有仓库和私有仓库两种；每个应用一个仓库目录，不同版本使用tag标识区分；
+	
+
+docker：
+	docker ee：docker企业版；
+	docker ce：docker社区版；
+	
+	
+镜像与容器关系：
+	类似于程序与进程的关系；
+	镜像：静态的，是启动容器的基础；
+	容器：动态的，有生命周期的
+	
+	
+docker资源对象：
+	images：镜像
+	container：容器
+	networks；网络设备
+	volumes：存储卷
+	plugins：插件
+	
+	
+	
+安装及使用docker：【想要很好的使用docker，建议使用centos7的系统】
+依赖的基础环境：
+	64 bits CPU
+	linux kernel 3.10+
+	linux kernel cgroups and namespaces
+	
+系统版本：
+	centos 7
+	
+docker daemon：
+	systemctl start docker.service
+	
+docker client：
+	docker [OPTIONS] COMMAND [arg......]
+
+	
+安装docker：
+（1）配置docker国内镜像源【建议使用清华大学的镜像源】
+（2）安装docker
+	yum install docker-ce -y
+（3）docker组件
+	docker程序环境：
+		环境配置文件：
+			/etc/sysconfig/docker-network
+			/etc/sysconfig/docker-storage
+			/etc/sysconfig/docker
+			
+		Unit File:
+			/usr/lib/systemd/system/docker.service
+			
+		Docker Registry配置文件：
+			/etc/containers/registries.conf
+			
+		docker-ce：
+			配置文件: /etc/docker/daemon.json    【centos7上默认没有这个文件，需要手动创建，该文件内部只有一个仓库镜像地址配置】
+			
+（4）docker镜像加速
+	docker cn
+	阿里云加速器
+	中国科技大学
+	
+	在/etc/docker/daemon.json中将镜像仓库地址修改城国内镜像站地址：
+		{
+			"registry-mirrors": ["https://registry.docker-cn.com"]
+		}
+		
+	修改完后重启docker进程即可：
+		systemctl daemon-reload
+		systemctl restart docker
+
+	
+			
+	注册阿里云账号，专用加速器地址获得路径：
+		https://cr.console.aliyun.com/#/accelerator
+		
+	物理：
+		client <---> Daemon <---> Registry Server
+		
+	逻辑：
+		containers：容器
+		Images：镜像
+		Registry：Image Repositories
+		
+	容器状态：
+		created
+		running
+		paused
+		stopped
+		deleted
+
+（5）docker常用命令：
+	显示docker版本：docker version
+	查看docker详细信息：docker info
+	
+	常用操作命令：
+	<1> docker search: search the docker hub for images; 【从docker hub上查找镜像】
+	<2> docker pull：Pull an image or a repository from a registry;【拉取镜像】
+	<3> docker images: list images; 【列出所有镜像】
+	<4> docker create: 创建容器；
+	<5> docker start：启动容器；
+	<6> docker run: 创建容器并启动；
+		--name：指定容器名称
+		-i：交互式
+		-t：给定tty终端
+		
+	  例子：docker container run --name "mydocker_01" -i -t centos '/bin/bash' 
+	<7> dcoker attach: 连接到一个启动的容器中；
+	<8> docker ps：列出所有容器；
+	<9> docker logs：获取容器日志；
+	<10> docker restart: 重启容器；
+	<11> docker stop：停止一个或多个运行中的容器；
+	<12> docker kill：kill掉一个或多个运行中的容器；
+	<13> docker rm：移除一个或多个容器；
+	<14> docker top: 显示容器资源消耗；
+	<15> docker inspect：查看docker对象更详细的信息；
+	<16> docker exec：在容器中执行外部命令；
+		语法：docker exec -it CONTAINER_NAME COMMAND 
+		如：docker exec -it mydocker_01 /bin/bash
+	<17> docker pause: 暂停容器；
+	<17> docker unpause: 继续运行暂停的容器；
+	
+	
+
+
+	

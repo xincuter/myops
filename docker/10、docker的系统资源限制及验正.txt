@@ -1,0 +1,37 @@
+10、docker的系统资源限制和验证
+
+容器使用资源限制：
+	cpu
+	memory
+	
+	
+OOME：out of memory exception
+
+
+如何限制容器使用资源？
+默认情况下，容器使用系统资源没有限制。
+
+（1）限制内存资源
+	1）-m or --memory=：限制容器能够使用的最大内存；
+	2）--memory-swap *：限制能够使用的最大swap内存大小（注：必须先设定第一项，该项才会生效）；
+		正数S：容器可用总空间为S，其中ram为M，swap（S-M），若S=M，则无可用swap资源；
+		0：相当于未设置swap；若主机启用swap，则容器的可用swap为2*M；
+		-1：若主机启用了swap，则容器可使用最大至主机上的所有swap空间的swap资源；
+	3）--memory-swappiness：
+	4）--oom-kill-disable：禁止oom时，被内核kill掉；
+	
+（2）限制cpu资源
+	1）--cpus N：通过设置cpu核数，来限制容器使用cpu资源（即限制cpu个数）；
+	2）--cpuset-cpus：通过设置容器使用哪些个cpu核上，来限制容器使用cpu资源（即限制cpu资源范围）；
+	3）--cpu-shares 1024：尽可能多使用cpu；
+	
+	
+	
+容器压测镜像：
+docker-stree-ng
+
+
+显示容器资源使用信息：
+docker stats
+docker top
+	

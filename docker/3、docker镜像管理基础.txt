@@ -1,0 +1,137 @@
+3、docker镜像管理基础
+
+docker容器常用操作命令总结
+
+
+一个docker_host上可以启动多个容器，镜像如果本地没有，则从公有镜像库中拉取；
+
+docker镜像：
+	docker镜像含有启动容器所需要的文件系统及其内容，因此，其用于创建并启动docker容器；
+	采用分层构建机制，最底层是bootfs，其之为rootfs；
+		bootfs：用于系统引导的文件系统，包括bootloader和kernel，容器启动完成后会被卸载以节约内存资源；
+		rootfs：位于bootfs之上，表现为docker容器的根文件系统；
+			传统模式中，系统启动之时，内核挂载rootfs时会首先将其挂载为"只读"模式，完整性自检完成后将其重新挂载为读写模式；
+			docker中，rootfs由内核挂载为"只读"模式，而后通过"联合挂载"技术额外挂载一个"可写"层；
+			
+
+镜像的分层机制：
+	位于下层的镜像称为父镜像，最底层的镜像称为基础镜像；
+	最上层为"可读写"层，其下的均为"只读"层。
+	
+	
+aufs：高级多层统一文件系统；最早被docker使用实现"联合挂载"的文件系统；
+docker最初使用aufs作为容器文件系统层，它目前仍作为存储后端之一来支持；
+aufs的竞争产品是overlayfs，后者自从3.18版本开始被合并到linux内核；
+docker的分层镜像，除了aufs，docker还支持btrfs，devicemapper（该性能很差，linux上的lvm2使用就是这种文件系统）和vfs等；
+	在ubuntu系统下，docker默认ubuntu的aufs，而在centos7上，用的是devicemapper；
+	
+	
+启动容器时，docker daemon会试图从本地获取相关的镜像，本地镜像不存在时，其将从Registry中下载该镜像并保存到本地；
+
+
+
+docker Registry分类：
+registry用于保存docker镜像，包括镜像的层次结构和元数据；
+用户可自建Registry，也可以使用官方的docker hub；
+分类如下：
+	Sponsor Registry：第三方的registry，供客户和docker社区使用；
+	Mirror Registry: 第三方的registry，只让客户使用；
+	Vendor Registry: 由发布docker镜像的供应商提供的registry；
+	Private Registry: 通过设有防火墙和额外的安全层的私有实体提供的registry；
+	
+	
+Registry(repository and inde)：
+	Repository：
+		由某特定的docker镜像的所有迭代版本组成的镜像仓库；
+		一个Registry中可以存在多个Repository
+			Repository可以分为"顶层仓库"和"用户仓库"
+			用户仓库名称格式为"用户名/仓库名"
+			
+		每个仓库可以包含多个tag（标签），每个标签对应一个镜像；
+		
+	Index：
+		维护用户账号、镜像的校验以及公共命名空间的信息；
+		相当于为Registry提供了一个完成用户认证等功能的检索接口；
+		
+		
+
+基于环境变量将配置文件注入到容器中
+
+
+从第三方仓库获取镜像方法：docker pull quay.io/coreos/flannel:v0.10.0-amd64        【不指定端口，默认是443端口】
+
+
+
+如何制作镜像：
+	（1）dockerfile          【结合docker build + dockerfile文件】
+	（2）基于容器制作        【结合docker commit命令】
+	（3）Docker Hub automated builds
+	
+	
+基于容器制作镜像：
+	方法：
+	docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
+	选项：
+		--author，-a：指定作者；
+		--change，-c：应用dockerfile指令创建镜像；
+		--message，-m：提交信息；
+		--pause，-p：默认值为true，提交过程中，暂停容器；
+		
+例子1：
+（1）运行一个容器
+	docker run -it --name b1 busybox      【创建并运行一个名为b1的容器，基础使用busybox】
+	
+（2）在容器中做些更改；
+	mkdir -p /data/html
+	echo '<h1>This is first page!</h1>' >/data/html/index.html  【创建了新文件】
+
+（3）保持该容器正常运行，然后以该镜像为基础制作镜像；
+	docker commit -p b1    【制作镜像过程中最好暂停镜像制作】
+   或者
+	docker commit -p b1 mybusybox:v0.1-1     【一步到位，制作镜像并打上标签tag】
+	docker image ls     【查看镜像】
+	
+（4）为制作的镜像打标签
+	docker tag IMAGE_ID tag1 tag2    【一个镜像可以有多个标签】
+	
+	docker tag 3b9aa7ded38d mybusybox:latest
+	
+	
+	
+例子2：【制作镜像后，改变镜像的启动命令】
+主要修改第三步:
+docker commit -a "MageEdu <mage@magedu.com>" -c 'CMD ["/bin/httpd","-f","-h","/data/html"]' -p b1  myhttpd_server:v0.1-1 【基于镜像b1制作，并指定作者，修改镜像启动的CMD命令，["/bin/httpd","-f","-h","/data/html"]这是传递的命令列表，含有命令和参数；"/bin/httpd"表示运行的命令，"-f"表示在前台运行，"-h","/data/html"表示指定网页根目录为/data/html】
+
+
+
+登录远程仓库：docker login -u mageedu     【如果server地址不是dockerhub，则需指定】
+推送镜像：docker push mageedu/httpd
+
+
+
+
+镜像的导入和导出：
+镜像导出：【镜像打包导出】
+docker save [OPTIONS] IMAGE [IMAGE...]
+选项：
+	-o：指定输出保存文件名
+
+例子：docker save -o /tmp/myimages.gz mybusybox:v0.1-1 myhttpd_server:v0.1-1 
+
+
+镜像导入：
+docker load [OPTIONS]
+选项：
+-i：指定从哪个tar归档文件读入镜像
+
+例子：docker load -i /tmp/myimages.gz
+
+
+
+
+	
+
+	
+
+	
+	

@@ -1,0 +1,81 @@
+9、docker私有registry
+
+registry用于保存docker镜像，包括镜像的层次结构和元数据；
+用户可自建registry，也可使用官方docker hub；
+
+分类：
+Sponsor registry：第三方的registry，供客户和docker社区使用；
+Mirror registry：第三方的registry，只让客户使用；
+Vendor registry：由发布docker镜像的供应商提供的registry；
+Private registry：通过设有防火墙和额外的安全层的私有实体提供的registry；
+
+
+
+默认docker不支持http的registry，只支持https的；
+
+
+安装docker-registry：
+（1）yum方式安装：
+	yum install docker-registry -y      【实际安装的包为docker-distribution】
+		配置文件：/etc/docker-distribution/registry/config.yml
+		镜像存放目录：/var/lib/registry      【可通过配置文件修改】
+	
+	配置文件详解：
+	vim /etc/docker-distribution/registry/config.yml
+		
+		version: 0.1
+		log:
+			fields:
+				service: registry                    ##启动服务名称
+		storage:
+			cache:
+				layerinfo: inmemory                  ##缓存在内存中
+			filesystem:
+				rootdirectory: /var/lib/registry      ##数据存储目录【存储镜像文件】
+		http:
+			addr: :5000                               ##监听地址及端口
+			
+（2）启动registry：
+	systemctl start docker-distribution
+	
+（3）推送镜像到私有仓库：
+	例如：
+	docker tag myweb:v0.3.11 node2.magedu.com:5000/myweb:v0.3-11    【打标记】
+	docker push node2.magedu.com:5000/myweb:v0.3-11    【推送到私有仓库】
+	
+	注：默认情况下，docker只支持https，不支持http，如果想使用http的docker私有仓库，则需要修改docker配置文件，使之支持http；
+		vim /etc/docker/daemon.json，添加内容如下：
+			"insecure-registries": ["node2.magedu.com:5000"]
+			
+		修改完毕后，重启服务：
+		systemctl restart docker.service
+		
+（4）从私有仓库下载镜像
+	docker pull node2.magedu.com:5000/myweb:v0.3-11
+		
+
+
+		
+habor: 【官方将其制作成在容器中的应用，存在很多依赖】
+扩展了原来docker registry的功能；
+多租户的内容签署和校验；
+支持安全、审计日志；
+权限控制；
+图形化界面；
+
+
+vmware habor部署需要依赖很多的软件工具，所以官方将其制作成在容器中的应用，需要借助docker的单机编排工具docker compose来实现；
+
+habor安装：
+（1）yum安装docker-compose
+（2）下载源文件（github上）
+（3）解压源文件，修改配置文件（docker-compose.yml和habor.cfg）
+（4）执行./install.sh 
+（5）访问测试  
+（6）管理habor：
+	开启habor：docker-compose pause
+	关闭habor：docker-compose unpause
+
+
+docker compose【docker的单机编排工具】：
+用于定义和运行多容器的docker应用；需要编写docker-compose模板。

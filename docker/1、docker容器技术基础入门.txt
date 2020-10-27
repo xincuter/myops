@@ -1,0 +1,86 @@
+docker详解：
+
+container(容器)
+
+LXC（linux container）：linux容器
+
+主机级虚拟化：
+	Type-I：
+	Type-II：vmware
+	其他：kvm、xen
+	
+容器级虚拟化：
+	
+	
+内核的作用：资源分配和管控
+
+用户空间的应用进程【真正提供服务（即生产力）】
+
+进程运行在用户空间
+
+容器技术：运行互相隔离的进程的容器技术；
+
+
+容器级虚拟化：
+namespaces+chroot实现容器技术；
+
+linux Namespaces：【有如下6类】
+	namespace         系统调用参数            隔离内容                  内核版本
+	（1）UTS          CLONE_NEWUTS	       主机名和域名                  2.6.19
+	（2）IPC          CLONE_NEWIPC         信息量，消息队列和共享内存    2.6.19
+	（3）PID          CLONE_NEWPID	       进程编号                      2.6.24
+	（4）Network      CLONE_NEWNET	       网络设备、网络栈、端口等      2.6.29
+	（5）Mount        CLONE_NEWNS	       挂载点（文件系统）            2.4.19
+	（6）User         CLONE_NEWUSER	       用户和用户组                  3.8
+
+
+	
+Cgroups（control groups）：控制组，将系统级资源分成多个组，把每个组内的资源量分配到特定的用户空间的进程上去。 【即实现资源分配的】
+
+CGroups：
+	blkio：块设备IO；
+	cpu：CPU；
+	cpuacct：CPU资源使用报告；
+	cpuset：多处理器平台上的CPU集合；
+	devices：设备访问；
+	freezer：挂起或恢复任务；
+	memory：内存用量及报告；
+	perf_event：对cgroup中的任务进行统一性能测试；
+	net_cls：cgroup中的任务创建的数据报文的类别标识符；
+	
+
+容器虚拟化的隔离性比主机级的虚拟化差很多。
+
+
+最早的容器技术：
+LXC(linuX Container)
+	lxc-create,template
+	LXC把一个容器当做一个用户空间使用，可以跑多个进程，比较难管理
+
+	
+容器是linux内核技术，docker只不过是LXC的增强版，是容器技术的前端工具，简化了容器的使用。
+
+
+docker：
+	以LXC作为管理引擎
+	拉取镜像【基于镜像启动容器】
+	为了便于管理，一个容器内只运行一个进程
+	比LXC更易管理
+	每个容器（名称空间）相互独立，互不影响
+	一个容器就是一个进程
+	
+
+
+容器编排工具：
+	machine + swarm + compose    【docker自带】
+	mesos + marathon
+	kubernetes 【简称k8s】
+
+
+docker镜像：
+	分层构建：每一层镜像不会太庞大
+	
+
+
+	
+

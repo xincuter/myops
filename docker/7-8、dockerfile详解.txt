@@ -1,0 +1,360 @@
+7-8、dockerfile详解
+
+自制镜像方法：
+（1）基于容器制作镜像
+（2）自己编写dockerfile制作镜像
+
+
+dockerfile简介：
+	包含构建镜像的源码指令的文本文件
+	
+	
+dockerfile格式：
+格式如下：
+	#Comment   【注释行】
+	指令参数
+	
+每个dockerfile文件中第一个指令（非注释行）必须是"FROM"，这是为了明确制作镜像所依赖的基础镜像；
+
+
+
+基于dockerfile制作docker镜像注意事项：
+（1）必须有专用的工作目录；
+（2）dockerfile文件首字母必须大写；
+（3）所引用的文件必须是在工作目录内部或其子目录；
+（4）.dockerignore隐藏文件，表示在打包时，所有写在该文件内的路径都不会被打包进去；【即文件排除列表】
+（5）使用docker build命令制作镜像。
+
+
+
+常见dockerfile指令：
+（1）FROM
+FROM指令是最重要的一个且必须为dockerfile文件开篇的第一个非注释行，用于为映像文件构建过程指定基准镜像，后续的指令运行于此基准镜像所提供的运行环境；
+实践中，基准镜像可以是任何可用镜像文件，默认情况下，docker build会在docker主机上查找指定的镜像文件，在其不存在时，则会从docker hub registry上拉取
+所需的镜像文件；【如果找不到指定的镜像文件，docker build会返回一个错误信息】
+
+语法格式：
+FROM <repository>[:<tag>] 
+或者
+FROM <repository>@<digest>
+	<repository>：指定作为base image的名称；
+	<tag>：base image的标签，为可选项，省略时默认为latest；
+	<digest>：镜像hash码，避免被攻击，更安全；
+	
+例子：
+# Description: test image   【dockerfile注释行】
+FROM busybox:latest	   【必须是dockerfile第一行指令】
+
+
+（2）MAINTAINER（已废弃，由LABLE指令替代）
+用于让dockerfile制作者提供本人的详细信息；
+dockerfile并不限制MAINTAINER指令可在出现的位置，但推荐将其放置于FROM指令之后；
+
+语法格式：
+MAINTAINER <authtor's detail>
+	<authtor's detail>：可是任何文本信息，但约定俗称的使用作者名称及邮件地址；
+	
+例子：MAINTAINER "magedu <mage@magedu.com>"
+
+
+（3）LABEL
+用于指定镜像的各种元数据信息；k-v格式；
+可以使用多个LABEL指令；
+
+语法格式：
+LABEL <key>=<value> <key>=<value> <key>=<value>...
+
+例子：LABEL maintainer="magedu <mage@magedu.com>"
+
+
+（4）COPY
+用于从docker主机复制文件至创建的新映像文件；
+
+语法格式：
+COPY <src> ... <dest> 
+或者
+COPY ["<src>",... "<dest>"]
+	<src>：要复制的源文件或目录，支持使用通配符；
+	<dest>：目标路径，即正在创建的image的文件系统路径；建议为<dest>使用绝对路径，否则COPY指定则以WORKDIR为其起始路径；
+	
+注意：路径中有空白字符时，通常使用第二种格式；
+	  COPY指令可以有多条；
+
+文件复制准则：
+1）<src>必须是build上下文中的路径，不能是其父目录中的文件；
+2）如果<src>是目录，则其内部文件或子目录会被递归复制，但<src>目录自身不会被复制；
+3）如果指定了多个<src>，或在<src>中使用了通配符，则<dest>必须是一个目录，且必须以/结尾；
+4）如果<dest>事先不存在，它将会被自动创建，这包括其父目录路径；
+
+例子：
+##复制单个文件
+COPY index.html /data/web/html/
+##复制目录
+COPY yum.repos.d  /etc/yum.repos.d/     【会将build上下文中yum.repos.d目录下所有文件复制到容器/etc/yum.repos.d/目录中】
+
+
+（5）ADD
+ADD指令类似于COPY指令，ADD支持使用TAR文件和URL路径；
+
+语法：
+ADD <src> ... <dest>
+或者
+ADD ["<src>",... "<dest>"]
+
+操作准则：
+1）同COPY指令；
+2）如果<src>为URL且<dest>不以/结尾，则<src>指定的文件将被下载并直接被创建为<dest>;如果<dest>以/结尾，则文件名URL指定的文件将被直接下载并保存为<dest>/<filename>;
+3）如果<src>是一个本地系统上的压缩格式的tar文件，它将被展开为一个目录，其行为类似于"tar -x"命令；然而，通过URL获取的tar文件将不会自动展开；
+4）如果<src>有多个，或其间接或直接使用了通配符，则<dest>必须是一个以/结尾的目录路径；如果<dest>不以/结尾，则其被视作一个普通文件，<src>的内容将被直接写入到<dest>;
+
+例子：
+##通过URL获取的tar文件的情况
+ADD http://nginx.org/download/nginx-1.15.2.tar.gz /usr/local/src/   【会被拷贝，但不会被解压缩】
+
+##本地系统上的压缩格式的tar文件的情况
+ADD ./nginx-1.15.2.tar.gz /usr/local/src/       【会被解压缩到目标目录】
+
+
+（6）WORKDIR
+用于为dockerfile中所有的RUN、CMD、ENTRYPOINT、COPY和ADD指定设定工作目录；
+
+语法格式：
+WORKDIR <dirpath>
+	在dockerfile文件中，WORKDIR指令可出现多次，其路径也可以为相对路径，不过，其是相对此前一个WORKDIR指令指定的路径；
+	另外，WORKDIR也可调用由ENV指定定义的变量；
+	
+例子：
+WORKDIR /var/log
+WORKDIR $STATEPATH
+
+
+（7）VOLUME
+用于在image中创建一个挂载点目录，以挂载docker host上的卷或其他容器上的卷；【在dockerfile中只能指定容器中的卷目录，不能指定宿主机上的卷目录；而是由docker进程自动分配；所以对应的卷类型是docker-manage volume】
+
+语法格式：
+VOLUME <mountpoint>
+或者
+VOLUME ["<mountpoint>"]
+
+如果挂载点目录路径下此前在文件存在，docker run命令会在卷挂载完成后将此前的所有文件复制到新挂载的卷中；
+
+
+（8）EXPOSE
+用于为容器打开指定要监听的端口以实现与外部通信；
+
+语法格式：
+EXPOSE <port>[/<protocol>] [<port>[/<protocol>]...]
+	<protocol>:用于指定传输层协议，可谓tcp或udp二者之一，默认为tcp协议；
+	
+EXPOSE指令可一次指定多个端口；
+例如：
+EXPOSE 11211/tcp 11211/udp
+
+注：只能动态绑定宿主机随机端口；且只有docker run命令使用-P选项时，才会暴露端口；
+
+
+（9）ENV
+用于为镜像定义所需的环境变量，并可被dockerfile文件中位于其后的其他指令（如ENV、ADD、COPY等）所调用；
+
+调用格式为：$variable_name 或 ${variable_name}
+
+语法格式：
+ENV <key> <value> 
+或者
+ENV <key>=<value> ...
+
+第一种格式中，<key>之后的所有内容均会被视作其<value>的组成部分，因此，一次只能设置一个变量；
+第二种格式中，可以一次设置多个变量，每个变量为一个"<key>=<value>"的键值对，如果<value>中包含空格，可以以反斜线(\)进行转义，也可通过对<value>加引号进行标识；另外，反斜线也可用于续行；
+
+定义多个变量时，建议使用第二种方式，以便在同一层中完成所有功能；
+
+
+例子：
+ENV DOC_ROOT="/data/web/html/" \
+	WEB_SERVER_PACKAGE="nginx-1.15.2"
+	
+##引用
+COPY index.html ${DOC_ROOT:-/data/web/html/}     【这表示当DOC_ROOT没有定义也能指定默认值】
+
+##镜像运行为容器时查看环境变量
+docker run --name tinyweb1 --rm -P tinyhttpd:v0.1-7 printenv
+
+##启动容器传递变量
+docker run --name tinyweb1 --rm -P -e WEB_SERVER_PACKAGE="nginx-1.15.1" tinyhttpd:v0.1-7 printenv       【启动容器传递变量的值会覆盖该容器对应镜像中的变量的值】
+
+
+（10）RUN   【docker build阶段执行命令时使用RUN】
+用于指定docker build过程中运行的程序，其可以是任何命令；
+
+语法格式：
+RUN <command>
+或者
+RUN ["<executable>","<param1>","<param2>"]
+
+第一种格式中，<command>通常是一个shell命令，且以"/bin/sh -c"来运行它，这意味着此进程在容器中的PID不为1，不能接受Unix信号，因此，当使用docker stop <container>命令停止容器时，此进程接受不到SIGTERM信号；
+
+第二种语法格式中的参数是一个JSON格式的属组，其中<executable>为要运行的命令，后面的<paramN>为传递给命令的选项或参数；然而，此种格式指定的命令不会以"/bin/sh -c"来发起，因此常见的shell操作如变量替换以及通配符(?,*等)替换将不会进行，不过，如果要运行的命令依赖于shell特性的话，可以将其替换为类似下面的格式：
+	RUN ["/bin/bash","-c","<executable>","<param1>"]
+
+例子：
+RUN cd /usr/local/src && \
+	tar xf ${WEB_SERVER_PACKAGR} && \
+	mv nginx-* webserver                     【多条有关联的命令能写在一个RUN中，不要写多个，避免构建多层】
+
+RUN指令可以有多个；
+	
+
+（11）CMD 【docker run阶段执行命令时使用CMD】
+类似于RUN指令，CMD指令也可用于运行任何命令或应用程序，不过，二者的运行时间点不同；
+	1) RUN指令运行于映像文件构建过程中，而CMD指令运行于基于dockerfile构建出来的镜像文件启动一个容器时；
+	2）CMD指令的首要目的在于为启动的容器指定默认要运行的程序，且其运行结束后，容器也将终止；不过，CMD指定的命令其可以被docker run的命令行选项所覆盖；
+	3）在dockerfile中可以存在多个CMD指令，但仅最后一个生效。
+	
+语法格式：
+CMD <command>                            【这种格式会调用shell解释器执行命令，可以使用docker exec -it CONTAINER_NAME /bin/sh进入容器，且程序进程PID变为1】
+或者
+CMD ["executable","<param1>","<param2>"]   【这种格式默认不会调用shell进程执行命令，需要手动指定"/bin/sh","-c"】
+或者
+CMD ["<param1>","<param2>"]
+
+前两种语法格式的意义同RUN；
+第三种则用于为ENTRYPOINT指令提供默认参数；
+
+CMD只有一个有效；
+
+
+（12）ENTRYPOINT
+类似CMD指令的功能，用于为容器指定默认运行程序，从而使得容器像是一个单独的可执行程序；
+与CMD不同的是，由ENTRYPOINT启动的程序不会被docker run命令行指定的参数所覆盖，而且，这些命令行参数会被当做参数传递给ENTRYPOINT指定的程序；【不过，docker run命令的--entrypoint选项的参数可覆盖ENTRYPOINT指令指定的程序】
+
+ENTRYPOINT <command>
+ENTRYPOINT ["<executable>","<param1>","<param2>"]
+
+docker run命令传入的命令参数会覆盖CMD指令的内容并且附加到ENTRYPOINT命令最后作为其参数使用；
+dockerfile文件中可以存在多个ENTRYPOINT指令，但仅最后一个生效；
+
+例如：在一个dockerfile中同时定义了CMD和ENTRYPOINT,CMD定义的命令会被当做参数传递给ENTRYPOINT；
+
+CMD ["/bin/httpd","-f","-h ${WEB_DOC_ROOT}"]
+ENTRYPOINT /bin/sh -c                          【CMD定义的命令会被当做默认参数传递给ENTRYPOINT】
+
+如果需要明确定义自己要执行的命令时，需要写成下面这种格式：
+ENTRYPOINT ["/bin/sh","-c"]               【这样就只是运行"/bin/sh","-c"，且可以传递命令参数给它执行，这样会覆盖掉CMD中定义的命令】
+
+
+（13）USER
+用于指定运行image时的或运行dockerfile中任何RUN、CMD或ENTRYPOINT指令指定的程序时的用户名或UID；
+默认情况下，container的运行身份为root用户；
+
+语法格式：
+USER <UID> | <UserName>
+
+需要注意的是，UID可以为任意数字，但实践中其必须为/etc/passwd中某用户的有效UID，否则，docker run命令将运行失败。
+
+
+（14）HEALTHCHECK
+用于检测容器是否运行正常；
+
+语法格式：【两种格式】
+HEALTHCHECK [OPTIONS] CMD command       【通过运行一个命令来检测容器健康状态】
+或者
+HEALTHCHECK NONE               【禁止健康检查】
+
+常用OPTIONS（选项）如下：
+	--interval=NUM   【定义检测间隔，默认30s】
+    --timeout=NUM    【定义检测超时时长，默认30s】
+	--start-period=NUM 【开始检测时的等待时长，默认0s】
+	--retries=N      【定义重试次数，默认为3次】
+	
+常用检测command的状态码如下：
+	0：success
+	1：unhealth
+	2：reserved
+	
+例如：HEALTHCHECK --interval=5m --timeout=3s \
+		CMD curl -f http://localhost/ || exit 1         【健康监测间隔5m，超时时间3s，检测命令，失败了退出码为1】
+	
+	
+（14）SHELL
+用来定义运行程序中默认执行的shell程序；【很少用到】
+
+linux默认的shell为["/bin/sh","-c"]，windows上为["cmd","/S","/C"];
+
+语法格式：
+SHELL ["executable","paramters"]
+
+	
+（15）STOPSIGNAL
+用来定义传递给容器的退出的信号指令； 【这即是为什么使用docker stop可以关闭容器】
+
+语法格式：
+STOPSIGNAL signal
+
+
+（16）ARG
+用来在docker build过程中定义变量，且这些变量可以使用--build-arg动态传入值；
+
+例如：
+ARG author="MageEdu <mage@magedu.com>"       【定义author的默认值】
+docker build --build-arg author="hzzxin <hzzxin@qq.com>" -t myweb:v0.3-10 ./   【传入author的值，覆盖默认值】
+
+
+（17）ONBUILD
+用于在dockerfile中定义一个触发器；
+dockerfile用于build映像文件，此映像文件亦可以作为base image被另一个dockerfile用作FROM指令的参数，并以之构建新的映像文件；
+
+在后面的这个dockerfile中的FROM指令在build过程中被执行时，将会“触发”创建其base image的dockerfile文件中的ONBUILD指令定义的触发器；
+
+语法格式：
+ONBUILD <INSTRUCTION>
+
+尽管任何指令都可以注册成为触发器指令，但ONBUILD不能自我嵌套，且不会触发FROM和MAINTAINER指令；
+使用包含ONBUILD指令的dockerfile构建的镜像应该使用特殊的标签，例如：ruby:2.0-onbuild；
+在ONBUILD指令中使用ADD或COPY指令应该格外小心，因为新构建过程的上下文在缺少指定的源文件时会失败
+
+
+
+启动容器，如何保证在退出shell后，容器依然正常运行；
+shell中执行：nohup command &    【这表示将命令或进程丢到后台运行，并独立于其父shell，改变其父进程为init，即PID为1】
+容器中执行：exec COMMAND
+
+
+dockerfile案例：
+案例一：
+vim dockerfile
+
+FROM nginx:1.14-alpine
+
+ARG author="MageEdu <mage@magedu.com>"
+LABel maintainer=${author}
+
+ENV NGX_DOC_ROOT='/data/web/html'
+
+ADD index.html $NGX_DOC_ROOT/
+ADD entrypoint.sh /bin/bash
+
+EXPOSE 80/tcp
+
+HEALTHCHECK --start-period=3s CMD wget -O - -q http://${IP:-0.0.0.0}:${PORT:-80}/
+
+CMD ["/usr/sbin/nginx","-g","daemon off;"]
+ENTRYPOINT ['/bin/entrypoint.sh']
+
+
+##entrypoint.sh脚本如下：
+vim entrypoint.sh
+
+#!/bin/sh
+#
+cat > /etc/nginx/conf.d/www.conf <<EOF
+server {
+	server_name $HOSTNAME;
+	listen ${IP:-0.0.0.0}:${PORT:-80};
+	root ${NGX_DOC_ROOT:-/usr/share/nginx/html};
+}
+EOF
+
+exec "$@"                ##[这表示给脚本传递所有参数，且保证容器进程退出终端shell时，仍然运行]
+
+##创建容器
+docker run --name web1 --rm -p -e "PORT=8080" myweb:v0.3-6        【-e可以给entrypoint传递参数】

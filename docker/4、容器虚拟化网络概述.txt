@@ -1,0 +1,29 @@
+4、容器虚拟化网络概述
+
+Linux上6种名称空间：UTS,User,Mount,IPC,Pid,Net
+
+一个设备只能属于一个名称空间；
+
+网络名称空间：[Net]
+
+OVS（OpenVSwitch）：开放虚拟交换机，功能非常强大，可以实现三层交换、vlan等；
+
+SDN
+
+
+overlay network
+
+
+查看docker网络；docker network ls
+
+docker默认提供三种网络类型：
+	bridge：nat桥接网络；
+	host：宿主机网络；【让容器使用宿主机的网络名称空间】
+	none：空，无网络；例如：执行批处理任务的容器
+	
+容器网络，一半在容器上，一半在宿主机上，且被关联至docker0网卡上；
+	
+安装桥接网络工具：yum install bridge-utils -y
+查看网卡关联信息：brctl show
+
+查看docker网卡对象详细信息：docker network inspect bridge
