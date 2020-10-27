@@ -1,1 +1,1275 @@
+﻿Ansible详解：
 
+1、ansible入门
+
+	运维工作：系统安装（物理机、虚拟机）---> 程序包安装、配置、服务启动 ---> 批量操作 ---> 程序发布 ---> 监控
+	
+	运维工作大体分为以下几个层面：【以及这几个层面自动化的实现工具或手段】
+		（1）OS Provisioning：
+			物理机：PXE、Cobbler
+			虚拟机：Image Templates（即做成模板）
+			
+		（2）Configuration：【程序包安装、用户管理、配置管理、服务管理等等】
+			Puppet（ruby语言）：
+			saltstack（python）：
+			chef：
+			cfengine：
+			
+		（3）Command and Control：
+			fabric：
+			
+		
+		预发布验证：
+			新版本的代码先发布到服务器（跟线上环境配置完全相同，只是未接入到调度器）
+		
+		程序发布：
+			基本要求：
+				（1）不能影响用户体验；
+				（2）系统不能停机；
+				（3）不能导致系统故障或造成系统完全不可用；
+			
+			
+		灰度发布：
+			发布路径：利用软链接实现多个代码版本的切换；
+				
+			在调度器上下线一批主机（maintanace） ---> 关闭服务  ---> 部署新版本的应用程序  ---> 启动服务  ---> 在调度器上启用这一批服务器；
+		
+		
+		自动化灰度发布：脚本、发布平台；
+		【注：现在大部分公司都是自研自动化运维平台来智能化管理】
+
+		
+			
+		活着就有无限可能，在机遇来临之前，只能努力学习，保持良好心态，勇于向前；
+		
+	
+	运维工具的分类：
+		（1）agent：即有agent程序的管理工具；常用的有：puppet，func,saltstack等；
+		（2）agentless：即无agent程序的管理工具；常用的有：ansible，fabric等；依赖于ssh服务，轻量级；
+		
+	
+	今天主要讲解的是ansible工具：
+	
+		ansible可以实现的功能：
+			配置管理
+			发布部署
+			批量执行
+			多任务编排
+		
+		
+		ansible特点：
+			（1）无agent程序；
+			（2）部署简单，轻量级；
+			（3）高度模块化，通过调用特定的模块，完成特定的任务；
+			（4）依赖于ssh服务；
+			（5）基于YAML格式实现playbook（剧本）；
+			（6）支持多层次联排；
+			（7）支持自定义模块；支持任何语言开发自定义模块实现新功能；
+			（8）支持插件，实现功能扩展；
+			（9）基于python语言实现，由Paramiko、PyYAML和jinja2（模板语言）三个关键模块
+			（10）主从模式
+			（11）适用于小型服务器集群中（百台以下）；大型服务器集群puppet更适用；
+			
+			
+		ansible架构（结构）：
+			ansible cores：ansible核心程序；
+			plugins：
+			modules：
+				core modules
+				custom modules
+			playbook（使用yaml语言，使用jinjia2语言定义模板）：
+			
+			
+			
+		安装ansible：
+			ansible已经被收录到epel源中，所以可以通过配置epel源yum安装ansible；
+			
+			（1）下载并安装epel源；
+				到https://fedoraproject.org/wiki/EPEL下载对应linux系统发行版的epel源；
+				
+				rpm -ivh epel-release-latest-6.noarch.rpm 
+				
+			（2）安装ansible；
+				yum install ansible -y
+				
+				
+		ansible的配置文件：
+			/etc/ansible/ansible.cfg         【ansible主配置文件】
+			/etc/ansible/hosts          【ansible主机清单（即ansible能够管理哪些主机）；该文件可以定义主机组，主机变量等等】
+			
+			
+		简单应用：
+			ansible通过ssh实现配置管理、应用部署、任务执行等功能，因此，需要事先配置ansible管理端能基于密钥认证的方式联系各被管理节点。
+			
+			即需要配置ansible管理端ssh-key，并将公钥上传至每一台被管理节点，也就是通常说的免秘钥登录；
+				public-key免秘钥登录实现步骤：
+					（1）在ansible管理端使用ssh-key生成ssh-key；
+						ssh-key -t rsa -P ''
+						
+					（2）使用ssh-copy-id命令将ansible管理端的公钥放到每一台被管理节点上；
+						ssh-copy-id -i ./.ssh/id_rsa.pub root@192.168.80.6         【将ansible管理端的公钥保存到被管理端指定用户的.ssh目录下，并命名为authorized_keys，权限为600】
+						ssh-copy-id -i ./.ssh/id_rsa.pub root@192.168.80.7
+						
+						
+			ansible常用命令：
+				
+			（1）ansible
+				语法格式：ansible <host-pattern> [-f forks]  [-m module_name] [-a args]
+					-m module_name: 默认是command模块；
+					-f forks：表示并发的数量，即一次管理多少台主机，默认为5个；
+					-i PATH: 指明主机清单在什么地方；
+					-a args: 指明模块参数；
+					
+					
+			（2）ansible-doc   ---列出帮助信息；
+					ansible-doc -l ：列出ansible支持的模块；
+					ansible-doc -s + module_name: 列出ansible某个模块的用法 ；
+					
+					
+			
+			【注：如果想要使用ansible管理主机，需要先将被管理的主机节点加入到ansible的主机清单中；】
+				即需要先将被管理的节点定义在/etc/ansible/hosts文件中；
+					vim /etc/ansible/hosts
+					
+						定义语法如下：
+							单个主机定义：ip/hostname
+							主机组定义：
+								[hostgroup_name]
+								host1
+								host2
+								......
+								hostN
+								
+							定义多个主机：
+								www[001:006].example.com      【这表示001-006总共6台主机】
+								192.168.80.[6:7]         【这表示192.168.80.6和192.168.80.7两个主机】
+								
+								
+						例如：定义一个主机组，名称为myservers，包含主机有：192.168.80.6、192.168.80.7；
+							[myservers]
+							192.168.80.6
+							192.168.80.7
+							
+							
+			ansible简单应用案例：
+			（1）使用ansible查看被管理主机节点网卡信息；
+				ansible 192.168.80.6 -m command -a 'ifconfig'      【远程查看192.168.80.6的网卡信息】
+				ansible myservers -m command -a 'date'			【远程查看主机组myservers中所有主机的时间】
+				ansible all -m command -a 'ifconfig'         【查看所有定义在主机清单文件中的主机的网卡信息】
+				
+				
+				
+				
+
+				
+2、ansible常用模块详解				
+
+	ansible是高度模块化的一个自动化运维管理工具；
+	
+	
+	ansible常用模块：
+		（1）command：在远程主机上执行简单命令；command是默认模块，所以如果模块不指定，则默认是command；
+		
+			例如：ansible myservers -m command -a 'ping www.baidu.com -c 2'
+					命令执行成功显示：
+						192.168.80.6 | SUCCESS | rc=0 >>     【rc表示return code；返回状态码为，则表示成功】
+					命令执行失败显示：
+						192.168.80.6 | FAILED | rc=1 >>      【rc为非零的值表示执行失败】
+					
+		（2）user: 管理用户账号；
+			常用参数：
+				name=USERNAME：指定用户名称；
+				state={present|absent}：指定用户状态，present表示添加，absent表示删除；
+				shell={/bin/bash|/sbin/nologin}：指定用户shell；
+				uid=NUM：指定用户uid；
+				remove={yes|no}：删除用户时，是否一并删除家目录；类似于userdel -r；
+				system={yes|no}：yes表示添加系统用户，no表示添加普通用户；
+			
+			例1：在主机组myservers中所有机器上创建test用户；
+				ansible myservers -m user -a "name=test state=present"     【这表示在远程主机上创建test账号，参数name表示该用户的名称，参数state表示用户状态，存在还是不存在，present表示存在
+																			absent表示必须删除】
+				
+				ansible myservers -m user -a "name=test2 state=present shell=/sbin/nologin"  【这表示在远程主机上创建test2账号，并指定状态为存在，且明确shell为bash】
+				
+				
+			例2：在主机组myservers中所有主机上删除test用户；
+				ansible myservers -m user -a "name=test state=absent remove=yes"      【删除用户test，加上remove=yes，相当于userdel -r，一并删除该用户家目录】
+				
+		（3）group：管理组；
+			常用参数：
+				name=GROUPNAME：指定组名称；
+				state={present|absent}：指定组状态，present表示添加，absent表示删除；
+				gid=NUM：指定组id；
+				system={yes|no}：yes表示添加一个系统组，no表示添加一个普通组；
+				
+			例1：ansible myservers -m group -a "name=mygroup state=present gid=1001"   【添加一个名称为mygroup的组】
+			
+			
+			
+		（4）cron：管理定时任务；
+			常用参数：
+				name= ：为该定时任务添加描述信息，必须指定；
+				minute/hour/day/month/weekday: 指定时间，不指定，默认为*；
+				job：执行的命令；
+				state={present|absent}：指定定时任务状态，present表示添加，absent表示删除；默认为present
+				user=USERNAME：指定该定时任务执行用户；
+				
+				
+			例1：为所有主机添加时间同步的定时任务；
+				ansible all -m cron -a 'name="sync time from ntpserver" minute="*/5" job="/usr/sbin/ntpdate time.windows.com &>/dev/null"' 【等价于*/5 * * * * /sbin/ntpdate time.windows.com &>/dev/null；添加时间同步定时任务】
+				
+				
+			例2：删除所有主机上的时间同步定时任务；
+				ansible all -m cron -a 'name="sync time from ntpserver" state=absent'    【删除定时任务只需要指定name和state即可】
+				
+				
+		（5）copy：复制文件到远程主机；
+			常用参数：	
+				src=SRC_PATH：指定源文件路径；可以是绝对路径也可以是相对路径；
+				dest=DEST_PATH：指定目标文件路径，必须是绝对路径；
+				mode=权限：设置文件权限；
+				owner：设置文件属主；
+				group：设置文件属组；
+				context=：取代src，表示直接用此处指定的信息作为内容生成为目标文件；
+				
+			
+			例1：复制本地的/etc/fstab文件到myservers组中的所有主机的/tmp目录下，并重命名为fstab.master，并设置权限为600，属组属主都为zhengxin；
+				ansible myservers -m copy -a 'src=/etc/fstab dest=/tmp/fstab.master mode=600 owner=zhengxin group=zhengxin' 
+				
+				执行结果如果报如下错误，需要安装依赖的软件包：
+					192.168.80.6 | FAILED! => {
+							"changed": false, 
+							"checksum": "676db378b510676b78888fb9182bb0bab0a992f6", 
+							"failed": true, 
+							"msg": "Aborting, target uses selinux but python bindings (libselinux-python) aren't installed!"
+					}
+					【看报错，是缺少依赖的包，则安装相关的依赖包后(yum install libselinux-python -y)，再次执行该命令即可】
+					
+					
+		（6）file：专门用于设置文件属性的；
+			常用参数：
+				group:设置文件属组；
+				owner：设置文件属主；
+				mode：设置文件权限；
+				path=FILE_PATH: 指定文件路径；也可以使用name=，或者dest=都可以；
+				state={directory|link|hard|file|touch|absent}：当state=directory时，如果目录不存在，则会被创建；当state=file，即使文件不存在也不会被创建；当state=touch，如果文件不存在则会被创建，如果文件存在，则会更新文件的时间戳；当state=link，创建软链接；当state=absent，则目录会被递归删除；
+				recurse={yes|no}：递归设置目录下所有文件的权限；仅仅当state=directory有效；
+				src：仅仅当state=link时生效，软链接指向的真实文件的路径；
+				force={yes|no}：强制创建；
+				
+			例1：在myservers组中所有机器上创建/tmp/xindir/1/11多层目录，并递归设置目录权限为640；
+				ansible myservers -m file -a 'path=/tmp/xindir/1/11 state=directory recurse=yes mode=0640'
+				
+				
+			例2：在myservers组中所有主机上创建/tmp/xin.txt的软链接文件/tmp/xin.txt.symlink；
+				ansible myservers -m file -a 'path=/tmp/xin.txt.symlink src=/tmp/xin.txt state=link group=zhengxin owner=zhengxin'
+				
+			例3：删除myserver组中所有主机上的/tmp/xin.txt.symlink文件
+				ansible myservers -m file -a 'path=/tmp/xin.txt.symlink state=absent'
+				
+				
+				
+		（7）ping：检测主机是否在线的；
+			用法：ansible all -m ping        【无参数，返回pong说明主机在线】
+			
+			
+		（8）yum：使用yum管理软件包；【所有主机上yum源必须配置正确】
+			常用参数：	
+				name=PACKAGE_NAME: 表示安装的软件包的名称；
+				state={present|latest|remove(absent)}：安装或卸载软件包程序；latest表示最新版本；
+				
+			例1：为myservers中所有主机安装httpd软件；
+				ansible myservers -m yum -a 'name=httpd state=latest'      【state=latest表示安装最新版本】
+				
+				
+		（9）service：管理服务；
+			常见参数：
+				name=SERVICE_NAME：服务名称；
+				enabled={yes|no}：设置服务是否开机自启动的，yes为开机自启动，no为不启动；
+				state={started|restarted|stopped}:服务状态，started表示启动服务，stopped表示关闭服务，restarted表示重启服务；
+				
+			例1：启动myservers组中所有主机上nesttat'的httpd服务,并设置开机自启动；
+				ansible myservers -m service -a 'name=httpd state=started enabled=yes'
+				
+				
+		（10）shell：打开一个shell执行复杂命令，支持命令管道；【比如：echo xin | sed "s#xin#sss#g";这种带管道的命令，command模块无法实现，需要用到shell模块】
+			-a 'COMMAND'
+			
+			例1：ansible myservers -m shell -a 'sed -i "/^#ServerName/a ServerName $(hostname)" /etc/httpd/conf/httpd.conf'
+			
+			
+		（11）script：把本地脚本上传到远程主机上，执行完毕后删除；
+			-a 'LOCAL_PATH'
+			
+			例子：将ansible_test.sh脚本上传到远程主机上，并执行；
+				脚本内容：
+					#!/bin/bash
+					
+					echo "$(hostname),ansible is good..." >/root/ansible.log
+						
+				ansible myservers -m script -a '/root/ansible_test.sh'   【将本地脚本ansible_test.sh，放到远程主机上并执行，执行完毕后再删除】
+			
+		
+		（12）setup：收集远程主机信息到本地；all, hardware, network, virtual
+			常用参数：	
+				gather_subset={all|hardware|network|virtual}：指定收集什么模块的信息，如果在指定模块的前面加上!表示取反，不收集该模块信息；
+				
+				例子：收集myservers组中所有主机的所有信息；
+					ansible myservers -m setup     【-a可以不指定参数，也可以指定收集哪些模块的信息】
+					ansible myservers -m setup -a 'gather_subset=network'
+					
+					
+		（13）authorized_key：添加或删除ssh_key；
+			常用参数：
+				user：指定哪个用户下的authorized_key文件；
+				state：present表示添加，absent表示移除；
+				key：后面跟想要添加或想要删除的ssh_key；
+				
+				
+			例子：
+			ansible 10.200.138.180 -m authorized_key -a 'user=root key="ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA9gsE90D+XwEK7HFv5eNHr2ux9/yam/EeNmpOfIpjxh2dYerQdf6nC3ZRg5W1O+AQ1V395UU2ra+HrULQDrs1Bi/vgh8ULtT51H9koyYGbE+VxBl9x//UDh1DtuKki5xQhtyBscOXPocjNHQhM5QgxvNGEapK2yaEHt9KTXZYkUcu6hAMlDqs4gojZOLHeo2hWTtxGxr9bzmnYc/xXHGVfhQor1NxIAgICF3FArVORzf2jff+HESzZQPASPDRIkwRHlBaFMlfBN0zheq0rw8pgAKnfi/jHtrjiowHEggUzn0McBiM/LvVDvl1/ztjHS8wP2b9Zltmr6UTWMmwltOa6w== root@host-10-200-138-182" state=absent'
+			
+			
+		（14）fetch：ansible主机从远程主机拿取（或者说拷贝）文件；【fetch的意思是为：拿取，获取】 
+			常用参数：
+				dest：本地保存路径，默认情况，比如，如果你的保存目录为/tmp，远程主机上的源文件为/etc/profile，则保存至本地路径为：/tmp/remote_IP/etc/profile;
+				src：远程主机文件路径；【我使用的是ansible2.3.2，只支持拷贝文件，之后的版本会支持拷贝目录】
+				flat={yes|no}：如果该参数设为"yes"，则不会添加 hostname/path/to/file这个的格式到你指定的dest路径后面，但是本地保存路径一定要以"/"结尾，这样会直接把文件名添加到本地路径后面；【例如：dest=/tmp/，src=/etc/profile，则保存到本地的文件全路径为：/tmp/profile】
+			
+			例如：
+			（1）将远程主机上/etc/hosts文件拷贝到ansible端，保存至本地的/tmp目录下；【不加flat=yes参数时】
+				ansible 10.200.138.174 -m fetch -a "src=/etc/hosts dest=/tmp/"            【本地保存路径为：/tmp/10.200.138.174/etc/hosts】
+			（2）将远程主机上/etc/hosts文件拷贝到ansible端，保存至本地的/tmp目录下；【添加flat=yes参数时】
+				ansible 10.200.138.174 -m fetch -a "src=/etc/hosts dest=/tmp/ flat=yes"   【dest=/tmp/参数，结尾一定要用/结尾，否则会报错，但是执行结果却是正常的】
+				
+		（15）yum_repository：配置yum源模块；用于配置yum源。可以实现非常完整的yum仓库配置。但是一般只需简单的添加yum源即可。
+			常用参数：
+			baseurl      # 地址
+			mirrorlist   # 设置mirrorlist地址
+			description  # 描述信息
+			enabled      # 是否启用该仓库，默认为yes
+			file         # 保存此仓库的文件，不设置该项的话则默认以name选项中的名称命名，将自动以".repo"后缀结尾。
+			gpgcheck     # 是否要进行gpgcheck
+			name=        # 仓库的名称，要保证名称的唯一性
+			reposdir     # 保存.repo文件的目录，默认/etc/yum.repos.d/
+			state        # repo文件的状态，present/absent，默认present。
+			
+			例如：ansible 10.200.138.174 -m yum_repository -a 'name=aliyun_epel description="aliyun epel repo" baseurl="http://mirrors.aliyun.com/epel/6/$basearch/" enabled=yes gpgcheck=no'
+					
+		（16）debug：用于输出自定义的信息，类似于echo、print等输出命令。ansible中的debug主要用于输出变量值、表达式值，以及用于when条件判断时。使用方式非常简单。
+		     常用参数：
+			 msg        # 输出自定义信息。如果省略，则输出普通字符。
+             var        # 指定待调试的变量。只能指定变量，不能指定自定义信息，且变量不能加{{}}包围，而是直接的变量名。
+             verbosity  # 控制debug运行的调试级别，有效值为一个数值N。
+			 
+			 例如：- name: show script log
+                   debug: var=script_output.stdout verbosity=0     【变量为script_output，.stdout表示输出，verbosity=0表示详细输出】
+				
+					
+		（17）archive：归档模块；用于在远端压缩文件。当然，前提是在远端主机上要有对应的压缩工具。支持zip/gz/tar/bz2。
+			常用参数：
+			dest         # 目标归档文件名。除非path指定要压缩的是单文件，否则需要dest选项
+			format       # 指定压缩格式，默认为gz格式
+			group        # 文件/目录的所属组
+			owner        # 文件/目录的所有者
+			mode         # 设置文件/目录的的权限，支持'0644'或'u+rwx'或'u=rw,g=r,o=r'等格式
+			path=        # 要压缩的文件，可以是绝对路径，也可以是glob统配的路径，还可以是文件列表
+			remove       # 压缩后删除源文件
+			
+			# 将目录/path/to/foo/压缩为/path/to/foo.tgz
+			- archive:
+			  path: /path/to/foo
+			  dest: /path/to/foo.tgz
+
+			# 压缩普通文件/path/to/foo为/path/to/foo.gz并删除源文件，由于压缩的是单文件，所以可以省略dest选项
+			- archive:
+              path: /path/to/foo
+			  remove: True
+
+			# 将单文件/path/to/foo压缩为zip格式
+			- archive:
+			  path: /path/to/foo
+			  format: zip
+
+			# 将给定的文件列表压缩为bz2格式，压缩包路径为/path/file.tar.bz2
+			- archive:
+			  path:
+				- /path/to/foo
+				- /path/wong/foo
+			  dest: /path/file.tar.bz2
+			  format: bz2
+			  
+			  
+		（18）unarchive：解包模块；默认复制ansible端的归档文件到被控主机，然后在被控主机上进行解包。如果设置选项remote_src=yes，则表示解包被控主机上的归档文件。要求在被控主机上有对应的解包命令。unzip命令用于解压".zip"文件，gtar(tar包提供)命令用于解压".tar"、".tar.gz"、".tar.bz2"和".tar.xz"。
+		
+		（19）get_url：下载模块；
+			常用参数：
+		      backup    # 下载文件时同时创建一个名称中包含时间戳的备份文件
+              dest=     # 文件保存路径，必须为绝对路径。
+                        # 如果dest是一个目录，则使用url的base name作为文件名
+                        # 如果dest是一个目录，则'force'选项不生效
+                        # 如果dest是一个目录，则总是会下载目标文件，但只在已存在的文件变化了才会替换旧文件
+              force     # 如果设置为yes，且dest不是一个目录时，则总是会下载文件，但只在已存在的文件变化了才会替换旧文件
+                        # 如果设置为no(默认)，则只会在目录路径下不存在该文件时才会进行下载。
+              tmp_dest  # 下载时临时存放目录，在任务执行完成前会删除下载的临时文件
+              group     # 文件/目录的所属组
+              owner     # 文件/目录的所有者
+              mode      # 设置文件/目录的的权限，支持'0644'或'u+rwx'或'u=rw,g=r,o=r'等格式
+              timeout   # 请求url时的超时时间，默认10秒钟
+              url=      # 要下载的url路径，(http|https|ftp)://[user[:pass]]@host.domain[:port]/path
+                        # 还支持file格式的路径，实现复制功能。file:///path/to/file
+						
+		例如：
+		# 下载foo.conf，若/etc/foo.conf已存在，则不下载该文件
+          get_url:
+            url: http://example.com/path/file.conf
+            dest: /etc/foo.conf
+            mode: 0440
+
+        # 下载foo.conf到/tmp目录下，若/tmp/foo.conf已存在则检查文件是否相同，不相同则进行替换
+          get_url:
+            url: http://example.com/path/file.conf
+            dest: /tmp/
+
+        # 复制一个本地文件
+          get_url:
+            url: file:///tmp/afile.txt
+            dest: /tmp/afilecopy.txt
+			
+		（20）blockinfile：插入或更新或删除一段被标记的文本块（针对文本段操作）
+			常用参数：
+	        path：必带参数，指明操作对象；
+			marker：打标记；指明添加文本BEGIN 和 END的位置，便于修改或删除
+			block：指明文本端；也可以用content，一样；
+			insertafter="regex_expression"：表示插入到正则表达式匹配行的后面（如果匹配行有多个，选择最后匹配行）
+			insertbefore="regex_expression"：表示插入到正则表达式匹配行的前面（如果匹配行有多个，选择最后匹配行）
+			follow={yes|no}：如果文件是软链接则追踪到真实文件，进行修改；
+			backup={yes|no}：用于创建一个包含时间戳信息的备份文件。以便在错误的修改了文件的时候，能够找回原始的文件；
+			create={yes|no}：如果指定的文件不存在，则创建它；
+	
+		例如：添加jdk环境变量到/etc/profile文件中；
+			添加：
+			ansible 10.200.138.175 -m blockinfile -a "path=/tmp/test/profile marker='##{mark} add java_env by zhengxin 20180910' block='export JAVA_HOME=/usr/java/jdk\nexport CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar' backup=yes"
+			
+			删除：
+			ansible 10.200.138.175 -m blockinfile -a "path=/tmp/test/profile marker='##{mark} add java_env by zhengxin 20180910' state='absent'"
+			
+			修改（更新）
+			在block文本段中添加新的内容时，也会更新；
+			ansible 10.200.138.175 -m blockinfile -a "path=/tmp/test/profile marker='##{mark} add java_env by zhengxin 20180910' block='export JAVA_HOME=/usr/java/jdk\nexport CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar\nxin is good' backup=yes"
+			
+	
+		（21）lineinfile：替换或移除文件的单行；【针对单行文本的替换操作】
+			常用参数：
+			 path：必带参数，指明操作对象；
+			 backup={yes|no}：用于创建一个包含时间戳信息的备份文件。以便在错误的修改了文件的时候，能够找回原始的文件；
+			 backrefs={yes|no}:如果打开这个标记，backrefs会改变模块的一些操作：insertbefore和insertafter参数会被忽略。当regexp不匹配文件中的任何行时，文件不会做任何修改，否则 使用扩展的line参数 替换 最后一个匹配正则表达式的行;
+			 insertafter="regex_expression": 当regexp不匹配文件中的任何行的时候，会将新行插入到其所指定的正则表达式匹配的行中的最后一行的后面。insertafter也支持一个特殊的值：EOF（代表文件的末尾）。若没有匹配的行，那么就会插入EOF；
+			 insertbefore="regex_expression": 当regexp不匹配文件中的任何行的时候，会将line参数所指定的行，插入到insertbefore所指定的正则表达式匹配的行中的最后一行的前面，当insertbefore所指定的正则表达式不匹配任何行时，会插入到文件的末尾，同时insertbefore还可以是一个特殊的值：BOF（代表文件的开始）；否则，会使用line参数所指定的行替换regexp所匹配的行中的最后一行。
+			 line：要插入或者替换的行。如果设置了backrefs参数，那么line中可以包含位置分组或命名分组，lineinfile模块会使用regexp捕获的分组填充它们；
+			 regexp：用于搜索文件中的每一行的正则表达式。对于state=present，这个正则表达式所匹配的行中的最后一行会被替换；对于state=absent，会删除所有匹配的行；
+	
+			例如：
+			文本替换（/etc/selinux/config）
+				ansible test -m lineinfile -a "path=/etc/selinux/config regexp='^SELINUX=' line='SELINUX=disabled'"
+			
+			删除行：
+				将/tmp/test.sh文件中所有匹配^pwd的行删除；
+				ansible test -m lineinfile -a "path=/tmp/test.sh regexp='^pwd' state=absent"
+			
+			新增一行（如果line不存在，则直接添加一行）
+				ansible test -m lineinfile -a "path=/root/test.sh line='liuhao test'"
+			 
+			backrefs的用法：
+				backrefs为no时，如果没有匹配，则添加一行line。如果匹配了，则把匹配内容替换为line内容。
+				backrefs为yes时，如果没有匹配，则文件保持不变。如果匹配了，把匹配内容替换为line内容。【且能使用扩展表达式，能使用后向引用】
+				
+				示例文本如下：
+				vim 1.txt
+					this is good
+					xin is good
+					pwd
+					dsd
+					2dsdv4
+					
+				例1：匹配以this开头的行，将this替换成that；【匹配到了，所以替换完成】
+				ansible 10.200.138.175 -m lineinfile -a "path=/tmp/test/1.txt regexp='^(this)(.*)' line='that\2' backrefs=yes"   【\2表示后向应用，将正则表达式中的第2个括号的内容引用过来】
+				
+				例2：匹配s开头的行，将整行替换掉为"ssss__ssss"；【backrefs=no时，匹配不到，末尾会新增一行】
+				ansible 10.200.138.175 -m lineinfile -a "path=/tmp/test/1.txt regexp='^s' line='ssss__ssss'"
+				
+				匹配s开头的行，将整行替换掉为"ssss__ssss"；【backrefs=yes时，匹配不到，文件保持不变】
+				ansible 10.200.138.175 -m lineinfile -a "path=/tmp/test/1.txt regexp='^s' line='ssss__ssss' backrefs=yes"
+				
+		
+		（22）replace：可以根据我们指定的正则表达式替换文件中的字符串，文件中所有被匹配到的字符串都会被替换。【多行替换、移除】
+			常用参数：
+			path：必须参数，指定要操作的文件，2.3版本之前，只能使用 dest, destfile, name指定要操作的文件，2.4版本中，仍然可以使用这些参数名，这些参数名作为 path 参数的别名使用；
+			regexp: 必须参数，指定一个 python 正则表达式，文件中与正则匹配的字符串将会被替换；   【可以使用扩展表达式】
+			replace ：指定最终要替换成的字符串；
+			backup ：是否在修改文件之前对文件进行备份，最好设置为yes。
+			
+			例子：
+			匹配2.txt文件中所有以xin开头的行，并将新字符串替换为bob；
+			ansible 10.200.138.175 -m replace -a "path=/tmp/test/2.txt regexp='^(xin)(.*)' replace='bob\2'"        【可支持后向引用】
+			或者
+			ansible 10.200.138.175 -m replace -a "path=/tmp/test/2.txt regexp='^xin' replace='bob"
+				
+				
+				
+					
+3、ansible的playbooks
+
+	playbook：将多个要执行的任务编排在一个文件中，这个文件就叫playbook（剧本）；
+
+	一个完整playbook核心元素：
+			Tasks	【任务】
+			Variables 【变量】
+			Templates 【模板（根据客户端实际情况设置文件参数）】
+			Handlers  【处理器（当配置文件改变，则重载服务）】
+			Roles	  【角色 （任务分配）】
+			
+	
+	YAML介绍：
+		YAML是一个可读性高的用来表达资料序列的格式，YAML参考了其他多种语言，包括：xml、c、python、perl以及电子邮件格式RFC2822
+	等，Clank Evans在2001年首次发表了这种语言；
+	
+		YAML Ain't Markup Language，即YAML不是XML，不过，在开发的这种语言，YAML的意思是：YET Another Markup Language（仍是一种标记语言））
+	其特性如下：
+		YAML的可读性好；
+		YAML和脚本语言交互性好；
+		YAML使用实现语言的数据类型；
+		YAML有一个一致的信息模型；
+		YAML易于实现；
+		YAML可以基于流来处理；
+		YAML表达能力强，扩展性好；
+		
+		
+	YAML语法：
+		YAML语法和其他高阶语言类似，并且可以简单表达清单、散列表、标量等数据结构，其结构通过空格来展示，序列里的项用"-"来
+	代表，Map里的键值对用":"分隔，下面是一个示例：
+	
+	name: John Smith
+	age: 41
+	gender: Male
+	spouse:
+		name: Jane Smith
+		age: 37
+		gender: Female
+	children:                             【缩进代表一个键有多个值】
+		-	name: Jimmy Smith                    
+			age: 17
+			gender: Male
+		-	name: Jenny Smith
+			age: 13
+			gender: Female
+			
+	YAML文件扩展名通常为.yaml，如example.yaml；
+	
+	
+	
+	
+	list：列表中的所有元素均使用"-"打头，例如：
+		#a list of tasty fruits
+		- Apple
+		- Orange
+		- Strawberry
+		- Mango
+		
+	
+	dictionary：字典通过key与value进行标识，例如：
+		---
+		#An employee record
+		name: Example Developer
+		job: Developer
+		skill: Elite
+		
+		
+		也可以将key:value放置于{}中进行表示，例如：
+		---
+		#An employee record
+		{name: Example Developer, job: Developer, skill: Elite}
+		
+		
+	
+	Ansible的基本元素：
+		
+	变量：变量名仅仅能由字母、数字和下划线组成，且只能以字母开头；
+		
+		facts：facts由正在通信的远程目标足迹发回的信息，这些信息被保存在ansible变量中，要获取指定的远程主机所支持的所有facts。
+		可使用如下的命令进行：
+			# ansible hostname -m setup
+			
+			
+		register：把任务的输出定义为变量，然后用于其他任务，示例如下：
+		
+			tasks:
+				- shell: /usr/bin/foo
+				  register: foo_result
+				  ignore_errors: True
+				  
+		
+		通过命令行传递变量：
+		
+			在运行playbook时也可以传递一些变量供playbook使用，示例如下：
+				ansible-playbook test.yaml --extra-vars "hosts=www user=mageedu"
+				
+				
+		通过roles传递变量：
+			
+			当给一个主机应用角色的时候可以传递变量，然后再角色内使用这些变量，示例如下：
+				- hosts: websevers
+				  roles:
+					- common
+					- { role: foo_app_instance, dir: '/web/htdocs/a.com', port: 8080 }
+					
+					
+		Inventory:
+			ansible的主要功能在于批量主机操作，为了便捷地使用其中部分主机，可以在inventory file中将其分组命名，默认的inventory 
+		file为/etc/ansible/hosts;
+		
+			inventory file可以有多个，且亦可以通过Dynamic Inventory来动态生成；
+			
+		
+		Inventory文件格式：
+			inventory文件遵循INI文件风格，中括号中的字符代表组名，可以将同一个主机同时归并到多个不同的组中，
+		此外，当如若目标主机使用了非默认的ssh端口，还可以在主机名称之后使用冒号加端口号来表明；
+		
+			例如：
+			
+				ntp.agedu.com
+
+				[webservers]
+				www1.magedu.com:2222       【这表示该台主机ssh端口为2222，ansible管理机通过该端口连接执行远程操作】
+				www.magedu.com
+				
+				[dbservers]
+				db1.magedu.com
+				db2.magedu.com
+				db3.magedu.com
+				
+				
+			如果主机名称遵循相似的命名模式，还可以使用列表的方式标识各主机，例如：
+				
+				[webservers]
+				www[01:50].example.com       【这表示www01.example.com到www50.example.com共50台主机】
+				
+				[databases]
+				db-[a:f].example.com
+				
+				
+		
+		主机变量：
+			可以在inventory中定义主机时为其添加主机变量以便在playbook中使用，例如：
+				
+				[websevers]
+				www1.magedu.com http_port=80 maxRequestsPerChild=808
+				www2.magedu.com http_port=8080 maxRequestsPerChild=909
+				
+		
+		组变量：
+			组变量是指赋予给指定组内所有主机上的在playbook中可用的变量，例如：
+				
+				[webservers]
+				www1.magedu.com
+				www2.magedu.com
+				
+				[webservers:vars]
+				ntp_server=ntp.magedu.com
+				nfs_server=nfs.magedu.com
+				
+		
+		组嵌套：
+			inventory中，组还可以包含其他的组，并且也可以向组中的主机指定变量，不过，这些变量只能在ansible-playbook中使用，
+		而ansible不支持，例如：
+		
+				[apache]
+				httpd1.magedu.com
+				httpd2.magedu.com
+				
+				[nginx]
+				ngx1.magedu.com
+				ngx2.magedu.com
+				
+				[webservers:children]
+				apache
+				nginx
+				
+				[websevers:vars]
+				ntp_servers=ntp.magedu.com
+				
+				
+		inventory参数：【可以定义在每个主机后面的】
+			absible基于ssh连接inventory中指定的远程主机时，还可以通过参数指定其交互方式，这些参数如下所示：
+			
+			ansible_ssh_host：连接的主机名称；
+			ansible_ssh_user：连接主机的用户名；
+			ansible_ssh_pass：连接密码；
+			ansible_sudo_pass：sudo密码；
+			
+			
+		
+	ansible playbook：
+		playbook是由一个或多个“play”组成的列表，play的主要功能在于将事先归并为一组的主机装扮成事先通过ansible中的task定义好的角色。
+	从根本上讲，所谓tasks无非是调用ansible一个module，将多个play组织在一个playbook中，即可以让他们联同起来按照事先编排的机制同唱一台
+	大戏，下面是一个简单示例：
+	
+		- hosts: webnodes                                【相关的主机组】
+		  vars:                                          【定义主机组变量】
+			http_port: 80
+			max_clients: 256
+		  remote_user: root                              【定义执行任务的远程用户】
+		  tasks:
+		    - name: ensure apache is at the latest version             
+		      yum: name=httpd state=latest                        【调用yum模块，安装最新版本的httpd】
+		    - name: ensure apache is running
+		      service: name=httpd state=started                   【启动httpd】
+		  handlers:
+			- name: restart apache
+			  service: name=httpd state=restarted               【定义处理器，当配置发生改变触发的动作，重启apache】
+			  
+			  
+			  
+		
+		语法格式：
+			- hosts:          【指定要操作的主机或主机组】
+				vars：
+				remote_user： 【指定执行任务的远程用户】
+				tasks：      【任务列表】
+					-
+					-
+					-
+					-
+				variables：
+					-
+					-
+				handlers：
+					-
+					-
+				
+	playbook基础组件：
+	
+		<1>Hosts和Users
+			playbook中的每一个play的目的都是为了让某个或某些主机以某个指定的用户身份执行任务；hosts用于指定要执行指定任务的主机，其可以是一个
+		或多个由冒号分隔的主机组；remote_user则用于指定远程主机上的执行任务的用户，如上面示例中的：
+			例：-hosts: webnodes
+				 remote_user: root
+				 
+			不过，remote_user也可以用于各task中，也可以通过指定其通过sudo的方式在远程主机上执行任务，其可用于play全局或某任务；此外甚至可以在
+		sudo时使用sudo_user指定sudo时切换的用户；
+			例如：- hosts: webnodes
+					remote_user: magedu
+					tasks:
+						- name: test connection
+						  ping:
+						  remote_user: magedu
+						  sudo: yes
+		
+		
+		<2>任务列表和action
+			play的主体部分是task list，task list中的各任务按次序逐个在hosts中指定的所有主机上执行，即在所有主机上完成第一个任务后再开始第二个；在
+		运行自上而下某playbook时，如果中途发生错误，则所有已执行任务都将回滚，因此，在更正playbook后重新执行一次即可；
+		
+			task的目的是使用指定的参数执行模块，而在模块参数中可以使用变量，模块执行是幂等的，这意味着多次执行是安全的，因为其结果均一致；
+			
+			每个task都应该有其name，用于playbook的执行结果输出，建议其内容尽可能清晰地描述任务执行步骤，如果未提供name，则action的结果将用于输出；
+			
+			定义task的可以使用"action: module options"或"module: 
+			options"的格式,推荐使用后者以实现向后兼容，如果action一行的内容过多，也可以使用在行首使用几个空白字符进行换行；
+			
+				例如：tasks:
+						- name:	make sure apache is running
+						  service: name=httpd state=started
+				
+				在众多模块中，只有command和shell模块仅需要给定一个列表而无需使用"key=value"格式；
+				例如：tasks:
+						- name: disable selinux
+						  command: /sbin/setenforce 0
+						  
+				如果命令或脚本的退出码不为零，可以使用如下方式替代：
+					tasks: 
+					   - name: run this command and ignore the result
+						 shell: /usr/bin/somecommand || /bin/true
+						 
+						 
+				或者使用ignore_errors来忽略错误信息：
+					tasks:
+					   - name: run this command and ignore the result
+					     shell: /usr/bin/somecommand
+						 ignore_errors: True
+						 
+				
+			<3>handlers：
+				用于当关注的资源发生变化时采取一定的操作；
+				
+				"notify"这个action可用于在每个play的最后被触发，这样可以避免多次有改变发生时每次都执行指定的操作，取而代之，仅在所有的变化发生完成
+			后一次性执行指定操作，在notify中列出的操作称为handler，也即notify中调用handler中定义的操作；
+				例如：
+					- name: template condiguration file
+					  template: src=template.j2 dest=/etc/foo.conf
+					  notify:
+						- restart memcached
+						- restart apache
+						
+				handler是task列表，这些task与前面的task并没有本质上的不同；
+				例如：
+					handlers:
+						- name: restart memcached
+						  service: name=memcached state=restarted
+						- name: restart apache
+						  service: name=apache  state=restarted
+						  
+				
+		案例1：
+			vim heartbeat.yaml
+			
+				- hosts: myservers
+				  remote_user: root
+				  tasks:
+					- name: ensure heartbeat latest version
+					  yum: name=heartbeat state=present
+					- name: authkeys configure file
+					  copy: src=/root/hb_conf/authkeys  dest=/etc/ha.d/authkeys
+					- name: authkeys mode 600
+					  file: path=/etc/ha.d/authkeys mode=600
+					  notify:
+						- restart heartbeat
+					- name: ha.cf configuration file
+					  copy: src=/root/hb_conf/ha.cf  dest=/etc/ha.d/ha.cf
+					  notify:
+						- restart heartbeat
+				handlers:
+					- name: restart heartbeat
+					  service: name=heartbeat  state=restarted
+					  
+					  
+					  
+
+			<4>条件测试
+				如果需要根据变量、facts或此前任务的执行结果来作为某task执行与否的前提时要用到条件测试；
+				
+				<4.1>when语句：
+					在task后添加when子句即可使用条件测试，when语句支持jinja2表达式语法；例如：
+					
+					tasks:
+						- name: "shutdown debian flavored systems"
+						  command: /sbin/shutdown -h now
+						  when: ansible_os_family == "debian"
+						  
+					when语句中还可以使用jinja2的大多"filter"，例如要忽略此前某语法的错误并基于结果（failed或suess）运行
+				后面指定的语句，可使用类似如下形式：
+				
+					tasks：
+						- command: /bin/false
+						  register: result
+						  ignore_errors: True
+						- command: /bin/something
+						  when: result|failed
+						- command: /bin/something_else
+						  when: result|success
+						- command: /bin/still/something_else
+						  when: result|skipped
+						  
+					此外，when语句中还可以使用facts或playbook中定义的变量；
+					
+					简单示例：
+					- hosts: all
+					  remote_user: root
+					  vars:
+					  - username: user10
+					  tasks:
+					  - name: create {{ username }} user
+					    user: name={{ username }}
+						when: ansible_fqdn == "node2.magedu.com"
+
+					  
+					  
+			<5>迭代
+				当有需要重复性执行的任务时，可以使用迭代机制，其使用格式为将需要迭代的内容定义为item变量引用，并通过with_items
+			语句来指明迭代元素列表即可；
+			
+				例如：
+					- name: add several users
+					  user: name={{ item }} state=present groups=wheel
+					  with_items:
+						- testuser1
+						- testuser2
+						
+				上面的语句的功能等同于下面的语句：
+				
+					- name: add user testuser1
+					  user: name=testuser1 state=present groups=wheel
+					- name: add user testuser2
+					  user: name=testuser2 state=present groups=wheel
+					  
+				事实上，with_items中可以使用元素还可为hashes，例如：
+				
+					- name: add several users
+					  user: name={{ item.name }} state=present groups={{ item.groups }}
+					  with_items:
+						- { name: 'testuser1',groups: 'wheel' }
+						- { name: 'testuser2',groups: 'root' } 
+						
+				【注意：with_items中的列表值也可以是字典，但引用时要使用item.KEY】
+					如：- {name: apache,conf: /etc/httpd/conf/httpd.conf}
+			
+		
+4、jinja2相关
+
+	4.1、字面量
+		表达式最简单的形式就是字面量，字面量表示诸如字符串和数值的python对象，下面的字面量是可用的；
+		
+		"Hello World"：
+		双引号或单引号中间的一切都是字符串，无论何时你需要在模板中使用一个字符串（比如函数调用、过滤器或只是包含或继承
+		一个模板的参数）；
+		
+		42 / 42.23:
+		直接写下数值就可以创建整数和浮点数；如果有小数点，则为浮点数，否则为整数；记住在python里,42和42.0时不一样的；
+		
+		['list','of','objects']:
+		一对中括号括起来的东西是一个列表，列表用于存储和迭代序列化的数据，例如：你可以容易的在for循环中用列表和元组创建一个链接
+		的列表：
+		
+		<ul>
+		{% for href,caption in [('index.html','Index'),('about.html','About'),('downloads.html','Downloads')]%}
+			<li><a href="{{ href }}">{{ caption }}</a></li>
+		{% endfor %}
+		</ul>
+		
+		
+		('tuple','of','values'):
+		元组与列表相似，只是你不能修改元组，如果元组中只有一个项，你需要以逗号结尾它，元组通常用于表示两个或更多元素的项；
+		
+		{'dict':'of','key':'and','value':'pairs'}:
+		python中的字典是一种关联键和值的结构，键必须是唯一的，并且键必须只有一个值，字典在模板中很少使用，罕用于诸如xmlattr()
+		过滤器之类
+		
+		true / false：
+		true永远是true，而false始终是false；
+		
+	
+	4.2、算数运算：
+	
+		+
+		-
+		*
+		/：对两个数做除法，返回值会是一个浮点数；{{ 1 / 2 }}等于{{ 0.5 }}
+		//：对两个数做除法，返回整数商；如{{ 20 // 7 }}等于2；
+		%
+		**：取左操作数的右操作数次幂；如{{ 2**3 }}会返回8；
+		
+		例如：
+			nginx.conf
+				worker_processes {{ ansible_processor_cores * ansible_processor_count }}
+				
+				
+		ansible的template模块，根据模板文件生成每个主机对应的文件【template文件可以接受定义的组变量】：
+			例如：nginx的配置文件，在ansible server主机上定义一个/etc/nginx/conf.d/default.conf.template文件，
+			
+			在/etc/ansible/hosts文件中定义如下变量：
+				[myservers]
+
+				192.168.80.6 nginx_port=8086
+				192.168.80.7 nginx_port=8087
+
+			
+			vim /etc/nginx/conf.d/default.conf.template
+			
+				#
+				# The default server
+				#
+
+				server {
+					listen       {{ nginx_port }} default_server;              【传递定义的组变量nginx_port】
+					listen       [::]:{{ nginx_port }} default_server;
+					server_name  _;
+					root         /usr/share/nginx/html;
+
+					# Load configuration files for the default server block.
+					include /etc/nginx/default.d/*.conf;
+
+					location / {
+					}
+
+					error_page 404 /404.html;
+						location = /40x.html {
+					}
+
+					error_page 500 502 503 504 /50x.html;
+					location = /50x.html {
+					}
+
+				}
+				
+				
+			定义的template.yaml文件如下：
+			
+			- hosts: myservers
+			  remote_user: root
+              tasks:
+				- name: genarate nginx.conf file
+				  template: src=/root/nginx.conf.template dest=/etc/nginx/nginx.conf
+				  notify:
+					- restart nginx
+				- name: genarate default-server file
+				  template: src=/etc/nginx/conf.d/default.conf.template dest=/etc/nginx/conf.d/default.conf
+				  notify:
+					- restart nginx                           【notify是触发相应的handlers操作】
+			  handlers:
+				- name: restart nginx
+				  service: name=nginx state=restarted
+			
+				
+		
+
+		ansible的playbook可以直接在playbook内定义变量，也可以使用命令行传递变量：
+		
+			<1>直接在playbook中定义变量：
+				例如：为myservers组中所有主机安装telnet-server软件包；
+					vim install_telnet.yml
+					
+					- hosts: myservers
+					  remote_user: root
+                      vars:                                   【vars字段用于定义全局变量】
+						package: telnet-server                【定义变量package=telnet-server】
+                      tasks:
+						- name: install package
+						  yum: name={{ package }} state=present       【这里{{ package }}就是引用前面定义的package变量值】
+						  
+					ansible-playbook install_yml   【执行install_telnet.yml即可完成安装任务】
+					
+			<2>直接使用ansible-playbook的-e参数传递变量；
+			
+				例如：为myservers组中的所有主机安装samba软件包；
+					vim install_samba.yml
+					
+					- hosts: myservers
+					  remote_user: root
+					  tasks:
+						- name: install package
+						  yum: name={{ package }} state=present       【这里引用了package变量，但是playbook中并没有定义】
+						  
+					ansible-playbook -e "package=samba" install_samba.yml    【命令行使用-e "VAL=value"向playbook中传递变量】
+					
+					
+				ansible中引用变量需要使用{{ vars }}这种格式；	
+					
+					
+5、ansible之roles
+
+	ansible自1.2版本引入的新特性，用于层次性、结构化的组织playbook，roles能够根据层次性结构自动装载变量文件、tasks以及handlers
+等，要是用roles只需要在playbook中使用include指定即可，简单来讲，roles就是通过分别将变量、文件、任务、模块以及处理器放置于单独的
+目录中，并可以便捷地include它们的一种机制，角色一般用于基于主机构建服务的场景中，但也可以是用于构建守护进程等场景中。
+
+	一个roles的案例如下所示：
+		site.yml
+		webservers.yml
+		foolservers.yml
+		roles/
+			common/
+				files/
+				template/
+				tasks/
+				handlers/
+				vars/
+				meta/
+			webservers/
+				files
+				template/
+				tasks/
+				handlers/
+				vars/
+				meta/
+				
+	而在playbook中，可以这样使用roles：
+		---
+		- hosts: webservers
+		  roles:
+			- common
+			- webservers
+			
+	也可以向roles传递参数，例如：
+		---
+		- hosts: webservers
+		  roles:
+			- common
+			- { role: foo_app_instance,dir: '/opt/a', port: 5000 }
+			- { role: foo_app_instance,dir: '/opt/b', port: 5001 }
+			
+	甚至也可以条件式地使用roles，例如：
+		---
+		- hosts: webservers
+		  roles:
+			- { role: some_role, when: "ansible_os_family == 'redhat'" }
+			
+			
+	
+	创建role的步骤：
+		（1）创建以roles命名的目录；
+		（2）在roles目录中分别创建以各角色名称命名的目录，如webservers等；
+		（3）在每个角色命名的目录中分别创建files、handlers、meta、tasks、templates和vars目录；用不到的目录可以创建为空目录，也可以不创建；
+		（4）在playbook文件中，调用各角色；
+	
+	role内各个目录中可用的文件：
+		tasks目录：至少应该包含一个名为main.yml的文件，其定义了此角色的任务列表；此文件可以使用include包含其他的位于此目录中的task文件；
+		files目录：存放有copy或script等模块调用的文件；
+		templates目录：template模块会自动在此目录中寻找jinja2模块文件；
+		handlers目录：此目录中应该包含一个main.yml文件，用于定义此角色用到的handler；在handler中使用include包含的其他的handler文件也应该位于
+		此目录中；
+		vars目录：应当包含一个main.yml文件，用于定义此角色用到的变量；
+		meta目录：应当包含一个main.yml文件，用于定义此角色的特殊设定及其依赖关系；ansible1.3及之后版本才支持；
+		default目录：为当前角色设定默认变量时使用此目录；应当包含一个main.yml文件；
+		
+	
+
+	roles案例：
+	
+	<1>创建目录；
+		mkdir -pv ansible_playbooks/roles/{synctime,nginx,mariadb}/{files,templates,vars,tasks,handlers,meta}
+		
+	<2>首先是同步时间的任务，步骤如下：
+		vim ansible_playbooks/roles/synctime/tasks/main.yml
+		内容如下：
+			
+		  - name: sync time from ntp_servers
+		    cron: name="sync time from ntp_servers" minute="*/5" job="/usr/sbin/ntpdate time.windows.com &>/dev/null" state=present
+			  
+	<3>	其次是nginx安装及上传nginx.conf配置文件；
+		vim ansible_playbooks/roles/nginx/templates/nginx.conf6.j2      【定义nginx.conf的模板文件】
+		内容如下：
+		
+		# For more information on configuration, see:
+#   * Official English Documentation: http://nginx.org/en/docs/
+#   * Official Russian Documentation: http://nginx.org/ru/docs/
+
+user nginx;
+worker_processes {{ ansible_processor_cores * ansible_processor_count }};  【设置nginx启动进程数与变量有关，这样每个客户端可以根据自己实际情况设置不同的启动进程数】
+error_log /var/log/nginx/error.log;
+pid /var/run/nginx.pid;
+
+# Load dynamic modules. See /usr/share/nginx/README.dynamic.
+include /usr/share/nginx/modules/*.conf;
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile            on;
+    tcp_nopush          on;
+    tcp_nodelay         on;
+    keepalive_timeout   65;
+    types_hash_max_size 2048;
+
+    include             /etc/nginx/mime.types;
+    default_type        application/octet-stream;
+
+    # Load modular configuration files from the /etc/nginx/conf.d directory.
+    # See http://nginx.org/en/docs/ngx_core_module.html#include
+    # for more information.
+    include /etc/nginx/conf.d/*.conf;
+}
+
+
+
+	vim ansible_playbooks/roles/nginx/tasks/main.yml         【定义nginx任务的tasks】
+	内容如下：
+	- name: install nginx
+	  yum: name=nginx state=latest
+    - name: generate config file for ansible-client1
+      template: src=nginx.conf6.j2 dest=/etc/nginx/nginx.conf
+      when: ansible_fqdn == "ansible-client1"
+      notify:
+        - restart nginx
+    - name: generate config file for ansible-client2
+      template: src=nginx.conf7.j2 dest=/etc/nginx/nginx.conf
+      when: ansible_fqdn == "ansible-client2"
+      notify:
+        - restart nginx
+    - name: start nginx
+      service: name=nginx state=started enabled=yes
+
+	
+	
+	vim ansible_playbooks/roles/nginx/handlers/main.yml     【定义nginx任务的handlers】
+	内容如下：
+	- name: restart nginx
+	  service: name=nginx state=restarted
+	  
+	  
+	<4>最后是安装mysql和mysql-server软件包任务；
+		vim ansible_playbooks/roles/mariadb/tasks/main.yml
+		内容如下：
+		- name: install mysql and mysql-server
+		  yum: name={{ item }} state=present
+		  with_items:
+			- mysql
+			- mysql-server
+		- name: start mysql-server
+		  service: name=mysqld state=started enabled=yes
+
+		
+	<5>定义playbook引用刚刚创建的roles
+		vim new_nginxserver.yml                 【定义playbook调用roles中的任务，需要注意的是，该yml文件必须在ansible_playbooks内】
+		内容如下：
+			- hosts: myservers
+			  remote_user: root
+			  roles:
+			  - synctime
+			  - nginx
+			  - mariadb
+			  
+			  
+		ansible-playbook ansible_playbooks/new_nginxserver.yml       【执行该playbook，完成上述任务的一键安装】
+		
+		
+
+6、ansible之tags
+
+	tags用于让用户选择运行playbook中的部分代码，ansible具有幂等性，因此会自动跳过没有变化的部分，即便如此，有些代码为测试其
+确实没有发生变化的时间依然会非常的长，此时，如果确信其没有变化，就可以通过tags跳过此些代码片段；
+
+	在playbook中可以为某个或某些任务定义一个“标签”，在执行此playbook时，通过为ansible-playbook命令使用--tags选项能实现仅运行指定
+的tasks而非所有的；
+
+	例如：
+	- name: install configuration file for httpd
+	  template: src=/root/templates/httpd.conf.j2 dest=/etc/httpd/conf/httpd.conf
+	  tags:
+	  - conf
+	  
+	 特殊的tags：always
+	
+	
+
+题目1：使用ansible playbook完成配置keepalived的集群的集群；
+
+
+
+
+
+
+7、ansible补充
+
+
+playbook的组成结构：
+	Inventory
+	Modules
+	Ad Hoc Commands
+	Playbooks：
+		Tasks：任务，即调用模块完成的某操作；
+		Variables：变量；
+		Templates：模板
+		Handlers：处理器，由某事件触发执行的操作；
+		Roles：角色；
+		
+		
+
+	
