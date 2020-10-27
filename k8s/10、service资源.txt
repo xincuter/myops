@@ -1,0 +1,87 @@
+第10章：service资源
+
+service的名称解析强依赖于dns组件（coredns、kubedns）
+
+k8s三类网络：
+    node network
+    pod network
+    cluster network （即service network，它是virtual ip）
+    
+service究竟是什么？
+    从一定程度上来讲，在每个node节点上都有一个kube-proxy组件，该组件会实时监控apiserver中有关service资源的变动信息；kube-proxy会随时连接到apiserver上，通过k8s中固有的一种请求方法（即watch的请求方法）来获取service相关资源的变动状态，一旦有service资源的内容发生变动【包括创建、修改等】，kube-proxy组件都会将其转换成当前节点之上的能够实现service资源调度（包括：将请求调度至后端指定pod）的规则，可能是iptables规则或者是ipvs规则，这取决于service的实现方式；
+    
+    
+service的实现方式（即工作模式）：
+（1）userspace
+    1.1之前版本采用，请求处理过程：client ---> service（处于内核空间中） ---> kube-proxy处理封装（处于用户空间）---> service规则 ---> 后端pod
+（2）iptables
+    1.10之前版本采用，请求处理过程：client ---> service ip（iptables规则，请求直接被内核中的iptables规则截取）---> 后端pod
+（3）ipvs
+    1.11之后版本采用，请求处理过程：client ---> service ip（ipvs规则，请求直接被内核中的ipvs规则截取）---> 后端pod
+    
+
+service类型（type）：
+    ClusterIP：用于集群内部访问；
+    NodePort：用于接入集群外部访问流量；
+        请求流量路径：client ---> NodeIP:NodePort ---> ClusterIP:ServiePort ---> PodIP:containerport
+    LoadBalancer
+    ExternalName：集群内创建一个svc，后端关联的是外部服务，实现集群内部pod能访问外部服务；
+    Headless service：定义格式与ClusterIP类型相似，只不过ClusterIP字段值为None，该svc域名直接解析至后端pod；
+    
+coredns资源记录格式：
+    SVC_NAME.NS_NAME.DONAME.LTD.  （默认域名后缀：svc.cluster.local.）
+    例如: redis.default.svc.cluster.local.
+    
+创建service资源：
+
+##创建ClusterIP类型的svc案例
+vim redis-clusterip-svc.yml
+
+apiVersion: v1
+kind: Service
+metadata:
+    name: redis-clusterip
+    namespace: default
+spec:
+    selector:
+        app: redis
+        role: logstore
+    clusterIP: 10.97.97.97
+    type: ClusterIP     ##指定类型为ClusterIP，常用于内部访问
+    ports:
+    - port: 6379          ##service的端口
+      targetPort: 6379    ##后端关联pod容器端口
+      
+      
+##创建NodePort类型的svc案例
+vim myapp-nodeport-svc.yml
+
+apiVersion: v1
+kind: Service
+metadata:
+    name: myapp-NodePort
+    namespace: default
+spec:
+    selector:
+        app: myapp
+        release: canary
+    clusterIP: 10.99.99.99
+    type: NodePort     ##指定类型为NodePort，用于外部访问
+    ports:
+    - port: 80          ##service的端口
+      targetPort: 80    ##后端关联pod容器端口
+      nodeport: 30080   ##指定节点映射的端口（一定不能冲突）
+      
+默认情况下，service的负载均衡策略是轮询，对应的sessionAffinity策略为None；如果需要实现session会话保持（即同一clientip的请求发往同一个后端），可以在svc的yml文件添加sessionAffinity策略为clientip或者使用打补丁的方式设置即可。
+###打补丁的方式实现session会话保持
+kubectl patch svc myapp-NodePort -p '{"spec":{"sessionAffinity": "ClientIP"}}'
+
+      
+##创建LoadBalancer类型的svc案例
+loadbalancer类型的svc一般是与云供应商的负载均衡（slb）结合起来
+
+
+##创建ExternalName类型的svc案例（ExternalName类型svc用于实现集群内部pod能够访问外部服务）
+
+
+service即四层调度，如果想做七层调度，需要部署使用ingress组件。

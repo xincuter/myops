@@ -1,0 +1,153 @@
+k8s网络类型：
+    节点网络：节点地址
+    pod网络：各pod运行，配置在pod内部的网络名称空间
+    service网络（即集群网络）：集群对外的虚拟地址
+   
+
+k8s组件：
+    master：
+        api server：负责接收请求，处理请求；
+        controller-manager：控制器管理器；
+        scheduler：调度器，负责调度资源请求的；
+    etcd
+        集群模式
+    node：
+        kube-proxy：实现service的动态管理（创建、删除、变化、service网络管理等）
+        kubelet：接收任务并在本机上视图运行容器；
+		容器引擎：如最流行的是docker；
+        docker
+        flannel：网络组件
+    
+安装k8s方式：
+    （1）yum安装或者编译安装
+        让k8s集群各个组件都运行为守护进程
+    （2）kubeadm集群安装组件 【k8s各个组件都是运行为pod】
+        每个节点上都需要安装kubelet、docker并运行，由kubeadm软件初始化master或node。
+        
+
+        
+使用kubeadm初始化k8s集群：
+
+kubeadm安装k8s步骤：
+    （1）master，nodes上：安装kubelet，kubeadm，docker；
+    （2）master上：运行kubeadm init，完成集群初始化（预检、生成证书、私钥等等）；
+    （3）各nodes节点上：运行kubeadm join，认证并加入k8s集群。
+
+安装kubeadm：
+    在阿里云的镜像仓库中，下载相关的repo文件，然后使用yum install安装。
+    
+详细部署步骤：
+（1）关闭iptables，并下载kubernetes和docker的repo文件，配置yum仓库；
+（2）master节点和所有node节点上使用yum安装kubelet、kubectl、kubeadm、docker软件；
+yum install -y kubelet kubeadm kubectl docker-ce
+（3）启动docker服务
+systemctl start docker.service
+systemctl enable docker.service
+（4）打开内生桥接功能
+#查看桥接功能是否打开，1是开启，0是关闭
+cat /proc/sys/net/bridge/bridge-nf-call-iptables   ##设置为1
+cat /proc/sys/net/bridge/bridge-nf-call-ip6tables  ##设置为1
+（5）设置kubelet自启动
+安装的kubelet软件，生成如下文件：
+/etc/kubernetes/manifests   【清单目录】
+/etc/sysconfig/kubelet      【配置文件】
+/usr/bin/kubelet            【主程序】
+/usr/lib/systemd/system/kubelet.service 【unit服务单元】
+
+##k8s不可以开启swap，否则不能加载配置文件，且不能启动服务
+
+systemctl enable kubelet.service
+（6）修改kubelet软件的配置文件
+vim /etc/sysconfig/kubelet
+添加如下信息：
+KUBELET_EXTRA_ARGS="--fail-swap-on=false"
+###扩展参数
+KUBE_PROXY_MODE=ipvs    ##指定kube-proxy模式为ipvs
+
+##解释说明
+--fail-swap-on=false：表示当swap开启的时候，不让其报错（或者说忽略其报错）
+
+（7）使用kubeadm初始化集群
+<1> 初始化操作在master上操作
+kubeadm init --help
+选项：
+    --kubernetes-version：指定kubernete版本；
+    --pod-network-cidr：指定pod的网络地址段；
+    --service-cidr：指定service网络地址段；
+    --apiserver-advertise-address：指定apiserver监听的地址，保持默认即可；
+    --apiserver-bind-port：指定apiserver监听的端口，保持默认即可；
+    --ignore-preflight-errors：忽略一些warning报警信息；
+    
+例子：kubeadm init --kubernetes-version=v1.15.3 --pod-network-cidr=172.17.0.0/16 --service-cidr=10.96.0.0/12 --ignore-preflight-errors=Swap
+
+注：
+--ignore-preflight-errors=Swap：表示忽略swap相关的报错信息；
+
+++初始化问题：
+安装k8s的时候需要从k8s.gcr.io拉取镜像，初始化时可能会报如下错误：
+[init] Using Kubernetes version: v1.15.3
+[preflight] Running pre-flight checks
+        [WARNING IsDockerSystemdCheck]: detected "cgroupfs" as the Docker cgroup driver. The recommended driver is "systemd". Please follow the guide at https://kubernetes.io/docs/setup/cri/
+        [WARNING SystemVerification]: this Docker version is not on the list of validated versions: 19.03.1. Latest validated version: 18.09
+[preflight] Pulling images required for setting up a Kubernetes cluster
+[preflight] This might take a minute or two, depending on the speed of your internet connection
+[preflight] You can also perform this action in beforehand using 'kubeadm config images pull'
+error execution phase preflight: [preflight] Some fatal errors occurred:
+        [ERROR ImagePull]: failed to pull image k8s.gcr.io/kube-apiserver:v1.15.3: output: Error response from daemon: Get https://k8s.gcr.io/v2/: net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)
+, error: exit status 1
+        [ERROR ImagePull]: failed to pull image k8s.gcr.io/kube-controller-manager:v1.15.3: output: Error response from daemon: Get https://k8s.gcr.io/v2/: net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)
+, error: exit status 1
+        [ERROR ImagePull]: failed to pull image k8s.gcr.io/kube-scheduler:v1.15.3: output: Error response from daemon: Get https://k8s.gcr.io/v2/: net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)
+, error: exit status 1
+        [ERROR ImagePull]: failed to pull image k8s.gcr.io/kube-proxy:v1.15.3: output: Error response from daemon: Get https://k8s.gcr.io/v2/: net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)
+, error: exit status 1
+        [ERROR ImagePull]: failed to pull image k8s.gcr.io/pause:3.1: output: Error response from daemon: Get https://k8s.gcr.io/v2/: net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)
+, error: exit status 1
+        [ERROR ImagePull]: failed to pull image k8s.gcr.io/etcd:3.3.10: output: Error response from daemon: Get https://k8s.gcr.io/v2/: net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)
+, error: exit status 1
+        [ERROR ImagePull]: failed to pull image k8s.gcr.io/coredns:1.3.1: output: Error response from daemon: Get https://k8s.gcr.io/v2/: net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)
+, error: exit status 1
+[preflight] If you know what you are doing, you can make a check non-fatal with `--ignore-preflight-errors=...`
+
+解决方案：修改默认的拉取镜像的地址，改从国内镜像站拉取指定镜像，kubeadm init后需添加参数：--image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers，即完整命令如下：
+kubeadm init --kubernetes-version=v1.15.3 --apiserver-advertise-address=0.0.0.0  --apiserver-bind-port=6433 --pod-network-cidr=10.244.0.0/16  --service-cidr=10.96.0.0/12 --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers --ignore-preflight-errors=Swap
+
+##检测master初始化是否完成，并安装网络插件，保障节点从"NotReady"（未就绪）状态转变为"Ready"状态
+###检测前须执行如下两个步骤，这样才可以使用kubectl命令查看集群状态信息
+mkdir -p $HOME/.kube
+cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+
+###查看集群组件状态信息
+kubectl get cs     ##当STATUS字段都为healthy，则表示组件都处于健康运行状态
+
+###查看集群节点相关状态信息
+kubectl get nodes  ##检查STATUS字段是否为Ready状态，如果为"NotReady"（未就绪），是由于集群中尚未安装网络插件所致。
+
+###安装网络插件flannel
+针对k8s 1.7+，可执行如下命令安装flannel网络插件
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+如果上述yml文件无法下载镜像，可以使用下面这个，亲测可以
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/a70459be0084506e4ec919aa1c114638878db11b/Documentation/kube-flannel.yml
+
+【注：安装完毕后，再一次查看集群节点的状态是否正常。】
+
+
+++coredns容器一直处于crashloopbackoff状态，可以采取如下操作：
+(a)可能原因是centos7上的NetworkManager导致，关闭服务，并且不要让其开机自启动：
+systemctl stop NetworkManager
+systemctl disable NetworkManager
+
+(b)在线修改coredns的deployment定义文件，先将replicas设置为0，终止目前错误状态的容器，待容器停止消失后，再次编辑将replicas设置为2即可；
+kubectl edit deployment coredns -n kube-system       ##将replicas设置为0，然后等待目前错误状态的容器消失，再次编辑将replicas设置为2即可
+
+(c)再次观察coredns容器的状态
+
+<2> 添加Node节点至集群中
+所有node节点上需要执行以下操作：
+    启动docker：            systemctl start docker
+    设置kubelet开机自启动： systemctl enable kubelet
+    kubeadm join 192.168.80.41:6433 --token 7np9y7.iesbpfj904ahg96m  --discovery-token-ca-cert-hash sha256:05d07e69addf60172508b85d0dec81f32d43dac0d2b664ee6ace1c8f5d4af472 --ignore-preflight-errors=Swap
+    
+    【注：接下来等待即可，每个node节点上都会下载flannel网络插件，最终每个节点都会处于ready状态】
+    
+<3> 使用命令验证集群状态

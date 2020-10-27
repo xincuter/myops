@@ -1,0 +1,10 @@
+第11章 kubernetes ingress及Ingress Controller
+
+ingress相当于七层负载
+
+外部流量通过ingress访问内部服务时，流量的路径是：
+    client ---> external LB ---> ingress-nginx service ---> ingresscontroller pod ---> ingress ---> headless service（不做调度，仅仅是做upstream server分组用）---> 后端真实pod资源组
+    
+
+定义ingress资源：
+配置字段可以参考：kubectl explain ingress

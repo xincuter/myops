@@ -1,0 +1,214 @@
+第六节：pod控制器应用进阶--1
+
+资源配置清单：
+	自主式pod资源  【非受控制器控制的pod资源】
+	
+	资源清单格式：
+		一级字段：apiVersion（group/version）、kind、metadata（name、namespace、labels、annotations...）、spec、status（k8s系统自行维护，用户无法定义，只读）
+		
+kubectl explain pods.<column1>.<column2>...<column3> ##查看pod类型的资源定义格式帮助信息
+		
+		
+定义pod资源的常用配置段及常用字段：
+（1）spec.containers <[]object>
+	- name: <string>
+	  image: <string>
+	  ##容器镜像拉取策略，主要三个值：Always（默认值），Never，IfNotPresent（本地存在则不拉取）
+	  imagePullPolicy: <string>    
+	  
+	  ##指明容器端口暴露信息，不指明协议，默认则为tcp
+	  ports:                
+	  - name: http           ###指明协议信息
+	    containerPort: 80    ###指明暴露的端口信息
+	  - name: https
+	    containerPort: 443
+		
+	  ##修改镜像的默认应用	
+	  commands，args
+      https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
+
+（3）spec.nodeSelector <map[string]string>     【类似正则匹配，结果可能有多个】
+	节点标签选择器，
+	##示例：让pod-demo调度一直在zk-k8s-002上
+	    ###给zx-k8s-002节点打标
+		kubectl label node zx-k8s-002 nodeEnv=uat
+		###在pod-demo的yaml配置中添加NodeSelector字段
+		vim pod-demo.yaml 添加如下内容
+		spec:
+		containers:                    
+		- name: nginx
+		  image: nginx:latest
+		- name: busybox
+          image: busybox:latest
+		  command:
+          - "/bin/sh"
+          - "-c"
+          - "sleep 3600"
+        nodeSelector:           ##指定NodeSelector
+          nodeEnv: dev
+		  
+（3）spec.nodeName <string>       【相当于精确匹配，结果会把pod调度到指定节点】
+	用法同上nodeSelector
+		
+（4）metadata.labels <map[string]string>
+    ##资源标签
+		key=value
+			key：不能为空，只能使用字母、数字、_、-、.最多63个字符；
+			value: 可以为空，只能字母或数字开头及结尾，多63个字符；	
+			
+		###命令行打标操作：【--overwrite：表示强行打标】
+		kubectl label pods pod-demo release=stable env=dev --overwrite
+		
+	##标签选择器
+		等值关系：=，==，!=
+		集合关系：
+			KEY in (VALUE1,VALUE2,...)
+			KEY notin (VALUE1,VALUE2,...)
+			!KEY
+	
+	##许多资源支持内嵌字段定义其使用的标签选择器：	
+		matchLabels: 直接给定键值
+		matchExpressions: 基于给定的表达式来定义使用标签选择器，{key:"KEY",operator:"OPERATOR",values:[VAL1,VAL2,...]}
+			操作符：
+				In，NotIn：values字段的值必须为非空列表；
+				Exist，NotExists：values字段的值必须为空列表；
+		
+（5）metadata.annotations <map[string]string>
+	annotations: 注解，与label不同的地方在于，它不能用于挑选资源对象，仅用于为对象提供"元数据"
+	##查看注解
+	kubectl describe pod <pod_name> -n <namespace>
+	
+
+pod生命周期：
+	初始化容器：
+		post start：pod启动后做的一些操作
+		pre stop：pod结束前做的一些操作
+	
+	健康检查检测：
+		liveness probe：存活状态探测；即针对容器应用是否正常做检测；
+		readness probe：就绪状态探测；即针对容器应用是否就绪（即是否可以接受客户端请求）做检测；
+		
+		每种探测都有3种方式：
+			execaction: 直接执行命令
+			tcp socket检测
+			http get检测
+		
+	常见pod状态：
+		pending：挂起，pod调度尚未完成（即pod已经创建，但是调度条件不满足，没有适合其运行的节点）；
+		running：运行状态，pod已正常创建并调度完成，即存活性探测是成功的，但尚未进入就绪状态接受请求；
+		failed：失败状态
+		succeeded：一般是一次性的job任务；
+		unknown：未知状态（这种状态通常是节点的kubelet进程与apiserver之间通信失联导致，可能是节点的kubelet进程异常了）
+		
+	创建pod：请求提交给apiserver，将请求保存在etcd中，接下来apisever会请求scheduler进行pod调度，并将是否调度成功的结果保存在etcd中。
+	
+	重启策略：
+	restartPolicy：
+		Always（默认策略）
+		OnFailure    ##只有在出现错误状态时才会重启
+		Never        ##不重启
+        
+ （6）spec.containers.livenessProbe <Object>
+spec.containers.readinessProbe <Object> 
+存活状态检测 与 就绪状态检测
+
+存活状态检测示例：一旦存活检测失败，pod会重启    
+a. exec方式的检测示例：
+vim pod_livenessprobe-exec.yml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: liveness-exec-pod
+  namespace: default
+spec:
+  containers:
+  - name: liveness-exec-container
+    image: busybox:latest
+    imagePullPolicy: IfNotPresent
+    command: ["/bin/sh","-c","touch /tmp/healthy; sleep 20; rm -rf /tmp/healthy; sleep 3600"]
+    livenessProbe:
+      exec:                               ##采用命令检测方式
+        command: ["test","-e","/tmp/healthy"]
+        initialDelaySeconds: 1              ##初始化时长  
+        periodSeconds: 3                    ##探测间隔,单位秒/s
+        timeoutSeconds: 2                   ##检测超时时间
+  restartPolicy: Always                     ##重启策略
+    
+然后使用kubectl get pods -n <namespace> -w 命令监测pod状态即可
+
+b. httpget方式的检测示例：
+vim pod_livenessprobe-httpget.yml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: liveness-http-pod
+  namespace: default
+spec:
+  containers:
+  - name: liveness-http-container
+    image: nginx:latest
+    imagePullPolicy: IfNotPresent
+    ports:
+    - name: http
+      containerPort: 80
+    livenessProbe:
+      httpGet:
+        port: http   ##定义检测端口，也可以在container级别定义暴露端口，此处进行引用名称也可以，如: http
+        path: /index.html
+      initialDelaySeconds: 1           ##初始化时长  
+      periodSeconds: 3                 ##探测间隔,单位秒/s
+      timeoutSeconds: 2                ##检测超时时间
+  restartPolicy: Always              ##重启策略
+  
+  
+就绪状态检测示例：就绪检测失败，pod状态是not ready，但是并不会重启，本身一直是running状态；一旦探针检测成功，会立即变成ready状态上线。
+
+a. httpget方式的检测示例：
+vim pod_livenessprobe-httpget.yml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: readiness-http-pod
+  namespace: default
+spec:
+  containers:
+  - name: readiness-http-container
+    image: nginx:latest
+    imagePullPolicy: IfNotPresent
+    ports:
+    - name: http
+      containerPort: 80
+    readinessProbe:
+      httpGet:
+        port: http   ##定义检测端口，也可以在container级别定义暴露端口，此处进行引用名称也可以，如: http
+        path: /index.html
+      initialDelaySeconds: 1           ##初始化时长  
+      periodSeconds: 3                 ##探测间隔,单位秒/s
+      timeoutSeconds: 2                ##检测超时时间
+
+
+（7）spec.containers.lifecycle <Object>
+spec.containers.lifecycle.preStop：终止前钩子（hook），即pod被终止之前立即执行的操作；
+spec.containers.lifecycle.postStart：启动后钩子（hook），即pod启动后会立即执行的操作；
+
+启动后钩子示例：
+apiVersion: v1
+kind: Pod
+metadata:
+    name: poststart-pod
+    namespace: default
+spec:
+    containers:
+    - name: busybox-httpd
+      image: busybox:latest
+      imagePullPolicy: IfNotPresent
+      lifecycle:
+          postStart:
+              exec:
+                  command: ["/bin/sh","-c","mkdir -p /data/web/html;echo \"Home Page\" >/data/web/html/index.html"]
+      command: ["/bin/sh","-c","sleep 3600"]
+      #command: ["/bin/httpd"]
+      #args: ["-f","-h /tmp"]            ##-f指定为前台进程运行，-h指定家目录；注：这级别的command执行不能依赖于poststart中的命令执行结果，否则会报错。

@@ -1,0 +1,81 @@
+docker编排工具：
+	docker编排三剑客：
+		docker compose：单机编排工具；
+		docker swarm：集群编排工具；【docker自身应用工具】
+		docker machine：将主机迅速初始化为能满足加入到docker swarm集群中的一份子的预处理工具；
+	
+	mesos：IDC的OS，能够把一个idc的硬件资源统一调度和编排，资源分配工具，非能够直接托管运行容器的，需要marathon提供面向容器编排的框架；
+
+	kubernetes：谷歌开源，容器编排工具，占有市场80%；
+	
+	
+	
+开发模式转变：
+	瀑布式开发 ---> 敏捷开发 ---> 精细开发
+	
+devops并不是一种技术，而是一种理念，一种文化，打通开发与运维边界，共同协作；
+	
+devops术语：
+	CI:持续集成；
+	CD:持续交付，Delivery；
+	CD:持续部署，Deployment；
+	
+软件生命周期：	
+计划 ---> 架构设计 ---> 开发 ---> 构建 ---> 测试 ---> 运维部署
+
+持续集成：开发与测试之间，利用工具不断构建部署到测试环境，测试，验证不通过，打回重新开发，此过程不断循环，这叫做持续集成；
+持续部署：开发与运维之间，测试环节验证完毕，打包给到运维，运维利用手段自动部署至线上环境，这个过程叫做持续部署；
+持续交付：从软件开发到交付客户；
+
+
+
+
+微服务架构
+
+
+容器化时代，手工管理多个容器不现实，需要使用容器编排工具来管理；
+
+Borg系统：kubernetes的原型，kubernetes基于该系统研发；
+
+
+kubernetes特性：
+	自动装箱
+	自我修复（自愈）
+	自动水平扩展
+	服务发现和负载均衡
+	自动发布和回滚
+	密钥和配置管理
+	存储编排
+	任务批量处理执行
+	
+
+kubernetes cluster：
+	masters + nodes
+	
+masters组件:
+	api server：负责接收请求，处理请求；
+	scheduler：调度器，负责调度资源请求的；
+	controler manager：控制器管理器；
+
+node组件：
+	kubelet：接收任务并在本机上视图运行容器；
+	容器引擎：如最流行的是docker；
+	
+	
+	
+	
+Node：真正运行容器的地方；
+
+在kubernetes集群上运行的最小单元叫Pod，pod模拟传统的虚拟机（pod内部运行容器）；
+一般情况，一个pod内只运行一个容器；
+标签（label）是我们kubernetes集群中分类识别和管理pod的；
+标签选择器（label selector）根据标签来过滤符合条件的资源对象的机制；
+
+
+kubernetes集群的组成：
+master/node架构，一般来说3个master，若干个node；
+pod是kubernetes的调度的原子单元
+label
+label selector
+
+

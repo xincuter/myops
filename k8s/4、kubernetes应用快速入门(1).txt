@@ -1,0 +1,78 @@
+kubectl：apiserver客户端管理工具，可以连接到master节点的api-server，实现对各种资源对象的增删改查等操作。
+
+kubernetes资源对象：
+    pod                  【k8s调度最小的基本单元】
+    service
+    replicaset
+    deployment
+    statfulet
+    daemonset
+    job
+    cronjob
+    node
+    
+
+k8s的客户端管理工具 --- kubectl
+需要配置kubernetes的配置文件，指定api-server及证书地址，kubectl才可以正常工作
+
+常用命令如下：
+（1）查看集群信息
+kubectl cluster-info
+（2）查看集群节点相关状态信息
+kubectl get nodes
+（3）查看集群中pod相关信息
+kubectl get pods -n kube-system -o wide   [-n表示指定名称空间，-o wide表示输出更详细信息]
+（4）查看当前集群上的pod信息（控制器类型为：deployment）
+kubectl get deployment
+（5）暴露pod端口（即将pod应用的端口与service的端口绑定）
+kubectl expose deployment nginx-deploy --name=nginx --port=81 --target-port=80 --protocol=TCP    【--port指定的是service的端口，--target-port指定的是pod应用的端口】
+
+
+
+如何使用k8s？（即增删改查）
+1、增 --- 创建一个应用程序
+##使用kubectl run或者kubectl create命令创建一个应用程序
+例如：创建一个nginx应用
+kubectl run nginx-deploy --image=nginx:1.14-apline --port 80 --replicas=2   【表示创建一个nginx应用，暴露端口80，且指定副本数为2】
+
+2、删 --- 删除一个应用程序
+##使用kubectl delete命令
+例如：删除上述创建的nginx应用  
+###临时删除应用
+【因为pod控制器定义未删除，所以pod控制器会自动重新构建新容器应用】
+kubectl delete pods nginx-deploy-54b9786c64-bnrx7 nginx-deploy-54b9786c64-4r9d8
+
+###永久删除应用
+kubectl delete deployment nginx-deploy   【删除名为nginx-deploy的pod控制器，这样就永久的删除了nginx应用，不会在重新构建了】
+
+###强制删除应用
+kubectl delete deployment --force --grace-period=0
+
+
+3、扩容/缩容副本数 --- 改变应用规模（即调整副本数）
+##扩展myapps应用副本数 （针对应用控制器）
+kubectl scale --replicas=5 deployment myapps
+##缩容myapps应用副本数
+kubectl scale --replicas=2 deployment myapps
+
+
+4、简单的灰度发布/回滚
+发布更新：
+##将myapp的版本更新升级为v2版本
+kubectl set image deployment myapp myapp=ikubernetes/myapp:v2
+##显示myapp的更新过程
+kubectl rollout status deployment myapp       
+
+回滚：
+##第一种方法：使用rollout undo回滚
+kubectl rollout undo deployment myapp
+##第二种方法：也可以重新指定镜像的版本号
+kubectl set image deployment myapp myapp=ikubernetes/myapp:v1
+
+5、显示pod的标签信息
+kubectl get pods --show-labelskubectl get pods --show-labels
+
+service资源通过selector选择器选择标签labels的机制，来关联对应的pod容器组。
+deployment资源也是通过selector选择器来选择对应的pod，动态的控制pod的副本数量。
+
+service默认的类型是Clusterip，如果想要集群外部访问的话，只需修改type类型为Nodeport，这样就可以使用节点ip:port来访问了（即将容器端口映射到节点某个端口上）。

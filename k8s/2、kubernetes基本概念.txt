@@ -1,0 +1,78 @@
+kubernetes基本概念：
+master/node架构：
+	master组件：
+		api server：负责接收请求，处理请求；
+		scheduler：调度器，负责调度资源请求的；
+		controller manager：控制器管理器；
+	
+	node：
+		kubelet：接收任务并在本机上视图运行容器；
+		容器引擎：如最流行的是docker；
+		
+		Node：真正运行容器的地方；
+		kube-proxy：实现service的动态管理（创建、删除、变化、service网络管理等）
+		
+Pod：
+	Label：key=value；
+	Label selector：	
+
+在kubernetes集群上运行的最小单元叫Pod，pod模拟传统的虚拟机（pod内部运行容器）；
+一般情况，一个pod内只运行一个容器；
+标签（label）是我们kubernetes集群中分类识别和管理pod的；
+标签选择器（label selector）根据标签来过滤符合条件的资源对象的机制；		
+		
+
+Pod分类：
+	自主式Pod：自我管理；【创建以后，提交给api server，由api server接收借助调度器调度到指定node节点，由该node启动此节点，若容器有故障，由kubelet管理，若node节点有故障，则容器就没有了，所以这种类型的Pod无法实现全局管调度管理】
+	
+	控制器管理的Pod：
+	控制器类型：
+		replication contorller 副本机制
+		replicaset 【副本集控制器】
+		Deployment
+		statefulSet
+		DaemonSet
+		Job，Ctonjob
+	
+		HPA[HorizontalPodAutoscaler]控制器：水平Pod自动伸缩控制器，自动监控系统资源使用率，自动扩展；
+		
+		service: 调度pod流量的，需要手动创建；
+		
+		
+NMT
+
+
+k8s中三种网络类型：
+	pod网络：各pod运行，配置在pod内部的网络名称空间
+	service网络：虚拟地址；
+	节点网络：节点地址
+	
+请求由外到内：
+	client ---> node网络 ---> service网络（也叫集群网络） ---> pod网络
+	
+注：通信问题
+（1）同一个pod内的多个容器间通信
+	使用lo环回口
+（2）各pod之间的通信
+	采用overlay network(叠加网络)通信
+（3）pod与service之间的通信
+
+
+kubernetes DB：etcd；【共享存储，master主机的数据存在这里】
+	etcd：类似zk；
+	
+
+k8s集群组成：
+	api-server集群
+	etcd集群
+	nodes
+
+k8s的网络功能通过CNI插件实现；
+
+常见的CNI（container network interface）插件：
+	flannel：支持网络配置；配置简单
+	calico：支持网络配置，网络策略，配置复杂；【隧道路由协议】
+	canel：支持网络策略
+	
+
+

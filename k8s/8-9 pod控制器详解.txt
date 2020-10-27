@@ -1,0 +1,205 @@
+第8-9章：pod控制器
+
+pod资源定义配置段：
+    apiVersion，kind，metadata，spec，status（只读）
+    
+    spec:
+        containers:
+            name:
+            image:
+            imagePullPolicy: {Always|Never|IfNotPresent}
+            ports:
+                name
+                containerPort
+            livenessProbe
+            readinessProbe
+            lifecycle
+        nodeSelector
+        nodeName
+        restartPolicy:
+            Always, Never, OnFailure
+            
+    pod健康探针检测方式：
+        ExecAction：exec
+        TCPSocketAction：tcpSocket
+        HTTPGetAction：httpGet
+        
+
+自主性pod删除不会重建，控制器管理的pod删除会被重建。【建议生产环境中使用控制器进行pod管理】
+
+无状态应用：可以水平扩展，只需关注群体无需关注个体行为的应用；
+有状态应用：无法水平扩展，每个pod都是独立管理，且每个pod拥有自己独有的标识和数据集，如果其中一个节点或pod宕机，在修复扩展之前，我们需要做很多初始化工作；
+
+pod控制器：
+    作用：管理pod，并始终保持用户期望的pod副本数量。
+    类型：
+        ReplicationController：最早一代的控制器，目前已经废弃。
+        ReplicaSet：主要管理无状态应用，主要有三部分组成：用户期望副本数、标签选择器、pod模板。
+        Deployment：管理无状态应用最佳选择，其工作于ReplicaSet之上，功能更为强大（支持滚动更新、回滚、控制更新粒度、且支持声明式配置等）；一个deployment可以管理多个ReplicaSet，默认保留历史版本10个。
+        DaemonSet：用于确保集群中每个节点上只运行一个特定的pod副本，其通常用来实现系统级别的后台任务。
+        Job：用于管理一次性运行的pod任务，状态为Complete。
+        Cronjob：用于管理周期性运行的pod任务。
+        StatefulSet：管理有状态应用最佳选择，每一个pod应用都是单独被管理的，每个pod拥有自己独有的标识和数据集，如果其中一个节点或pod宕机，在修复扩展之前，我们需要做很多初始化工作；例如：redis cluster集群、mysql主从集群等等。
+        
+        CDR：Custom Defined Resources，从k8s 1.8+版本开始支持；
+        Operator：
+        
+Helm：类似yum；可以使用helm进行安装应用（别人已经打包好的应用）
+
+
+1、ReplicaSet控制器
+##查看ReplicaSet语法帮助信息：
+kubectl explain rs
+
+##查看rs定义配置语法：
+kubectl explain rs.spec
+
+spec定义配置段中主要包含三部分：
+replicas <integer> ：期望副本数；
+selector <Object> ：标签选择器；
+template <Object> ：pod模板；
+
+
+##ReplicaSet定义示例如下：
+vim rs_01.yml
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+    name: myapp
+    namespace: default
+spec:
+    replicas: 2
+    selector: 
+        matchLabels:
+            app: myapp
+            release: canary
+    template:
+        metadata:
+            name: myapp-pod
+            labels:
+                app: myapp
+                release: canary
+                environment: qa
+        spec:
+            containers:
+            - name: myapp-container
+              image: nginx:latest
+              imagePullPolicy: IfNotPresent
+              ports:
+              - name: http
+                containerPort: 80
+              readinessProbe:
+                  httpGet:
+                      port: http
+                      path: /index.html
+                  initialDelaySeconds: 1
+                  periodSeconds: 3
+                  timeoutSeconds: 2
+            restartPolicy: Always
+
+##创建rs
+kubectl create -f rs_01.yml
+##查看rs
+kubectl get rs
+
+
+2、Deployment控制器
+##查看Deployment语法帮助信息：
+kubectl explain deployment
+
+##Deployment定义示例如下：
+vim deployment_01.yml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: myweb-deploy
+    namespace: default
+spec:
+    replicas: 2
+    selector:
+        matchLabels:
+            app: myweb
+            release: canary
+    template:
+        metadata:
+            labels:
+                app: myweb
+                release: canary
+        spec:
+            containers:
+            - name: myweb
+              image: nginx:latest
+              imagePullPolicy: IfNotPresent
+              ports:
+              - name: http
+                containerPort: 80
+              readinessProbe:
+                  httpGet:
+                      port: http
+                      path: /index.html
+                  initialDelaySeconds: 1
+                  periodSeconds: 3
+                  timeoutSeconds: 2
+            restartPolicy: Always
+            
+deployment支持声明式配置及更新，所以可以直接使用kubectl apply -f deployment_01.yml创建。【注：kubectl apply可以执行多次；如果修改了deployment配置文件，只用重新kubectl apply下即可，会自动将修改的内容同步到apiserver及etcd中】
+
+##使用打补丁的方式修改deployment副本数为5个
+kubectl patch deployment myweb-deploy -p '{"spec":{"replicas":5}}'    【每个键使用双引号包含起来】
+
+##使用打补丁的方式修改deployment的strategy的滚动更新策略
+kubectl patch deployment myweb-deploy -p '{"spec":{"strategy":{"rollingUpdate":{"maxSurge":1,"maxUnaliable":0}}}}'
+
+##监控滚动更新状态详情
+kubectl rollout status deployment myweb-deploy
+
+##升级deployment镜像到新版本且在滚动更新发布第一个pod后暂停后续更新流程（即金丝雀发布），当新版本的容器运行了一段时间没有问题，在继续后续的更新
+###滚动更新发布并在更新第一个pod后暂停
+kubectl set image deployment myweb-deploy myweb=nginx:1.7.9 && kubectl rollout pause deployment myweb-deploy
+
+###当确认新版本没问题后，再继续后面的更新
+kubectl rollout resume deployment myweb-deployment 
+
+##查看deployment(myweb-deploy)的历史版本
+kubectl rollout history deployment myweb-deploy
+
+##回滚deployment(myweb-deploy)到指定版本（默认不指定的话是回滚到前一版本）
+kubectl rollout undo deployment myweb-deploy --to-revision=2
+
+
+
+3、DaemonSet控制器
+##查看DaemonSet语法帮助信息：
+kubectl explain DaemonSet
+
+##DaemonSet定义示例如下：
+vim DaemonSet_01.yml
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+    name: filebeat-ds
+    namespace: default
+spec:
+    selector:
+        matchLabels:
+            app: filebeat
+            release: stable
+    template:
+        metadata:
+            labels:
+                app: filebeat
+                release: stable
+        spec:
+            containers:
+            - name: filebeat
+              image: prima/filebeat 
+              env:
+              - name: REDIS_HOST
+                value: redis.default.svc.cluster.local
+              - name: REDIS_LOG_LEVEL
+                value: info
+                
+Daemonset也支持滚动更新，方法与deployment类似，由于daemonset每个节点只能有一个，所以可以让其直接共用节点的网络名称空间。
