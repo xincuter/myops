@@ -1,0 +1,9 @@
+阿里云ECS默认采用dhcp分配网络，重启ecs时，dhclient会更新resolv.conf文件，这样就修改掉了ecs上配置的dns服务器。
+
+禁止dhclient更新resolv.conf文件：
+修改网卡配置文件，在该文件中添加如下语句即可：
+vim /etc/sysconfig/network-scripts/ifcfg-eth0
+PEERDNS=no
+
+
+注：此方法同样适用于私有云平台，亲测验证有效。
