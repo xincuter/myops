@@ -1,0 +1,152 @@
+#!/bin/bash
+#description: clean all tables of mysql databases...(warning: only for mysql)
+#version: v1.1
+#author: by XinZheng 20190903
+
+# Source function libraries
+. /etc/init.d/functions
+
+# Source /etc/profile
+. /etc/profile
+
+# Print help infomation
+usage() {
+    cat <<EOF
+Usage: CleanTables [OPTIONS]...
+
+Clean tables of mysql DB...
+
+Options:
+-h,--host=name        Connect to server.
+-u,--username=name    User to login.
+-p,--password=name    Password to use when connecting to server.
+-P,--port=#           Port number to use for connection or 3306 for default.
+-d,--database=dbname  database name or use "ALL",clean all databases tables when the value is "ALL".
+   --help             Display the help and exit.
+
+Examples:
+   ##clean per database
+   CleanTables -h127.0.0.1 -P3306 -utest -ptest -dtest
+   CleanTables --username="test" --password="test" --host="127.0.0.1" --port="3306" --database="test"
+
+   ##clean all databases
+   CleanTables -h127.0.0.1 -P3306 -utest -ptest -dALL
+   CleanTables --username="test" --password="test" --host="127.0.0.1" --port="3306" --database="ALL"
+
+For more details,you can contact the author of the tool.
+EOF
+}
+
+# check parameters
+PARAM_ARGS=$(getopt -o +u:p:h:P:d: --long username:,password:,host:,port:,database:,help -n "$0" -- "$@")
+eval set -- "$PARAM_ARGS"
+
+while true
+do
+    case $1 in
+        -u|--username)
+            USERNAME=$2
+            shift 2
+            ;;
+        -p|--password)
+            PASSWORD=$2
+            shift 2
+            ;;
+        -h|--host)
+            MYSQL_SERVER=$2
+            shift 2
+            ;;
+        -P|--port)
+            PORT=$2
+            shift 2
+            ;;
+        -d|--database)
+            DATABASE=$2
+            shift 2
+            ;;
+        --help)
+            usage
+            exit 0
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            usage
+            break
+            ;;
+    esac
+done
+
+{ echo "$PARAM_ARGS" | grep -E '\-u|\-\-username ' | grep -E '\-p|\-\-password ' | grep -E '\-h|\-\-host ' | grep -E '\-P|\-\-port ' | grep -E '\-d|\-\-database'; } &>/dev/null
+
+[ $? -ne 0 ] && usage && exit 0
+
+# Define global variables
+SOURCE_DIR="/var/log/CleanTables"
+CMD="/usr/bin/mysql"
+DB_FILE="${SOURCE_DIR}/${MYSQL_SERVER}_${PORT}/db.list"
+LOG_FILE="${SOURCE_DIR}/${MYSQL_SERVER}_${PORT}/clean.log"
+
+##create directory
+[ -d ${SOURCE_DIR}/${MYSQL_SERVER}_${PORT} ] || mkdir -p ${SOURCE_DIR}/${MYSQL_SERVER}_${PORT}
+
+# Get DB list
+get_dblist() {
+    ##check your choice(delete or not)
+    read -p "Please confirm whether to clean DB[$DATABASE] or not? [Y/N]: " CHOICE
+    
+    if [ x"$CHOICE" = x"Y" -o x"$CHOICE" = x"y" ];then
+        if [ x"$DATABASE" = x"ALL" ];then
+            $CMD -u${USERNAME} -p${PASSWORD} -h${MYSQL_SERVER} -P${PORT} -e "show databases\G" | grep -i "database" | grep -vE "information_schema|performance_schema|mysql" | awk '{print $2}' >$DB_FILE 
+        else
+            $CMD -u${USERNAME} -p${PASSWORD} -h${MYSQL_SERVER} -P${PORT} -e "show databases\G" | grep -i "database" | awk '{print $2}' | grep -o "\<${DATABASE}\>" >$DB_FILE
+        fi
+    else
+        echo "Reply is No,clean-script is exiting."
+        exit 0
+    fi
+}
+
+# Clean tables of per database
+clean_tables() {
+   get_dblist
+
+   >$LOG_FILE
+
+   if [ ! -s $DB_FILE ];then
+       echo "dblist file is empty."
+       exit 1
+   fi
+
+   for i in $(cat $DB_FILE);do
+       TEMP_FILE=${SOURCE_DIR}/${MYSQL_SERVER}_${PORT}/${i}_temp.txt
+       TABLE_FILE=${SOURCE_DIR}/${MYSQL_SERVER}_${PORT}/${i}_table.sql
+       $CMD -u${USERNAME} -p${PASSWORD} -h${MYSQL_SERVER} -P${PORT} -e "select concat(table_type,\":\",\"drop table \",table_schema,\".\",table_name,\";\") from information_schema.tables where table_schema=\"${i}\";" | grep "drop.*${i}.*;" >$TEMP_FILE 
+
+       if [ ! -s $TEMP_FILE ];then
+           echo "DB[${i}] has been cleaned or empty."
+           continue
+       fi
+       
+       ##Clean tables
+       sed -i -r "/view\:|VIEW\:/ s#drop table#drop view#g" $TEMP_FILE
+       awk -F':' '{print $2}' $TEMP_FILE >$TABLE_FILE
+       $CMD -u${USERNAME} -p${PASSWORD} -h${MYSQL_SERVER} -P${PORT} <$TABLE_FILE 
+
+       ##Check of clean
+       COUNT=$($CMD -u${USERNAME} -p${PASSWORD} -h${MYSQL_SERVER} -P${PORT} -e "use ${i};show tables;" | grep -v -i "Tables_in_${i}" | wc -l)
+       COUNT=$(echo ${COUNT:=0})
+
+       if [ $COUNT -eq 0 ];then
+           action "clean DB[${i}] all tables successfull." /bin/true | tee -a $LOG_FILE
+       else
+           action "clean DB[${i}] all tables failure." /bin/false | tee -a $LOG_FILE
+       fi   
+   done
+}
+
+
+# Main
+clean_tables
