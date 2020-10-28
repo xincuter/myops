@@ -1,0 +1,67 @@
+#!/bin/bash
+#script-name: check_process
+#description: the script is in order to get the number of running-processes in current system...
+#auth: by  zhengxin  20160512   email: zhengxin@cnwisdom.com
+
+STATE_OK=0
+STATE_WARNING=1
+STATE_CRITICAL=2
+STATE_UNKNOWN=3
+
+check_command="/usr/bin/snmpwalk"
+
+if [ ! -x $check_command ];then
+        echo "you should install snmp on mornitor-server first..."
+        exit $STATE_UNKNOWN
+fi
+
+PROCESS_MIB_OID="hrSWRunPath"
+
+#define help-information
+function help {
+        echo -e "descriton:This plugin is used to get the process-num from remote-servers."
+        echo -e "-h\t\tprint help-information"
+        echo -e "-H\t\tdefine remote-server's hostname or ip-address."
+}
+
+if [ $# -eq 0 ];then
+        echo "usage {-h|--help|-H}..."
+        exit 7
+fi
+
+while [ $# -gt 0 ];do
+        case $1 in
+
+          -h|--help)
+                help
+                exit $STATE_OK
+                ;;
+          -H)
+                HOSTADDRESS=$2
+                shift 2
+                if [ ! -z $HOSTADDRESS ];then
+                        if ! ping -c3 $HOSTADDRESS &>/dev/null;then
+                                echo "the host is unreachable,please checking..."
+                                exit $STATE_UNKNOWN
+                        fi
+                else
+                        echo "host-address is empty"
+                        exit $STATE_UNKNOWN
+                fi
+                ;;
+           *)
+                echo "no such parameter..."
+                exit 8
+                ;;
+        esac
+done
+
+PROCESS_NUM=`$check_command -c cnwisdompublic2016 -v 2c $HOSTADDRESS $PROCESS_MIB_OID | wc -l`
+if [ $PROCESS_NUM -eq 0 ];then
+        echo "problem:no reponse from remote-server..."
+        exit $STATE_UNKNOWN
+else
+        echo -e "PROCESS_TOTAL: $PROCESS_NUM"
+        exit $STATE_OK
+fi
+

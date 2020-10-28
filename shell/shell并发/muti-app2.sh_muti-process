@@ -1,0 +1,159 @@
+#!/bin/bash
+#script-name: muti-app.sh
+##description: transport and install muti-application on remote_servers...
+#author:   by zhengxin20160927   email: zhengxin@cnwisdom.com
+
+DATE=$(date +%F)
+SOURCE_DIR=/home/sysadmin/zhengxin
+IP_FILE=$SOURCE_DIR/ip_file
+IP_NUM=$(cat $IP_FILE | wc -l)
+TOMCAT_DIR=/home/admin/tomcat
+APACHE_DIR=/home/admin/apache
+APP_INSTALL_FILE=/tmp/APP_INSTALL.txt
+INSTALL_SCRIPT=$SOURCE_DIR/install_app.sh
+INTERVAR=5
+TEMP_FIFO_FILE=$SOURCE_DIR/$$.fifo
+UPDATE_VERSION_FILE=/tmp/UPDATE_VERSION.txt
+UPDATE_LOG_DIR=/tmp/update_app_dir
+
+read -p "which server_type you need to install(cloud or others): " SERVER_TYPE
+
+if [[ x"$SERVER_TYPE" == x"cloud" || x"$SERVER_TYPE" == x"cloud-servers" ]]
+then
+    INSTALL_SCRIPT=$SOURCE_DIR/cloud_install_app.sh
+    INTERVAR=30
+fi
+
+if [ ! -e $IP_FILE ];then
+    echo "no such file..."
+    exit 2
+fi
+
+if [ ! -e $UPDATE_LOG_DIR ];then
+    mkdir $UPDATE_LOG_DIR
+fi
+
+##wget app_package
+
+read -p "APP_URL: " APP_URL
+
+while true
+do
+
+ while true;do
+     if [ -z $APP_URL ];then
+        read -p "url isn't empty,again: " APP_URL
+     else
+        break
+     fi
+ done
+
+ if [ x"$APP_URL" = x"q" -o x"$APP_URL" = x"quit" ];then
+     break
+ fi
+
+# wget --user=zhengxin --password=Xin19910704 --no-check-certificate $APP_URL -O $SOURCE_DIR/${APP_URL##*/} &>/dev/null
+ wget --user=zhengxin --password=Hyy19920523 --no-check-certificate $APP_URL -O $SOURCE_DIR/${APP_URL##*/} &>/dev/null
+#wget --user=zhengxin --ask-password --no-check-certificate $APP_URL -O $SOURCE_DIR/${APP_URL##*/}
+
+ if ! ls $SOURCE_DIR/${APP_URL##*/} &>/dev/null;then
+     echo "download is failure..."
+     exit 2
+ fi
+
+ if echo ${APP_URL##*/} | grep "^solomonsmines-.*\.war" &>/dev/null;then
+    APP=`echo ${APP_URL##*/} | sed -r "s#solomonsmines-(.*)(\.war)#mines\2\.\1#g"`
+    mv $SOURCE_DIR/${APP_URL##*/} $SOURCE_DIR/$APP
+ elif echo ${APP_URL##*/} | grep "war$" &>/dev/null;then
+    APP=`echo ${APP_URL##*/} | sed 's#.war##g' | sed "s#\.#.war.#1"`
+    mv $SOURCE_DIR/${APP_URL##*/} $SOURCE_DIR/$APP
+ else
+    APP=${APP_URL##*/}
+ fi
+ 
+ APP_LIST=$APP_LIST:$APP
+ 
+ read -p "input APP_URL again: " APP_URL
+done
+
+
+##touch fifo_file,control processes_num of concurrency
+mkfifo $TEMP_FIFO_FILE
+exec 1000<>$TEMP_FIFO_FILE
+rm -f $TEMP_FIFO_FILE
+
+for((n=1;n<=4;n++));do
+    echo
+done >&1000
+
+
+##transport app_package and install it on remote_servers
+
+
+echo $APP_LIST | sed -e "s#:#\n#g" | sed -e "/^$/d" -e "/tar.gz/s#.*#apache &#g" -e "/war/s#.*#tomcat &#g" >$APP_INSTALL_FILE
+
+APP_LIST=`echo $APP_LIST | sed "s#:##1" | sed "s#:# #g"`
+
+for name in $(seq 1 $IP_NUM)
+do
+   HOST_IP=`sed -n "${name}p" $IP_FILE`   
+   if ! ping -c3 $HOST_IP &>/dev/null;then
+	echo "$HOST_IP is unreachable..."
+	continue
+   fi
+
+   scp $APP_INSTALL_FILE root@$HOST_IP:/tmp/APP_INSTALL.txt &>/dev/null &
+   scp $INSTALL_SCRIPT root@${HOST_IP}:/tmp/install_app.sh &>/dev/null &
+
+   for APP in `echo $APP_LIST`
+   do
+      read
+      {	
+      APP_NAME=$APP
+      if echo $APP | grep "war" &>/dev/null;then
+	 scp $SOURCE_DIR/$APP root@${HOST_IP}:$TOMCAT_DIR/webapps
+      elif echo $APP | grep "\.tar\.gz" &>/dev/null;then
+	 scp $SOURCE_DIR/$APP root@${HOST_IP}:$APACHE_DIR
+      else
+	 scp $SOURCE_DIR/$APP root@${HOST_IP}:/tmp
+      fi
+      echo >&1000
+      } &
+   done <&1000
+   wait
+   ssh root@$HOST_IP 'chown -R admin:admingroup /home/admin'
+   ssh root@$HOST_IP 'su - admin -c "/bin/bash /tmp/install_app.sh"'
+   sleep $INTERVAR
+done
+
+#save update_app log
+
+SERVERS=$(sed ':a;N;s#\n# #;$!b a' $IP_FILE)
+
+##cp update_app_version_log from remote to local
+
+scp root@$(head -1 $IP_FILE):${UPDATE_VERSION_FILE} /tmp &>/dev/null
+
+if [ -e $UPDATE_VERSION_FILE ];then
+    if [ ! -e $UPDATE_LOG_DIR/update_log_${DATE} ];then
+	 touch $UPDATE_LOG_DIR/update_log_${DATE}
+    fi
+
+    while read line;do
+	APP_NAME=$(echo $line | awk '{print $NF}' | sed -r "s#(\.[[:digit:]]+.*)|(\.war)##g")
+	if grep "${SERVERS}$" -A 2 $UPDATE_LOG_DIR/update_log_${DATE} | grep "${APP_NAME}" &>/dev/null;then
+	    sed -i -r "/${SERVERS}/,+2s#(APP_VERSION:.*${APP_NAME}\..*--->)(.*)#\1  $(echo $line | awk '{print $NF}')#" $UPDATE_LOG_DIR/update_log_${DATE}
+	else
+	    echo -e "UPDATE_TIME:\t${DATE}\nSERVERS:\t$SERVERS\nAPP_NAME:\t$APP_NAME\n${line}\n\n" >>$UPDATE_LOG_DIR/update_log_${DATE}
+	fi
+    done <$UPDATE_VERSION_FILE     
+fi
+
+
+#clear packages
+
+rm -f $APP_LIST
+
+#close file_operator
+exec 1000>&-
+exec 1000<&-

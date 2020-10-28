@@ -1,0 +1,17 @@
+题目：文档zoo.cfg内容如下，注释从第5行开始的之后所有的行；
+
+cat zoo.cfg
+
+tickTime=2000
+initLimit=10
+syncLimit=5
+dataDir=/usr/local/zookeeper/data
+dataLogDir=/usr/local/zookeeper/logs
+clientPort=12181
+server.180=10.200.138.180:12888:13888
+server.175=10.200.138.175:12888:13888
+server.174=10.200.138.174:12888:13888
+
+
+解答：【使用sed命令】
+sed -i".bak" "5,\$s/^/#/g" zoo.cfg          【-i".bak"表示处理当前输入流结束后，临时文件被重命名为源文件名称时，如果提供了"SUFFIX",则在重命名临时文件前，先一份备份文件，在执行重命名操作】

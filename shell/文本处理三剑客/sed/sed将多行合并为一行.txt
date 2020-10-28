@@ -1,0 +1,40 @@
+题目：
+
+现有a.txt文件，内容如下：
+
+aaa start at 2017-02-20 11:20:30
+aaa end at 2017-02-20 11:20:31
+aaa totally at 1s
+bbb start at 2017-02-20 11:20:33
+bbb end at 2017-02-20 11:20:34
+bbb totally at 1s
+
+
+现在想将三行合并为一行，修改后文本格式如下：
+
+aaa start at 2017-02-20 11:20:30 aaa end at 2017-02-20 11:20:31 aaa totally at 1s
+bbb start at 2017-02-20 11:20:33 bbb end at 2017-02-20 11:20:34 bbb totally at 1s
+
+
+请问如何实现？
+
+
+
+解答：
+
+第一种方法：【使用sed的多行模式】
+
+sed -r ':a;N;s/(.*)\n(.*)/\1 \2/;/totally/!ba' a.txt   或者   sed -r ':a;N;s/\n/ /;/totally/!ba' a.txt 
+
+【注解】
+sed默认情况只按单行处理，N可以让其读入下一行，进行多行处理；
+:a ：表示在代码开始处进行标记；
+s/(.*)\n(.*)/\1 \2/ ：默认情况下，行与行之间以\n分隔（即回车），使用替换命令s将换行符替换为空格；【简便写法可以是：s/\n/ /】
+/totally/!ba ：这表示当匹配到这一行中有"totally"字符的时候，就停止替换操作，默认输出保存在pattern space中的内容；
+
+
+
+第二种方法：【使用awk完成任务】
+
+awk '{if(NR%3==0){printf $0 "\n"}else{printf "%s ",$0}}' a.txt   【即格式化输出文本内容】 
+

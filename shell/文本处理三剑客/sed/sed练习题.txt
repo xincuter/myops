@@ -1,0 +1,32 @@
+题目：matrix文档内容如下：
+
+# 服务端口
+server.port = 8080
+
+# 数据库
+mysql.url = jdbc:mysql://localhost:3306/db_freeradius?useUnicode=yes&characterEncoding=UTF-8
+mysql.user = root
+mysql.password = WisdomHotelMySql
+
+# MongoDB
+mongo.host = localhost
+mongo.port = 27017
+mongo.credentials =
+mongo.connectionsPerHost = 200
+mongo.threadsAllowedToBlockForConnectionMultiplier = 40
+mongo.connectTimeout = 240
+mongo.maxWaitTime = 60
+mongo.socketKeepAlive = true
+mongo.socketTimeout = 3000
+
+现在要求将mysql.url= jdbc:mysql://localhost:3306/db_freeradius?useUnicode=yes&characterEncoding=UTF-8替换成mysql.url = jdbc:mysql://localhost:3306/radius?useUnicode=yes&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
+
+
+解答一：
+sed '/mysql.url/s/db_freeradius?useUnicode=yes&characterEncoding=UTF-8/radius?useUnicode=yes\&characterEncoding=UTF-8\&zeroDateTimeBehavior=convertToNull/g' matrix.txt 
+
+解答二：
+sed "s/db_freeradius?useUnicode=yes&characterEncoding=UTF-8/radius\?useUnicode=yes\&characterEncoding=UTF-8\&zeroDateTimeBehavior=convertToNull/g" matrix.txt   
+
+
+注：在替换的时候，前面匹配的内容&都不需要转义，但是要替换成的内容中如果包含&（此&表示前面匹配的内容）或者其他特殊字符就都需要转义了。

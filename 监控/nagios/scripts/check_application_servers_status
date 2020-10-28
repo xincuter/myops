@@ -1,0 +1,97 @@
+#!/bin/bash
+#script-name:check_application_servers_status
+#descrition:The script is in order to check application_servers status(layle 7)...
+#auth: by zhengxin 20160509   email: zhengxin@cnwisdom.com
+
+STATE_OK=0
+STATE_WARNING=1
+STATE_CRITICAL=2
+STATE_UNKNOWN=3
+
+check_command=/usr/bin/snmpwalk
+
+CHECK_OID=".1.3.6.1.4.1.8072.1.3.2.4.1.2"
+
+
+if [ ! -x $check_command ];then
+        echo "sorry,you must install snmp on monitor-server..."
+        exit $STATE_UNKNOW
+fi
+
+#define help-information
+function help {
+        echo -e "descriton:This plugin is used to check application_servers status..."
+        echo -e "-h\t\tprint help-information"
+        echo -e "-H\t\tdefine remote-server's hostname or ip-address."
+}
+
+if [ $# -eq 0 ];then
+        echo "usage:{-h|--help|-H|-w|-c}..."
+        exit 8
+fi
+
+#parameter-define
+while [ $# -gt 0 ];do
+        case $1 in
+
+          -h|--help)
+                help
+                exit $STATE_OK
+                ;;
+          -H)
+                HOSTADDRESS=$2
+                shift 2
+		if [ ! -z $HOSTADDRESS ];then
+                	if ! ping -c3 $HOSTADDRESS &>/dev/null;then
+                        	echo "the host is not exist,please checking..."
+                        	exit $STATE_UNKNOWN
+                	fi
+		else
+                        echo "host-address is not empty..."
+                        exit $STATE_UNKNOWN
+                fi
+                ;;
+           *)
+                echo "no such parameter..."
+		exit 7
+                ;;
+        esac
+done
+
+STATUS_INFORMATION=`$check_command -c cnwisdompublic2016 -v 1 $HOSTADDRESS $CHECK_OID | grep "application_servers_status_check" |  sed -r "s#(.*)STRING: (.*)#\2#g"`
+LIST_NUMBER=`echo "$STATUS_INFORMATION" | wc -l`
+
+if [ $LIST_NUMBER -eq 0 ];then
+	echo "No Response from remote-server..."
+	exit $STATE_UNKNOWN
+fi
+
+#echo "$STATUS_INFORMATION"
+
+WARN=0
+CRIT=0
+
+for name in `seq 1 $LIST_NUMBER`;do
+	SERVER_GROUPNAME=`echo "$STATUS_INFORMATION" | sed -n "${name}p" | awk -F':' '{print $1}'`
+	SERVER_STATUS=`echo "$STATUS_INFORMATION" | sed -n "${name}p" |  awk -F':' '{print $2}' | sed "s#^[[:space:]]\+##g"`
+	S=`echo "$SERVER_STATUS" | grep -oi "\<down\>" | wc -l`
+	if [ $S -gt 0 -a $S -lt 2 ];then
+		WARN=$[ $WARN + $S ]
+		echo -e "WARNING: $SERVER_GROUPNAME[$SERVER_STATUS]"
+	elif [ $S -ge 2 ];then
+		CRIT=$[ $CRIT + $S ]
+		echo -e "CRITICAL: $SERVER_GROUPNAME[$SERVER_STATUS]"
+	else
+		:
+	fi
+done
+
+
+if [ $WARN -gt 0 ] && [ $CRIT -eq 0 ];then
+	exit $STATE_WARNING
+elif [ $WARN -ge 0 ] && [ $CRIT -gt 0 ];then
+	exit $STATE_CRITICAL
+else
+	echo "ALL APPLICATIONS ARE OK..."
+	exit $STATE_OK
+fi

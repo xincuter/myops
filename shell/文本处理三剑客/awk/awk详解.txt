@@ -1,0 +1,357 @@
+37_04、awk入门及进阶
+
+三大文本处理器：
+
+grep：文本过滤器
+     语法格式：grep 'pattern' input_file...
+
+sed：流编辑器
+    
+awk：报告生成器；主要功能是将文本中的信息以某种格式显示出来
+
+awk的版本：
+    nawk
+    gawk，awk
+
+
+
+awk的基本用法：
+#awk [options] 'scripts' file1 file2 ...
+#上述的scripts细化后：
+awk [options] 'PATTERN { action }' file1 file2 ...
+
+[action]
+print：
+printf：
+
+
+
+awk的工作机制：
+根据定义好的模式，每一次读取一行，以定义好的分隔符切片【默认是空格符，也可以指定】，再以处理命令显示输出
+
+
+
+awk的选项：
+-F：指定分隔符
+-v：给变量赋值
+    例如：awk -v test="xin is" 'BEGIN{print test}'
+
+
+awk的输出：
+
+1、print
+print的使用格式：
+     print item1，item2，...
+要点：
+（1）各项目之间使用逗号分隔，而输出时则以空白字符分隔；
+（2）输出的item可以为字符串或数值、当前记录的字段（如$1）、变量或awk的表达式；数值会先转换成字符串，而后在输出；
+（3）print命令后面的item可以忽略，此时其功能相当于print $0，因此，如果想输出空白行，则需要使用print“”；
+
+例子：
+#awk 'BEGIN{print "line1\nline2\nline3"}'
+#awk -F: '{print $1,$3}' /etc/passwd
+
+
+2、awk的变量
+
+2.1.awk内置变量之记录变量：
+FS：field separator，读取文本时所使用的字段分隔符，默认是空白字符；
+RS：record separator，输入文本信息所使用的行分隔符，默认是换行符；
+OFS：output field separator；
+ORS：output row separator（输出行分隔符）；
+
+
+2.2.awk内置变量之数据变量：
+NR：the number of input records；awk命令所处理的记录数，如果有多个文件，这个数目会把处理的多个文件中的行统一计数；
+NF：number of field，当前记录的field个数【即每行的字段总数】；
+FNR：与NR不同的是，FNR用于记录正处理的行是当前这一文件中被总共处理的行数；【即NR是多个文件统一计数，FNR是每个文件分开计数】
+ARGV：属组，保持命令行本身这个字符串，如awk
+
+
+
+
+
+2.3.用户自定义变量：
+gawk允许用户自定义自己的变量以便在程序代码中使用，变量名命名规则与大多数编程语言相同，只能使用字母、数字和下划线，且不能以数字开头，gawk变量名称区分字符大小写。
+
+2.3.1.在脚本中赋值变量
+在gawk中给变量赋值使用赋值语句进行，
+例如：awk 'BEGIN{var="variable test";print var}'
+
+2.3.2.在命令行中使用赋值变量
+gawk命令也可以在脚本外为变量赋值，并在脚本中进行引用，
+例如：awk -v var="variable test" 'BEGIN{print var}'     
+
+【注：在awk中，打印变量时不需要带$的】
+
+
+
+3、printf
+printf命令使用格式：
+  printf  "format"，item1，item2，...
+
+要点：
+（1）其与print命令的最大不同，printf需要指定format；
+（2）format用于指定后面的每个item的输出格式；
+（3）printf语句不会自动打印换行符；手动添加\n
+
+format格式的指示符都以%开头，后跟一个字符；如下：
+%c：显示字符的ASCII码
+%d，%i：十进制整数
+%e，%E：科学计数法显示数值
+%f：显示浮点数
+%g，%G：以科学计数法的格式或浮点数的格式显示数值
+%s：显示字符串
+%u：无符号整数
+%%：显示%自身
+
+修饰符：【修饰format的，与format连用】
+N：显示宽度
+-：左对齐
++：显示数值符号
+
+例子：
+#awk -F: '{printf "%-15s %i\n",$1,$3}' /etc/passwd
+
+
+
+4、awk的操作符：
+
+4.1.算术操作符：
+
+-x：负值
++x：转换为数值
+x^y：次方
+x**y：次方
+x*y：乘法
+x/y：除法
+x+y：
+x-y：
+x%y：
+
+4.2.字符串操作符：
+
+只有一个，而且不用写出来，用于实现字符串连接；
+
+
+4.3.赋值操作符：
+
+=：
++=：
+-=：
+*=：
+/*：
+%=：
+^=：
+**=：
+++：
+--： 
+【需要注意的是，如果某模式是*号，此时使用/*/可能会有语法错误，应以/{*}/替代】
+
+
+4.4.布尔值
+awk中，任何非0值或非空字符都为真，反之就为假
+
+4.5.比较操作符
+x < y
+x <= y
+x > y
+x >= y
+x != y
+x ~ y
+x !~ y
+
+4.6.表达式之间的逻辑关系符
+&&
+||
+
+
+4.7.条件表达式
+selector?if-true-exp:if-false-exp
+
+同以下格式：
+if selector;then
+   if-true-exp
+else
+   if-false-exp
+fi
+
+例如：
+a=3
+b=4
+a>b?a is max:b is max
+
+
+
+4.8.函数调用
+function_name (para1,para2)
+
+
+
+5、awk的模式
+awk ‘program’ input-file1 input-file2...
+其中的program为：
+pattern { action }
+pattern { action }
+...
+
+5.1.常见的模式（pattern）类型：
+（1）regexp：正则表达式，格式为/regular expression/
+（2）expression：表达式，其值非0或为非空字符时满足条件，如：$1 ~  /foo/或$1 == "magedu",用运算符~(匹配)和!~(不匹配)
+（3）ranges：指定的匹配范围，格式是part1，part2【以模式匹配】
+（4）BEGIN/END：特殊模式，仅在awk命令执行前运行一次或结束前运行一次
+（5）empty（空模式）：匹配任意输入行
+
+
+5.2.常见的action
+（1）expression
+（2）contorl statements【支持条件、循环控制语句】
+（3）compound statements
+（4）input statements
+（5）output statements
+
+
+
+6、控制语句：
+6.1.if-else
+
+语法格式：if (condition) {then-body} else {else-body} 
+例子：
+awk -F: '{if ($1=="root") print $1,"admin";else print $1,"common user"}' /etc/passwd
+awk -F: -v sum=0 '{if ($3>=500) sum++}END{print sum}' /etc/passwd
+
+6.2.while
+语法格式：
+while (condition){statement1;statement2;...}
+例子：
+awk -F: '{i=1;while (i<=3) {print $i,i++}}' /etc/passwd
+awk -F: '{i=1;while (i<=NF) {if (length($i)>=4) print $i;i++}}' /etc/passwd
+
+
+6.3.do-while
+语法格式：
+do {statement1,statement2,...} while (condition)
+例子：
+awk -F: '{i=1;do {print $i,i++}while(i<=3)}' /etc/passwd
+
+
+
+6.4.for
+语法格式：
+for (varible assignment;confition;iteration process) {statement1,statement2,...}
+例子：
+awk -F: '{for(i=1;i<=NF;i++) {if(length($i)>=4) {print $i}}}' /etc/passwd
+
+for循环还可以用来遍历数组元素：
+语法：for（i in array）{statement1,statement2,...}
+例子：
+awk -F: '$NF!~/^$/{BASH[$NF]++}END{for(A in BASH){printf "%15s:%i\n",A,BASH[A]}}' /etc/passwd
+
+
+6.5.case
+语法：switch (expression) {case VALUE or /REGEXP/:statement1，statement2，...default:statement1,...}
+
+
+6.6.break和continue
+常用于循环或case语句中
+
+
+6.7.next
+提前结束对本行文本的处理，并接着处理下一行；例如，下面的命令将显示其ID号为奇数的用户：
+#awk -F: '{if($3%2==0) next;print $1,$3}' /etc/passwd
+
+
+
+7、awk中使用数组
+7.1.数组
+array[index-expression]
+
+index-expression可以使用任意字符串；需要注意的是，如果某数据组元素事先不存在，那么在引用其时，awk会自动创建此元素并初始化为空串；因此，要判断某数据组是否存在某元素，需要使用index in array的方式。
+
+
+要遍历数组中的每一个元素，需要使用如下的特殊结构：
+for （var in array）{statement1，...}
+其中，var用于引用数组下标，而不是元素值；
+
+例子：
+netstat -ant | awk '/^tcp/ {++S[$NF]} END {for(a in S) print a,S[a]}'【每出现一被/^tcp/模式匹配到的行，数组S[$NF]就加1，NF为当前匹配到的行的最后一个字段，此处用其值作为数组S的元素索引】
+
+awk '{counts[$1]++};END{for(ip in counts) printf "%-20s:%d\n" counts [ip],ip}' /var/log/httpd/access_log
+用法与上一个例子相同，用于统计某日志文件ip地址的访问量
+
+
+
+
+awk命令练习题：
+（1）指定输出分隔符为:
+awk -F "|" 'BEGIN{OFS=":"}{print $1,$2,$3}' text.txt
+（2）显示用户名ID大于等于500的用户
+awk -F: '$3>=500{print $1,$3}' /etc/passwd
+（3）显示/etc/passwd文件第一次被r匹配到第一次被m匹配结束这之间所有的行，并显示$1,$7;
+awk -F: '/^r/,/^m/{print $1,$7}' /etc/passwd
+（4）awk -F: 'BEGIN{print "username   id         shell"}{printf "%-10s %-10s %-5s\n",$1,$3,$7}END{print "end of report."}' /etc/passwd
+（5）当每行中字段的长度大于4时，就打印这些字段
+awk -F: '{i=1;while (i<=NF) {if (length($i)>=4) print $i;i++}}' /etc/passwd
+（6）统计/etc/passwd文件中每种shell的用户个数
+awk -F: '{shell[$NF]++}END{for(A in shell) {print A,shell[A]}}' /etc/passwd
+（7）统计当前系统上每种连接状态的个数
+netstat -ant | awk '/^tcp/ {++STATE[$NF]} END {for(a in STATE) print a,STATE[a]}'
+（8）统计每个应用的出现的次数【$1是每行出现的个数，第三个是应用名字】
+
+test.txt文件内容如下：
+1 CFOTOOLS/Applications/app-flowEngine/billtrunk/src/main/java/me/fansy/flowengine/util
+2 CFOTOOLS/Applications/app-flowEngine/billtrunk/src/main/java/me/fansy/flowengine/util/MessageSender.java
+1 CFOTOOLS/Applications/app-osf-pvs-mock/billtrunk/src/main/java/com/bill/api/pki/client/web
+4 CFOTOOLS/Applications/app-osf-pvs-mock/billtrunk/src/main/java/com/bill/api/pki/client/web/ApplyOsfController.java
+1 CFOTOOLS/Applications/app-osf-pvs-mock/billtrunk/src/main/java/com/bill/api/pki/client/web/CancelOrderController.java
+4 CFOTOOLS/Applications/app-osf-pvs-mock/billtrunk/src/main/java/com/bill/api/pki/client/web/QueryOsfResultController.java
+5 CFOTOOLS/Applications/app-osf-pvs-mock/billtrunk/src/main/java/com/bill/api/pki/client/web/QueryOsfpvsResultController.java
+1 CFOTOOLS/Applications/app-osf-pvs/billtrunk/src/main/java/com/bill99/seashell/appcontroller/website/login
+1 CFOTOOLS/Applications/app-osf-pvs/billtrunk/src/main/java/com/bill99/seashell/appcontroller/website/login/AuthenticationController.java
+1 CFOTOOLS/Applications/app-osf-pvs/billtrunk/src/main/java/com/bill99/seashell/appcontroller/website/onlinepay
+1 CFOTOOLS/Applications/app-osf-pvs/billtrunk/src/main/java/com/bill99/seashell/appcontroller/website/onlinepay/OnlinePayController.java
+1 CFOTOOLS/Applications/app-osf-pvs/billtrunk/src/main/java/com/bill99/seashell/appcontroller/website/onlineshowfee
+2 CFOTOOLS/Applications/app-osf-pvs/billtrunk/src/main/java/com/bill99/seashell/appcontroller/website/onlineshowfee/OSFOrderQueryController.java
+1 CFOTOOLS/Applications/app-osf-pvs/billtrunk/src/main/java/com/bill99/seashell/appcontroller/website/onlinesho
+2 CFOTOOLS/Applications/app-flowEngine/billtrunk/src/main/java/me/fansy/flowengine/util
+4 CFOTOOLS/Applications/app-flowEngine/billtrunk/src/main/java/me/fansy/flowengine/util/MessageSender.java
+5 CFOTOOLS/Applications/app-osf-pvs-mock/billtrunk/src/main/java/com/bill/api/pki/client/web
+1 CFOTOOLS/Applications/app-osf-pvs-mock/billtrunk/src/main/java/com/bill/api/pki/client/web/ApplyOsfController.java
+1 CFOTOOLS/Applications/app-osf-pvs-mock/billtrunk/src/main/java/com/bill/api/pki/client/web/CancelOrderController.java
+1 CFOTOOLS/Applications/app-osf-pvs-mock/billtrunk/src/main/java/com/bill/api/pki/client/web/QueryOsfResultController.java
+1 CFOTOOLS/Applications/app-osf-pvs-mock/billtrunk/src/main/java/com/bill/api/pki/client/web/QueryOsfpvsResultController.java
+1 CFOTOOLS/Applications/app-osf-pvs/billtrunk/src/main/java/com/bill99/seashell/appcontroller/website/login
+2 CFOTOOLS/Applications/app-osf-pvs/billtrunk/src/main/java/com/bill99/seashell/appcontroller/website/login/AuthenticationController.java
+1 CFOTOOLS/Applications/app-osf-pvs/billtrunk/src/main/java/com/bill99/seashell/appcontroller/website/onlinepay
+2 CFOTOOLS/Applications/app-osf-pvs/billtrunk/src/main/java/com/bill99/seashell/appcontroller/website/onlinepay/OnlinePayController.java
+1 CFOTOOLS/Applications/app-osf-pvs/billtrunk/src/main/java/com/bill99/seashell/appcontroller/website/onlineshowfee
+1 CFOTOOLS/Applications/app-osf-pvs/billtrunk/src/main/java/com/bill99/seashell/appcontroller/website/onlineshowfee/OSFOrderQueryController.java
+2 CFOTOOLS/Applications/app-osf-pvs/billtrunk/src/main/java/com/bill99/seashell/appcontroller/website/onlinesho
+
+解答：awk -F "[ /]+" '{count[$4]+=$1} END {for(a in count) print a,count[a]}' test.txt   
+
+结果显示：
+      app-osf-pvs 18
+      app-osf-pvs-mock 24
+      app-flowEngine 9
+      ...
+
+（9）还是第八题，扩展：按出现次数降序排序，且输出按下面格式输出，且打印前10行：
+      n1=app-osf-pvs        m1=18
+      n2=app-osf-pvs-mock   m2=24
+      n3=app-flowEngine     m3=9
+      ...
+	
+解答：awk -F "[ /]+" '{count[$4]+=$1} END {for(a in count) print a,count[a]}' paixu.txt | sort -t" " -k 2 -n -r  | awk '{if(NR<11) print "n"NR"="$1,"m"NR"="$2}' | column -t 
+
+结果显示：
+n1=ca-ebpp-base-v2             m1=51
+n2=szx-intra-prepaid           m2=46
+n3=szx-gateway-prepaid         m3=42
+n4=szx-quartz-prepaid          m4=41
+n5=szx-website-prepaid         m5=36
+n6=szx-chargechannel-jar       m6=35
+n7=szx-mdb-prepaid             m7=33
+n8=app-fo-bank-simulator-mock  m8=30
+n9=app-szx-intra               m9=24
+n10=fo-dps-fp-bank-ceb         m10=22

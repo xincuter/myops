@@ -1,0 +1,99 @@
+#!/bin/bash
+#script-name:check_mem.sh
+#auth: by zhengxin 20160509 email: zhengxin@cnwisdom.com
+
+STATE_OK=0
+STATE_WARNING=1
+STATE_CRITICAL=2
+STATE_UNKNOWN=3
+
+check_command="/usr/bin/snmpwalk"
+
+MEMTOTALSWAP_OID=".1.3.6.1.4.1.2021.4.3"
+MEMAVAILSWAP_OID=".1.3.6.1.4.1.2021.4.4"
+MEMTOTALREAL_OID=".1.3.6.1.4.1.2021.4.5"
+MEMAVAILREAL_OID=".1.3.6.1.4.1.2021.4.6"
+
+if [ ! -x $check_command ];then
+        echo "sorry,you can install snmp on monitor-server..."
+        exit $STATE_UNKNOWN
+fi
+
+#define help-information
+function help {
+        echo -e "descriton:This plugin is used to check remote-server memory usage."
+        echo -e "-h\t\tprint help-information"
+        echo -e "-H\t\tdefine remote-server's hostname or ip-address."
+        echo -e "-w\t\tthe threshold of warning."
+        echo -e "-c\t\tthe threshold of critical."
+}
+
+while [ $# -gt 0 ];do
+        case $1 in
+
+          -h|--help)
+                help
+                exit $STATE_OK
+                ;;
+          -H)
+                HOSTADDRESS=$2
+                shift 2
+		if [ ! -z $HOSTADDRESS ];then
+                	if ! ping -c3 $HOSTADDRESS &>/dev/null;then
+                        	echo "the host is not exist,please checking..."
+                       		exit $STATE_UNKNOWN
+                	fi
+		else
+			echo "host-address is not empty..."
+			exit $STATE_UNKNOWN
+		fi
+                ;;
+          -w)
+                WARN=$2
+                shift 2
+		if [ -z $WARN ];then
+			echo "the threshold of warning is empty..."
+			exit $STATE_UNKNOWN
+		fi	
+                ;;
+          -c)
+                CRIT=$2
+                shift 2
+		if [ -z $CRIT ];then
+                        echo "the threshold of critical is empty..."
+                        exit $STATE_UNKNOWN
+                fi
+                ;;
+          *)
+                echo "no such parameter..."
+		exit 7
+                ;;
+        esac
+done
+
+MEM_TOTAL_REAL=`$check_command -c cnwisdompublic2016 -v 2c $HOSTADDRESS $MEMTOTALREAL_OID | awk -F '[: ]' '{print $7}'`
+MEM_AVAIL_REAL=`$check_command -c cnwisdompublic2016 -v 2c $HOSTADDRESS $MEMAVAILREAL_OID | awk -F '[: ]' '{print $7}'` 
+MEM_TOTAL_SWAP=`$check_command -c cnwisdompublic2016 -v 2c $HOSTADDRESS $MEMTOTALSWAP_OID | awk -F '[: ]' '{print $7}'`
+MEM_AVAIL_SWAP=`$check_command -c cnwisdompublic2016 -v 2c $HOSTADDRESS $MEMAVAILSWAP_OID | awk -F '[: ]' '{print $7}'`
+
+if [ -z $MEM_TOTAL_REAL ] || [ -z $MEM_AVAIL_REAL ] || [ -z $MEM_TOTAL_SWAP ] || [ -z $MEM_AVAIL_SWAP ];then
+        echo "problem:no reponse from remote-server..."
+        exit $STATE_UNKNOWN
+else
+
+	SWAPMEM_USE=$((${MEM_TOTAL_SWAP}-${MEM_AVAIL_SWAP}))
+
+	SWAPMEM_USEPERCENT=`echo "$SWAPMEM_USE  $MEM_TOTAL_SWAP " | awk '{print $1/$2*100}'`
+
+	echo -e "MEM_TOTAL: $((${MEM_TOTAL_REAL}/1024))MB\tMEM_AVAIL:  $((${MEM_AVAIL_REAL}/1024))MB\tSWAP_TOTAL: $((${MEM_TOTAL_SWAP}/1024))MB\tSWAP_AVAIL: $((${MEM_AVAIL_SWAP}/1024))MB\tSWAP_USEPERCENT:  ${SWAPMEM_USEPERCENT}%"
+
+	if [ ${SWAPMEM_USEPERCENT%.*} -gt $WARN -a ${SWAPMEM_USEPERCENT%.*} -lt $CRIT ];then
+        	echo "warning: memory's space is not enough..."
+       		exit $STATE_WARNING
+	elif [ ${SWAPMEM_USEPERCENT%.*} -gt $CRIT ];then
+        	echo "critical: memory's space is not enough seriously..."
+        	exit $STATE_CRITICAL
+	else 
+        	exit $STATE_OK
+	fi
+fi

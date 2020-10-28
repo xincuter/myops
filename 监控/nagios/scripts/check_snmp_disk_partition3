@@ -1,0 +1,126 @@
+#!/bin/bash
+#script-name:disk-partition
+#descrition:The script is in order to check disk-partition(disk-space > 2TB)...
+#auth: by zhengxin 20160509   email: zhengxin@cnwisdom.com
+
+STATE_OK=0
+STATE_WARNING=1
+STATE_CRITICAL=2
+STATE_UNKNOWN=3
+
+check_command=/usr/bin/snmpwalk
+
+DISK_OID=".1.3.6.1.2.1.25.2.3.1"
+
+if [ ! -x $check_command ];then
+        echo "sorry,you must install snmp on monitor-server..."
+        exit $STATE_UNKNOW
+fi
+
+#define help-information
+function help {
+        echo -e "descriton:This plugin is used to check remote-server disk-space usage of partitions."
+        echo -e "-h\t\tprint help-information"
+        echo -e "-H\t\tdefine remote-server's hostname or ip-address."
+        echo -e "-w\t\tthe threshold of warning."
+        echo -e "-c\t\tthe threshold of critical."
+}
+
+if [ $# -eq 0 ];then
+        echo "usage:{-h|--help|-H|-w|-c}..."
+        exit 8
+fi
+
+#parameter-define
+while [ $# -gt 0 ];do
+        case $1 in
+
+          -h|--help)
+                help
+                exit $STATE_OK
+                ;;
+          -H)
+                HOSTADDRESS=$2
+                shift 2
+                if [ ! -z $HOSTADDRESS ];then
+                        if ! ping -c3 $HOSTADDRESS &>/dev/null;then
+                                echo "the host is not exist,please checking..."
+                                exit $STATE_UNKNOWN
+                        fi
+                else
+                        echo "host-address is not empty..."
+                        exit $STATE_UNKNOWN
+                fi
+                ;;
+          -w)
+                WARN=$2
+                shift 2
+                if [ -z $WARN ];then
+                        echo "the threshold of warning is empty..."
+                        exit $STATE_UNKNOWN
+                fi
+                ;;
+          -c)
+                CRIT=$2
+                shift 2
+                if [ -z $CRIT ];then
+                        echo "the threshold of critical is empty..."
+                        exit $STATE_UNKNOWN
+                fi
+                ;;
+           *)
+                echo "no such parameter..."
+                exit 7
+                ;;
+        esac
+done
+
+#get remote-server disk-partitions-information
+DISK_INFORMATION=`$check_command -c cnwisdompublic2016 -v 1 $HOSTADDRESS $DISK_OID | grep -E "Units|Descr|Size|Used"`
+DISK_PATH_IDENTIFIED=`echo "$DISK_INFORMATION" | grep "/" | awk -F '[:. ]+' '$6!~/shm|boot|sys|proc/{print $3}'`
+
+if [ -z "$DISK_PATH_IDENTIFIED" ] ;then
+        echo "no response from remote-server..."
+        exit $STATE_UNKNOWN
+fi
+
+WARNING_COUNT=0
+CRITICAL_COUNT=0
+for name in `echo $DISK_PATH_IDENTIFIED`
+        do
+                DISK_PATH=`echo "$DISK_INFORMATION" | grep "Descr" | grep "hrStorage.*\.${name}\>" | awk -F'[: ]+' '{print $5}'`
+                DISK_TOTAL=`echo "$DISK_INFORMATION" | grep "Size" | grep "hrStorage.*\.${name}\>" | awk -F'[: ]+' '{print $5}'`
+                DISK_USED=`echo "$DISK_INFORMATION"  | grep "Used" | grep "hrStorage.*\.${name}\>" | awk -F'[: ]+' '{print $5}'`
+                DISK_UNITS=`echo "$DISK_INFORMATION" | grep "Units" | grep "hrStorage.*\.${name}\>" | awk -F'[: ]+' '{print $5}'`
+                DISK_USEDPERCENT=`echo "$DISK_TOTAL  $DISK_USED" | awk '{print $2/$1*100}'`
+
+                if [ $DISK_TOTAL -ne 0 ];then
+                        DISK_USEDPERCENT=`echo "$DISK_TOTAL  $DISK_USED" | awk '{print $2/$1*100}'`
+                else
+                        DISK_USEDPERCENT=0
+                fi
+
+                if [ ${DISK_USEDPERCENT%.*} -ge $WARN  ];then
+                        if [ ${DISK_USEDPERCENT%.*} -lt $CRIT ];then
+                                echo -e "WARNING:\t\tDISK_PATH: $DISK_PATH\tDISK_TOTAL: $((${DISK_TOTAL}*${DISK_UNITS}/1024/1024))MB\tDISK_USED:$((${DISK_USED}*${DISK_UNITS}/1024/1024))MB\tDISK_USEDPERCENT: ${DISK_USEDPERCENT}%"
+                                WARNING_COUNT=$[ $WARNING_COUNT + 1 ]
+                        else
+                                echo -e "CRITICAL:\t\tDISK_PATH: $DISK_PATH\tDISK_TOTAL: $((${DISK_TOTAL}*${DISK_UNITS}/1024/1024))MB\tDISK_USED:$((${DISK_USED}*${DISK_UNITS}/1024/1024))MB\tDISK_USEDPERCENT: ${DISK_USEDPERCENT}%"
+                                CRITICAL_COUNT=$[ $CRITICAL_COUNT + 1 ]
+                        fi
+                else
+                        continue
+                fi
+        done  
+
+if [ $WARNING_COUNT -gt 0 ] && [ $CRITICAL_COUNT -eq 0 ];then
+        exit $STATE_WARNING
+elif [ $CRITICAL_COUNT -gt 0 ] && [ $WARNING_COUNT -eq 0 ];then
+        exit $STATE_CRITICAL
+elif [ $WARNING_COUNT -gt 0 ] && [ $CRITICAL_COUNT -gt 0 ];then
+        exit $STATE_CRITICAL
+else
+        echo "EVERY PARTITION IS OK..."
+        exit $STATE_OK
+fi
+
