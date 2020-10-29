@@ -1,7 +1,7 @@
-kubectl£ºapiserver¿Í»§¶Ë¹ÜÀí¹¤¾ß£¬¿ÉÒÔÁ¬½Óµ½master½ÚµãµÄapi-server£¬ÊµÏÖ¶Ô¸÷ÖÖ×ÊÔ´¶ÔÏóµÄÔöÉ¾¸Ä²éµÈ²Ù×÷¡£
+kubectlï¼šapiserverå®¢æˆ·ç«¯ç®¡ç†å·¥å…·ï¼Œå¯ä»¥è¿æ¥åˆ°masterèŠ‚ç‚¹çš„api-serverï¼Œå®ç°å¯¹å„ç§èµ„æºå¯¹è±¡çš„å¢åˆ æ”¹æŸ¥ç­‰æ“ä½œã€‚
 
-kubernetes×ÊÔ´¶ÔÏó£º
-    pod                  ¡¾k8sµ÷¶È×îĞ¡µÄ»ù±¾µ¥Ôª¡¿
+kubernetesèµ„æºå¯¹è±¡ï¼š
+    pod                  ã€k8sè°ƒåº¦æœ€å°çš„åŸºæœ¬å•å…ƒã€‘
     service
     replicaset
     deployment
@@ -12,67 +12,67 @@ kubernetes×ÊÔ´¶ÔÏó£º
     node
     
 
-k8sµÄ¿Í»§¶Ë¹ÜÀí¹¤¾ß --- kubectl
-ĞèÒªÅäÖÃkubernetesµÄÅäÖÃÎÄ¼ş£¬Ö¸¶¨api-server¼°Ö¤ÊéµØÖ·£¬kubectl²Å¿ÉÒÔÕı³£¹¤×÷
+k8sçš„å®¢æˆ·ç«¯ç®¡ç†å·¥å…· --- kubectl
+éœ€è¦é…ç½®kubernetesçš„é…ç½®æ–‡ä»¶ï¼ŒæŒ‡å®šapi-serveråŠè¯ä¹¦åœ°å€ï¼Œkubectlæ‰å¯ä»¥æ­£å¸¸å·¥ä½œ
 
-³£ÓÃÃüÁîÈçÏÂ£º
-£¨1£©²é¿´¼¯ÈºĞÅÏ¢
+å¸¸ç”¨å‘½ä»¤å¦‚ä¸‹ï¼š
+ï¼ˆ1ï¼‰æŸ¥çœ‹é›†ç¾¤ä¿¡æ¯
 kubectl cluster-info
-£¨2£©²é¿´¼¯Èº½ÚµãÏà¹Ø×´Ì¬ĞÅÏ¢
+ï¼ˆ2ï¼‰æŸ¥çœ‹é›†ç¾¤èŠ‚ç‚¹ç›¸å…³çŠ¶æ€ä¿¡æ¯
 kubectl get nodes
-£¨3£©²é¿´¼¯ÈºÖĞpodÏà¹ØĞÅÏ¢
-kubectl get pods -n kube-system -o wide   [-n±íÊ¾Ö¸¶¨Ãû³Æ¿Õ¼ä£¬-o wide±íÊ¾Êä³ö¸üÏêÏ¸ĞÅÏ¢]
-£¨4£©²é¿´µ±Ç°¼¯ÈºÉÏµÄpodĞÅÏ¢£¨¿ØÖÆÆ÷ÀàĞÍÎª£ºdeployment£©
+ï¼ˆ3ï¼‰æŸ¥çœ‹é›†ç¾¤ä¸­podç›¸å…³ä¿¡æ¯
+kubectl get pods -n kube-system -o wide   [-nè¡¨ç¤ºæŒ‡å®šåç§°ç©ºé—´ï¼Œ-o wideè¡¨ç¤ºè¾“å‡ºæ›´è¯¦ç»†ä¿¡æ¯]
+ï¼ˆ4ï¼‰æŸ¥çœ‹å½“å‰é›†ç¾¤ä¸Šçš„podä¿¡æ¯ï¼ˆæ§åˆ¶å™¨ç±»å‹ä¸ºï¼šdeploymentï¼‰
 kubectl get deployment
-£¨5£©±©Â¶pod¶Ë¿Ú£¨¼´½«podÓ¦ÓÃµÄ¶Ë¿ÚÓëserviceµÄ¶Ë¿Ú°ó¶¨£©
-kubectl expose deployment nginx-deploy --name=nginx --port=81 --target-port=80 --protocol=TCP    ¡¾--portÖ¸¶¨µÄÊÇserviceµÄ¶Ë¿Ú£¬--target-portÖ¸¶¨µÄÊÇpodÓ¦ÓÃµÄ¶Ë¿Ú¡¿
+ï¼ˆ5ï¼‰æš´éœ²podç«¯å£ï¼ˆå³å°†podåº”ç”¨çš„ç«¯å£ä¸serviceçš„ç«¯å£ç»‘å®šï¼‰
+kubectl expose deployment nginx-deploy --name=nginx --port=81 --target-port=80 --protocol=TCP    ã€--portæŒ‡å®šçš„æ˜¯serviceçš„ç«¯å£ï¼Œ--target-portæŒ‡å®šçš„æ˜¯podåº”ç”¨çš„ç«¯å£ã€‘
 
 
 
-ÈçºÎÊ¹ÓÃk8s£¿£¨¼´ÔöÉ¾¸Ä²é£©
-1¡¢Ôö --- ´´½¨Ò»¸öÓ¦ÓÃ³ÌĞò
-##Ê¹ÓÃkubectl run»òÕßkubectl createÃüÁî´´½¨Ò»¸öÓ¦ÓÃ³ÌĞò
-ÀıÈç£º´´½¨Ò»¸önginxÓ¦ÓÃ
-kubectl run nginx-deploy --image=nginx:1.14-apline --port 80 --replicas=2   ¡¾±íÊ¾´´½¨Ò»¸önginxÓ¦ÓÃ£¬±©Â¶¶Ë¿Ú80£¬ÇÒÖ¸¶¨¸±±¾ÊıÎª2¡¿
+å¦‚ä½•ä½¿ç”¨k8sï¼Ÿï¼ˆå³å¢åˆ æ”¹æŸ¥ï¼‰
+1ã€å¢ --- åˆ›å»ºä¸€ä¸ªåº”ç”¨ç¨‹åº
+##ä½¿ç”¨kubectl runæˆ–è€…kubectl createå‘½ä»¤åˆ›å»ºä¸€ä¸ªåº”ç”¨ç¨‹åº
+ä¾‹å¦‚ï¼šåˆ›å»ºä¸€ä¸ªnginxåº”ç”¨
+kubectl run nginx-deploy --image=nginx:1.14-apline --port 80 --replicas=2   ã€è¡¨ç¤ºåˆ›å»ºä¸€ä¸ªnginxåº”ç”¨ï¼Œæš´éœ²ç«¯å£80ï¼Œä¸”æŒ‡å®šå‰¯æœ¬æ•°ä¸º2ã€‘
 
-2¡¢É¾ --- É¾³ıÒ»¸öÓ¦ÓÃ³ÌĞò
-##Ê¹ÓÃkubectl deleteÃüÁî
-ÀıÈç£ºÉ¾³ıÉÏÊö´´½¨µÄnginxÓ¦ÓÃ  
-###ÁÙÊ±É¾³ıÓ¦ÓÃ
-¡¾ÒòÎªpod¿ØÖÆÆ÷¶¨ÒåÎ´É¾³ı£¬ËùÒÔpod¿ØÖÆÆ÷»á×Ô¶¯ÖØĞÂ¹¹½¨ĞÂÈİÆ÷Ó¦ÓÃ¡¿
+2ã€åˆ  --- åˆ é™¤ä¸€ä¸ªåº”ç”¨ç¨‹åº
+##ä½¿ç”¨kubectl deleteå‘½ä»¤
+ä¾‹å¦‚ï¼šåˆ é™¤ä¸Šè¿°åˆ›å»ºçš„nginxåº”ç”¨  
+###ä¸´æ—¶åˆ é™¤åº”ç”¨
+ã€å› ä¸ºpodæ§åˆ¶å™¨å®šä¹‰æœªåˆ é™¤ï¼Œæ‰€ä»¥podæ§åˆ¶å™¨ä¼šè‡ªåŠ¨é‡æ–°æ„å»ºæ–°å®¹å™¨åº”ç”¨ã€‘
 kubectl delete pods nginx-deploy-54b9786c64-bnrx7 nginx-deploy-54b9786c64-4r9d8
 
-###ÓÀ¾ÃÉ¾³ıÓ¦ÓÃ
-kubectl delete deployment nginx-deploy   ¡¾É¾³ıÃûÎªnginx-deployµÄpod¿ØÖÆÆ÷£¬ÕâÑù¾ÍÓÀ¾ÃµÄÉ¾³ıÁËnginxÓ¦ÓÃ£¬²»»áÔÚÖØĞÂ¹¹½¨ÁË¡¿
+###æ°¸ä¹…åˆ é™¤åº”ç”¨
+kubectl delete deployment nginx-deploy   ã€åˆ é™¤åä¸ºnginx-deployçš„podæ§åˆ¶å™¨ï¼Œè¿™æ ·å°±æ°¸ä¹…çš„åˆ é™¤äº†nginxåº”ç”¨ï¼Œä¸ä¼šåœ¨é‡æ–°æ„å»ºäº†ã€‘
 
-###Ç¿ÖÆÉ¾³ıÓ¦ÓÃ
+###å¼ºåˆ¶åˆ é™¤åº”ç”¨
 kubectl delete deployment --force --grace-period=0
 
 
-3¡¢À©Èİ/ËõÈİ¸±±¾Êı --- ¸Ä±äÓ¦ÓÃ¹æÄ££¨¼´µ÷Õû¸±±¾Êı£©
-##À©Õ¹myappsÓ¦ÓÃ¸±±¾Êı £¨Õë¶ÔÓ¦ÓÃ¿ØÖÆÆ÷£©
+3ã€æ‰©å®¹/ç¼©å®¹å‰¯æœ¬æ•° --- æ”¹å˜åº”ç”¨è§„æ¨¡ï¼ˆå³è°ƒæ•´å‰¯æœ¬æ•°ï¼‰
+##æ‰©å±•myappsåº”ç”¨å‰¯æœ¬æ•° ï¼ˆé’ˆå¯¹åº”ç”¨æ§åˆ¶å™¨ï¼‰
 kubectl scale --replicas=5 deployment myapps
-##ËõÈİmyappsÓ¦ÓÃ¸±±¾Êı
+##ç¼©å®¹myappsåº”ç”¨å‰¯æœ¬æ•°
 kubectl scale --replicas=2 deployment myapps
 
 
-4¡¢¼òµ¥µÄ»Ò¶È·¢²¼/»Ø¹ö
-·¢²¼¸üĞÂ£º
-##½«myappµÄ°æ±¾¸üĞÂÉı¼¶Îªv2°æ±¾
+4ã€ç®€å•çš„ç°åº¦å‘å¸ƒ/å›æ»š
+å‘å¸ƒæ›´æ–°ï¼š
+##å°†myappçš„ç‰ˆæœ¬æ›´æ–°å‡çº§ä¸ºv2ç‰ˆæœ¬
 kubectl set image deployment myapp myapp=ikubernetes/myapp:v2
-##ÏÔÊ¾myappµÄ¸üĞÂ¹ı³Ì
+##æ˜¾ç¤ºmyappçš„æ›´æ–°è¿‡ç¨‹
 kubectl rollout status deployment myapp       
 
-»Ø¹ö£º
-##µÚÒ»ÖÖ·½·¨£ºÊ¹ÓÃrollout undo»Ø¹ö
+å›æ»šï¼š
+##ç¬¬ä¸€ç§æ–¹æ³•ï¼šä½¿ç”¨rollout undoå›æ»š
 kubectl rollout undo deployment myapp
-##µÚ¶şÖÖ·½·¨£ºÒ²¿ÉÒÔÖØĞÂÖ¸¶¨¾µÏñµÄ°æ±¾ºÅ
+##ç¬¬äºŒç§æ–¹æ³•ï¼šä¹Ÿå¯ä»¥é‡æ–°æŒ‡å®šé•œåƒçš„ç‰ˆæœ¬å·
 kubectl set image deployment myapp myapp=ikubernetes/myapp:v1
 
-5¡¢ÏÔÊ¾podµÄ±êÇ©ĞÅÏ¢
+5ã€æ˜¾ç¤ºpodçš„æ ‡ç­¾ä¿¡æ¯
 kubectl get pods --show-labelskubectl get pods --show-labels
 
-service×ÊÔ´Í¨¹ıselectorÑ¡ÔñÆ÷Ñ¡Ôñ±êÇ©labelsµÄ»úÖÆ£¬À´¹ØÁª¶ÔÓ¦µÄpodÈİÆ÷×é¡£
-deployment×ÊÔ´Ò²ÊÇÍ¨¹ıselectorÑ¡ÔñÆ÷À´Ñ¡Ôñ¶ÔÓ¦µÄpod£¬¶¯Ì¬µÄ¿ØÖÆpodµÄ¸±±¾ÊıÁ¿¡£
+serviceèµ„æºé€šè¿‡selectoré€‰æ‹©å™¨é€‰æ‹©æ ‡ç­¾labelsçš„æœºåˆ¶ï¼Œæ¥å…³è”å¯¹åº”çš„podå®¹å™¨ç»„ã€‚
+deploymentèµ„æºä¹Ÿæ˜¯é€šè¿‡selectoré€‰æ‹©å™¨æ¥é€‰æ‹©å¯¹åº”çš„podï¼ŒåŠ¨æ€çš„æ§åˆ¶podçš„å‰¯æœ¬æ•°é‡ã€‚
 
-serviceÄ¬ÈÏµÄÀàĞÍÊÇClusterip£¬Èç¹ûÏëÒª¼¯ÈºÍâ²¿·ÃÎÊµÄ»°£¬Ö»ĞèĞŞ¸ÄtypeÀàĞÍÎªNodeport£¬ÕâÑù¾Í¿ÉÒÔÊ¹ÓÃ½Úµãip:portÀ´·ÃÎÊÁË£¨¼´½«ÈİÆ÷¶Ë¿ÚÓ³Éäµ½½ÚµãÄ³¸ö¶Ë¿ÚÉÏ£©¡£
+serviceé»˜è®¤çš„ç±»å‹æ˜¯Clusteripï¼Œå¦‚æœæƒ³è¦é›†ç¾¤å¤–éƒ¨è®¿é—®çš„è¯ï¼Œåªéœ€ä¿®æ”¹typeç±»å‹ä¸ºNodeportï¼Œè¿™æ ·å°±å¯ä»¥ä½¿ç”¨èŠ‚ç‚¹ip:portæ¥è®¿é—®äº†ï¼ˆå³å°†å®¹å™¨ç«¯å£æ˜ å°„åˆ°èŠ‚ç‚¹æŸä¸ªç«¯å£ä¸Šï¼‰ã€‚

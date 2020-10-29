@@ -1,129 +1,129 @@
-ÆóÒµ¼¶¼à¿ØÏµÁÐÖ®Îå----nagios»ù´¡¼°ÈëÃÅÅäÖÃ
+ä¼ä¸šçº§ç›‘æŽ§ç³»åˆ—ä¹‹äº”----nagiosåŸºç¡€åŠå…¥é—¨é…ç½®
 
-cacti£º
-   ¼à¿Ø¹¤¾ß
-   ÊÕ¼¯Êý¾Ý£¬¸ù¾ÝÊý¾Ý»æÍ¼£¬Õ¹Ê¾×ßÊÆ
-
-
-nagios£º
-   ¼à¿Ø¹¤¾ß
-   Ö÷»ú£¬·þÎñ/×ÊÔ´
-   Ö»¼à¿Ø×´Ì¬£º·ÖÎªËÄÖÖ£»OK,WARNING,CRITICAL,UNKNOWN
-             ÀýÈç£ºCPU:90%(critical)
-		       80%£¨warning£©
-   Ç¿´óµÄ±¨¾¯»úÖÆ                       
-
-¡¾ÒÔÉÏÁ½ÖÖÒ²ÊÇ²å¼þÊ½µÄÈí¼þ¡¿
+cactiï¼š
+   ç›‘æŽ§å·¥å…·
+   æ”¶é›†æ•°æ®ï¼Œæ ¹æ®æ•°æ®ç»˜å›¾ï¼Œå±•ç¤ºèµ°åŠ¿
 
 
-nagios core£º
-   ²»×öÈÎºÎ¼à¿Ø¹¤×÷
-   ¼à¿Ø¹¤×÷ÒÀÀµÓÚplugins£¨²å¼þ£©Íê³É£¬²å¼þ¼´Ò»ÏµÁÐscripts
+nagiosï¼š
+   ç›‘æŽ§å·¥å…·
+   ä¸»æœºï¼ŒæœåŠ¡/èµ„æº
+   åªç›‘æŽ§çŠ¶æ€ï¼šåˆ†ä¸ºå››ç§ï¼›OK,WARNING,CRITICAL,UNKNOWN
+             ä¾‹å¦‚ï¼šCPU:90%(critical)
+		       80%ï¼ˆwarningï¼‰
+   å¼ºå¤§çš„æŠ¥è­¦æœºåˆ¶                       
+
+ã€ä»¥ä¸Šä¸¤ç§ä¹Ÿæ˜¯æ’ä»¶å¼çš„è½¯ä»¶ã€‘
 
 
-NÖÖ¶ÔÏóÊµÏÖ¼à¿Ø¹¤×÷£º¡¾¶ÔÏó¼´Íê³É¼à¿Ø¹¤×÷µÄÊµÌå¡¿
-£¨1£©Ö÷»ú£¬Ö÷»ú×é
-£¨2£©·þÎñ/×ÊÔ´£¬·þÎñ×é
-£¨3£©ÁªÏµÈË£»ÁªÏµÈË×é
-£¨4£©Ê±¼ä¶Î
-£¨5£©ÃüÁî£¨command£©¡¾Ä£°å-->Ó¦ÓÃµ½Ä³¸ö±»¼à¿ØµÄ¶ÔÏó£¬ÒÔÊµÏÖ¾ßÌåµÄ¼à¿Ø¡¿
+nagios coreï¼š
+   ä¸åšä»»ä½•ç›‘æŽ§å·¥ä½œ
+   ç›‘æŽ§å·¥ä½œä¾èµ–äºŽpluginsï¼ˆæ’ä»¶ï¼‰å®Œæˆï¼Œæ’ä»¶å³ä¸€ç³»åˆ—scripts
 
 
-¶ÔÏóÖ®¼ä´æÔÚÒÀÀµ¹ØÏµ
-
-¡¾µ±¶à¸ö±»¼à¿Ø¶ÔÏóÓÐºÜ¶àÊôÐÔÏàÍ¬µÄÊ±ºò£¬¿ÉÒÔ¶¨Òå³ÉÄ£°å£¬È»ºóÔÙÍ¨¹ýµ÷ÓÃÀ´¼ò»¯ÅäÖÃ¡¿
-
-
-nagiosÈçºÎ¼à¿ØÔ¶³ÌÖ÷»ú£¿
-±ØÐëÍ¨¹ýÄ³ÖÖÊÖ¶ÎÈ¥»ñÈ¡Ô¶¶ËÖ÷»úµÄÊôÐÔÐÅÏ¢¡¢×´Ì¬ÐÅÏ¢µÈ£»ÕâÖÖÊÖ¶Î»úÖÆÓÐÒÔÏÂ¼¸ÖÖ£ºssh¡¢nrpe¡¢snmp¡¢nscaµÈ²å¼þ£»
-
-ssh²å¼þ£ºÔÚÔ¶³ÌÖ÷»úÉÏÔËÐÐsshd½ø³Ì£¬½ÓÊÕsshÃüÁî²¢·µ»Ø×´Ì¬ÐÅÏ¢£»
-nrpe²å¼þ£º×¨ÃÅÔËÐÐÔÚlinux/unixÖ÷»úÉÏµÄ£¬ÐèÒªÔÚÔ¶³ÌÖ÷»úÉÏ°²×°¸Ã·þÎñ¡¾²»ÄÜÔËÐÐÔÚwindowsÖ÷»úÉÏ¡¿
-snmp²å¼þ£ºÔ¶³ÌÖ÷»úÐèÒª°²×°snmpd½ø³Ì£¬¼°ÐèÒª°²×°snmp¡¾windowsÖ§³Ösnmp¡¿
-nsca²å¼þ£º±»¶¯¼à¿Ø¡¾ÀàËÆÓÚsnmpµÄtrap¹¦ÄÜ£¬ÓÉclient·¢ËÍnscaÏûÏ¢£¬È»ºónagios±»¶¯½øÐÐ¼à¿ØµÄ·½Ê½¡¿
+Nç§å¯¹è±¡å®žçŽ°ç›‘æŽ§å·¥ä½œï¼šã€å¯¹è±¡å³å®Œæˆç›‘æŽ§å·¥ä½œçš„å®žä½“ã€‘
+ï¼ˆ1ï¼‰ä¸»æœºï¼Œä¸»æœºç»„
+ï¼ˆ2ï¼‰æœåŠ¡/èµ„æºï¼ŒæœåŠ¡ç»„
+ï¼ˆ3ï¼‰è”ç³»äººï¼›è”ç³»äººç»„
+ï¼ˆ4ï¼‰æ—¶é—´æ®µ
+ï¼ˆ5ï¼‰å‘½ä»¤ï¼ˆcommandï¼‰ã€æ¨¡æ¿-->åº”ç”¨åˆ°æŸä¸ªè¢«ç›‘æŽ§çš„å¯¹è±¡ï¼Œä»¥å®žçŽ°å…·ä½“çš„ç›‘æŽ§ã€‘
 
 
-windows¼à¿ØÁ½ÖÖ·½Ê½£º
-£¨1£©snmp
-£¨2£©NSClient++³ÌÐò¡¾ÀàËÆÓÚnrpe¡¿
+å¯¹è±¡ä¹‹é—´å­˜åœ¨ä¾èµ–å…³ç³»
+
+ã€å½“å¤šä¸ªè¢«ç›‘æŽ§å¯¹è±¡æœ‰å¾ˆå¤šå±žæ€§ç›¸åŒçš„æ—¶å€™ï¼Œå¯ä»¥å®šä¹‰æˆæ¨¡æ¿ï¼Œç„¶åŽå†é€šè¿‡è°ƒç”¨æ¥ç®€åŒ–é…ç½®ã€‘
 
 
+nagioså¦‚ä½•ç›‘æŽ§è¿œç¨‹ä¸»æœºï¼Ÿ
+å¿…é¡»é€šè¿‡æŸç§æ‰‹æ®µåŽ»èŽ·å–è¿œç«¯ä¸»æœºçš„å±žæ€§ä¿¡æ¯ã€çŠ¶æ€ä¿¡æ¯ç­‰ï¼›è¿™ç§æ‰‹æ®µæœºåˆ¶æœ‰ä»¥ä¸‹å‡ ç§ï¼šsshã€nrpeã€snmpã€nscaç­‰æ’ä»¶ï¼›
 
-¶ÔÏóÐèÒªÊÂÏÈ¶¨ÒåºÃ
-
-Ö÷»ú¶ÔÏó£º¼´±»¼à¿ØµÄ¶ÔÏó
-ÃüÁî¶ÔÏó£¨¼´ÊµÀý»¯²å¼þµÄ¹ý³Ì£¬ÊµÐÐ¼à¿Ø£©
-ÁªÏµÈË¶ÔÏó
-
-·þÎñ¶ÔÏó
-Ê±¼ä¶Î¶ÔÏó
+sshæ’ä»¶ï¼šåœ¨è¿œç¨‹ä¸»æœºä¸Šè¿è¡Œsshdè¿›ç¨‹ï¼ŒæŽ¥æ”¶sshå‘½ä»¤å¹¶è¿”å›žçŠ¶æ€ä¿¡æ¯ï¼›
+nrpeæ’ä»¶ï¼šä¸“é—¨è¿è¡Œåœ¨linux/unixä¸»æœºä¸Šçš„ï¼Œéœ€è¦åœ¨è¿œç¨‹ä¸»æœºä¸Šå®‰è£…è¯¥æœåŠ¡ã€ä¸èƒ½è¿è¡Œåœ¨windowsä¸»æœºä¸Šã€‘
+snmpæ’ä»¶ï¼šè¿œç¨‹ä¸»æœºéœ€è¦å®‰è£…snmpdè¿›ç¨‹ï¼ŒåŠéœ€è¦å®‰è£…snmpã€windowsæ”¯æŒsnmpã€‘
+nscaæ’ä»¶ï¼šè¢«åŠ¨ç›‘æŽ§ã€ç±»ä¼¼äºŽsnmpçš„trapåŠŸèƒ½ï¼Œç”±clientå‘é€nscaæ¶ˆæ¯ï¼Œç„¶åŽnagiosè¢«åŠ¨è¿›è¡Œç›‘æŽ§çš„æ–¹å¼ã€‘
 
 
-nagios¿ÉÒÔ¶¨ÒåÖ÷»ú¼äµÄÒÀÀµ¹ØÏµ
-
-
-×´Ì¬ÀàÐÍ£º
-£¨1£©Èí×´Ì¬:²»»á·¢ËÍÍ¨Öª£¬ÒòÎª´íÎó¿ÉÄÜÊÇÁÙÊ±ÐÔµÄ
-£¨2£©Ó²×´Ì¬:»á·¢ËÍÍ¨Öª£¬´¥·¢±¨¾¯»úÖÆ
-
-
-±»¼à¿ØµÄÖ÷»ú¶ÔÏóÈç¹û³öÏÖflopping£¨¶¶¶¯£©×´Ì¬£¬¿ÉÒÔ×ÔÐÐ¶¨Òå·¢ËÍÍ¨Öª£»
+windowsç›‘æŽ§ä¸¤ç§æ–¹å¼ï¼š
+ï¼ˆ1ï¼‰snmp
+ï¼ˆ2ï¼‰NSClient++ç¨‹åºã€ç±»ä¼¼äºŽnrpeã€‘
 
 
 
+å¯¹è±¡éœ€è¦äº‹å…ˆå®šä¹‰å¥½
 
-nagiosµÄ°²×°ºÍÅäÖÃ£º
+ä¸»æœºå¯¹è±¡ï¼šå³è¢«ç›‘æŽ§çš„å¯¹è±¡
+å‘½ä»¤å¯¹è±¡ï¼ˆå³å®žä¾‹åŒ–æ’ä»¶çš„è¿‡ç¨‹ï¼Œå®žè¡Œç›‘æŽ§ï¼‰
+è”ç³»äººå¯¹è±¡
 
-1¡¢nagiosµÄ°²×°
-¡¾×¢£ºnagiosÌá¹©ÁËÒ»¸öweb½Ó¿Ú£¬±ãÓÚÕ¹Ê¾¸øÓÃ»§£¬µ«ÐèÒª°²×°web·þÎñÆ÷ÒÔ¼°php·þÎñ¡¿
-
-nagiosµÄ×é³É£º
-£¨1£©Ö÷³ÌÐò£¨nagios£©
-£¨2£©Ò»¸ö²å¼þ³ÌÐò£¨nagios-plugins£©
-£¨3£©ËÄ¸ö¿ÉÑ¡µÄADDON£¨nrpe¡¢nsca¡¢nsclient++ºÍNDOUtils£©
-
-ÆäÖÐnagios·þÎñÆ÷¶ËÐèÒª°²×°Ö÷³ÌÐò£¨nagios£©ºÍnagios-plugins£»
+æœåŠ¡å¯¹è±¡
+æ—¶é—´æ®µå¯¹è±¡
 
 
+nagioså¯ä»¥å®šä¹‰ä¸»æœºé—´çš„ä¾èµ–å…³ç³»
 
-°²×°nagiosÖ÷³ÌÐò²½Öè£º
-£¨1£©Ê×ÏÈ¼ì²éÏÂÊÇ·ñ°²×°ÁËDevelopment ToolsºÍDevelopment libraries;
-£¨2£©½ÓÏÂÀ´£¬ÒòÎªnagiosÒÀÀµÓÚweb·þÎñ£¬Ê¹ÓÃÃüÁî°²×°ÒÀÀµ°ü¡¾yum  -y install httpd php php-mysql mysql mysql-server¡¿
-£¨3£©°²×°Ö®Ç°µÄ×¼±¸¹¤×÷£¬ÒòÎªnagiosÔËÐÐÐèÒªÌØÊâµÄÓÃ»§ºÍ×é£»nagiosµÄ×éÒ»°ãÎªnagcmd£»×öÒ»ÏÂ²Ù×÷£º
-     ¡¾groupadd nagcmd¡¿
-     ¡¾useradd -G nagcmd nagios¡¿
-     ¡¾passwd nagios¡¿   £¨¸ønagiosÓÃ»§ÉèÖÃÃÜÂë£©
-£¨4£©°Ñapache¼ÓÈëµ½nagcmd×é£¬ÒÔ±ãÓÚÔÙÍ¨¹ýweb interface²Ù×÷nagiosµÄÊ±ºòÄÜ¹»¾ßÓÐ×ã¹»µÄÈ¨ÏÞ£»
-     ¡¾usermod -a -G nagcmd apache¡¿
-£¨5£©±àÒë°²×°nagios
+
+çŠ¶æ€ç±»åž‹ï¼š
+ï¼ˆ1ï¼‰è½¯çŠ¶æ€:ä¸ä¼šå‘é€é€šçŸ¥ï¼Œå› ä¸ºé”™è¯¯å¯èƒ½æ˜¯ä¸´æ—¶æ€§çš„
+ï¼ˆ2ï¼‰ç¡¬çŠ¶æ€:ä¼šå‘é€é€šçŸ¥ï¼Œè§¦å‘æŠ¥è­¦æœºåˆ¶
+
+
+è¢«ç›‘æŽ§çš„ä¸»æœºå¯¹è±¡å¦‚æžœå‡ºçŽ°floppingï¼ˆæŠ–åŠ¨ï¼‰çŠ¶æ€ï¼Œå¯ä»¥è‡ªè¡Œå®šä¹‰å‘é€é€šçŸ¥ï¼›
+
+
+
+
+nagiosçš„å®‰è£…å’Œé…ç½®ï¼š
+
+1ã€nagiosçš„å®‰è£…
+ã€æ³¨ï¼šnagiosæä¾›äº†ä¸€ä¸ªwebæŽ¥å£ï¼Œä¾¿äºŽå±•ç¤ºç»™ç”¨æˆ·ï¼Œä½†éœ€è¦å®‰è£…webæœåŠ¡å™¨ä»¥åŠphpæœåŠ¡ã€‘
+
+nagiosçš„ç»„æˆï¼š
+ï¼ˆ1ï¼‰ä¸»ç¨‹åºï¼ˆnagiosï¼‰
+ï¼ˆ2ï¼‰ä¸€ä¸ªæ’ä»¶ç¨‹åºï¼ˆnagios-pluginsï¼‰
+ï¼ˆ3ï¼‰å››ä¸ªå¯é€‰çš„ADDONï¼ˆnrpeã€nscaã€nsclient++å’ŒNDOUtilsï¼‰
+
+å…¶ä¸­nagiosæœåŠ¡å™¨ç«¯éœ€è¦å®‰è£…ä¸»ç¨‹åºï¼ˆnagiosï¼‰å’Œnagios-pluginsï¼›
+
+
+
+å®‰è£…nagiosä¸»ç¨‹åºæ­¥éª¤ï¼š
+ï¼ˆ1ï¼‰é¦–å…ˆæ£€æŸ¥ä¸‹æ˜¯å¦å®‰è£…äº†Development Toolså’ŒDevelopment libraries;
+ï¼ˆ2ï¼‰æŽ¥ä¸‹æ¥ï¼Œå› ä¸ºnagiosä¾èµ–äºŽwebæœåŠ¡ï¼Œä½¿ç”¨å‘½ä»¤å®‰è£…ä¾èµ–åŒ…ã€yum  -y install httpd php php-mysql mysql mysql-serverã€‘
+ï¼ˆ3ï¼‰å®‰è£…ä¹‹å‰çš„å‡†å¤‡å·¥ä½œï¼Œå› ä¸ºnagiosè¿è¡Œéœ€è¦ç‰¹æ®Šçš„ç”¨æˆ·å’Œç»„ï¼›nagiosçš„ç»„ä¸€èˆ¬ä¸ºnagcmdï¼›åšä¸€ä¸‹æ“ä½œï¼š
+     ã€groupadd nagcmdã€‘
+     ã€useradd -G nagcmd nagiosã€‘
+     ã€passwd nagiosã€‘   ï¼ˆç»™nagiosç”¨æˆ·è®¾ç½®å¯†ç ï¼‰
+ï¼ˆ4ï¼‰æŠŠapacheåŠ å…¥åˆ°nagcmdç»„ï¼Œä»¥ä¾¿äºŽå†é€šè¿‡web interfaceæ“ä½œnagiosçš„æ—¶å€™èƒ½å¤Ÿå…·æœ‰è¶³å¤Ÿçš„æƒé™ï¼›
+     ã€usermod -a -G nagcmd apacheã€‘
+ï¼ˆ5ï¼‰ç¼–è¯‘å®‰è£…nagios
      tar -zxf nagios-3.3.1.tar.gz
      cd nagios-3.3.1
      ./configure  --with-command-group=nagcmd  --enable-event-broker
      make all
-     make install       ¡¾°²×°nagios¡¿
-     make install-init  ¡¾°²×°nagiosµÄÆô¶¯½Å±¾µ½/etc/init.d¡¿
-     make install-commandmode  ¡¾°²×°¸÷ÖÖÃüÁîÄ£Ê½£¬Éú³É¹¤¾ß¡¿
-     make install-config  ¡¾°²×°nagiosÅäÖÃÎÄ¼þ¡¿
+     make install       ã€å®‰è£…nagiosã€‘
+     make install-init  ã€å®‰è£…nagiosçš„å¯åŠ¨è„šæœ¬åˆ°/etc/init.dã€‘
+     make install-commandmode  ã€å®‰è£…å„ç§å‘½ä»¤æ¨¡å¼ï¼Œç”Ÿæˆå·¥å…·ã€‘
+     make install-config  ã€å®‰è£…nagiosé…ç½®æ–‡ä»¶ã€‘
 
-£¨6£©ÎªemailÖ¸¶¨ÄúÏëÒªÓÃÀ´½ÓÊÜnagios±¨¾¯ÐÅÏ¢µÄÓÊÏäµØÖ·£¬Ä¬ÈÏÊÇ±¾»úµÄnagiosÓÃ»§£»
+ï¼ˆ6ï¼‰ä¸ºemailæŒ‡å®šæ‚¨æƒ³è¦ç”¨æ¥æŽ¥å—nagiosæŠ¥è­¦ä¿¡æ¯çš„é‚®ç®±åœ°å€ï¼Œé»˜è®¤æ˜¯æœ¬æœºçš„nagiosç”¨æˆ·ï¼›
     #vi /usr/local/nagios/etc/objects/contacts.cfg
-        email       nagios@localhost¡¾Õâ¸öÊÇÄ¬ÈÏÉèÖÃ£¬¿ÉÒÔ¸ù¾Ý×Ô¼ºµÄÇé¿ö½øÐÐÐÞ¸Ä¡¿
+        email       nagios@localhostã€è¿™ä¸ªæ˜¯é»˜è®¤è®¾ç½®ï¼Œå¯ä»¥æ ¹æ®è‡ªå·±çš„æƒ…å†µè¿›è¡Œä¿®æ”¹ã€‘
 
-£¨7£©ÔÚhttpdµÄÅäÖÃÎÄ¼þÄ¿Â¼£¨conf.d£©ÖÐ´´½¨nagiosµÄweb³ÌÐòÅäÖÃÎÄ¼þ£º
-    make  install-webconf   ¡¾°²×°web½Ó¿Ú£¬Éú³Énagios.confÎÄ¼þ£¬ÄÜÈÃapacheÊ¶±ðnagiosÒ³Ãæ£¬Ê¶±ðÍøÒ³Â·¾¶¡¿
+ï¼ˆ7ï¼‰åœ¨httpdçš„é…ç½®æ–‡ä»¶ç›®å½•ï¼ˆconf.dï¼‰ä¸­åˆ›å»ºnagiosçš„webç¨‹åºé…ç½®æ–‡ä»¶ï¼š
+    make  install-webconf   ã€å®‰è£…webæŽ¥å£ï¼Œç”Ÿæˆnagios.confæ–‡ä»¶ï¼Œèƒ½è®©apacheè¯†åˆ«nagiosé¡µé¢ï¼Œè¯†åˆ«ç½‘é¡µè·¯å¾„ã€‘
 
-£¨8£© ´´½¨Ò»¸öµÇÂ½nagios web³ÌÐòµÄÓÃ»§£¬Õâ¸öÓÃ»§ÕËºÅÒÔºóÒªÍ¨¹ýwebµÇÂ½nagiosÈÏÖ¤Ê±Ê¹ÓÃ£»
+ï¼ˆ8ï¼‰ åˆ›å»ºä¸€ä¸ªç™»é™†nagios webç¨‹åºçš„ç”¨æˆ·ï¼Œè¿™ä¸ªç”¨æˆ·è´¦å·ä»¥åŽè¦é€šè¿‡webç™»é™†nagiosè®¤è¯æ—¶ä½¿ç”¨ï¼›
     htpasswd -c /usr/local/nagios/etc/htpasswd.users  nagiosadmin
 
-£¨9£©ÒÔÉÏ¹ý³Ì½áÊøÒÔºóÐèÒªÖØÐÂÆô¶¯httpd£»
+ï¼ˆ9ï¼‰ä»¥ä¸Šè¿‡ç¨‹ç»“æŸä»¥åŽéœ€è¦é‡æ–°å¯åŠ¨httpdï¼›
      service httpd  restart
 
 
-±àÒë¡¢°²×°nagios-plugins£º
+ç¼–è¯‘ã€å®‰è£…nagios-pluginsï¼š
 
-ÒòÎªnagiosËùÓÐµÄ¼à¿Ø¹¤×÷¶¼ÊÇÍ¨¹ý²ú¼ìÍê³ÉµÄ£¬Ò»´Î£¬ÔÙÆô¶¯nagiosÖ®Ç°ÐèÒªÎªÆä°²×°¹Ù·½Ìá¹©µÄ²å¼þ£»
+å› ä¸ºnagiosæ‰€æœ‰çš„ç›‘æŽ§å·¥ä½œéƒ½æ˜¯é€šè¿‡äº§æ£€å®Œæˆçš„ï¼Œä¸€æ¬¡ï¼Œå†å¯åŠ¨nagiosä¹‹å‰éœ€è¦ä¸ºå…¶å®‰è£…å®˜æ–¹æä¾›çš„æ’ä»¶ï¼›
 
-  ½âÑ¹¡¢±àÒë°²×°
+  è§£åŽ‹ã€ç¼–è¯‘å®‰è£…
      tar -zxf nagios-plugins-1.4.13.tar.gz
      cd  nagios-plugins-1.4.13
     ./configure  --with-nagios-user=nagios   --with-nagios-group=nagios --prefix=/usr/local/nagios
@@ -131,82 +131,82 @@ nagiosµÄ×é³É£º
      make install
 
 
-ÅäÖÃÆô¶¯nagios£º
+é…ç½®å¯åŠ¨nagiosï¼š
 
-£¨1£©°ÑnagiosÌí¼ÓÎªÏµÍ³·þÎñ²¢½«Ö®¼ÓÈëµ½×Ô¶¯Æô¶¯·þÎñ¶ÓÁÐ£º
+ï¼ˆ1ï¼‰æŠŠnagiosæ·»åŠ ä¸ºç³»ç»ŸæœåŠ¡å¹¶å°†ä¹‹åŠ å…¥åˆ°è‡ªåŠ¨å¯åŠ¨æœåŠ¡é˜Ÿåˆ—ï¼š
      chkconfig  --add nagios
      chkconfig  nagios  on
 
-£¨2£©¼ì²éÆäÖ÷ÅäÖÃÎÄ¼þÊÇ·ñÕýÈ·£º
+ï¼ˆ2ï¼‰æ£€æŸ¥å…¶ä¸»é…ç½®æ–‡ä»¶æ˜¯å¦æ­£ç¡®ï¼š
      /usr/local/nagios/bin/nagios  -v  /usr/local/nagios/etc/nagisos.cfg
 
-£¨3£©ÈôÉÏÊöÓï·¨¼ì²éÎÞÎÊÌâ¾Í¿ÉÒÔÕýÊ½Æô¶¯nagios·þÎñÁË£º
+ï¼ˆ3ï¼‰è‹¥ä¸Šè¿°è¯­æ³•æ£€æŸ¥æ— é—®é¢˜å°±å¯ä»¥æ­£å¼å¯åŠ¨nagiosæœåŠ¡äº†ï¼š
      service nagios start
 
 
-selinuxÉèÖÃ£º
+selinuxè®¾ç½®ï¼š
 
-ÒòÎªÏµÍ³Èç¹û¿ªÆôÁËselinux£¬Ä¬ÈÏÊÇ½ûÖ¹nagios web CGI³ÌÐòÖ´ÐÐµÄ£»Äã¿ÉÒÔÍ¨¹ýÒÔÏÂÁ½ÖÖÅäÖÃ·½Ê½£º
-£¨1£©µÚÒ»ÖÖ·½·¨£ºÖ±½Ó¹Ø±Õselinux
-     ½øÈë/etc/sysconfig/selinux£¬½«ÆäÖÐselinuxºóÃæµÄÖµ¡°enforcing¡±¸Ä³É¡°disabled¡±
+å› ä¸ºç³»ç»Ÿå¦‚æžœå¼€å¯äº†selinuxï¼Œé»˜è®¤æ˜¯ç¦æ­¢nagios web CGIç¨‹åºæ‰§è¡Œçš„ï¼›ä½ å¯ä»¥é€šè¿‡ä»¥ä¸‹ä¸¤ç§é…ç½®æ–¹å¼ï¼š
+ï¼ˆ1ï¼‰ç¬¬ä¸€ç§æ–¹æ³•ï¼šç›´æŽ¥å…³é—­selinux
+     è¿›å…¥/etc/sysconfig/selinuxï¼Œå°†å…¶ä¸­selinuxåŽé¢çš„å€¼â€œenforcingâ€æ”¹æˆâ€œdisabledâ€
 
-£¨2£©µÚ¶þÖÖ·½·¨£º½«nagiosµÄCGI³ÌÐòÔËÐÐÓëselinux/targetedÄ£Ê½¶ø²»ÓÃ¹Ø±Õselinux£»
+ï¼ˆ2ï¼‰ç¬¬äºŒç§æ–¹æ³•ï¼šå°†nagiosçš„CGIç¨‹åºè¿è¡Œä¸Žselinux/targetedæ¨¡å¼è€Œä¸ç”¨å…³é—­selinuxï¼›
     chcon  -R  -t  http_sys_content_t  /usr/local/nagios/sbin
     chcon  -R  -t  http_sys_content_t  /usr/local/nagios/share
 
 
-¡¾½ÓÏÂÀ´¼´¿ÉÆô¶¯nagios·þÎñÆ÷£¬²¢Í¨¹ýweb½çÃæ·ÃÎÊÁË¡¿
+ã€æŽ¥ä¸‹æ¥å³å¯å¯åŠ¨nagiosæœåŠ¡å™¨ï¼Œå¹¶é€šè¿‡webç•Œé¢è®¿é—®äº†ã€‘
 
 
 
-2¡¢ÅäÖÃnagios
+2ã€é…ç½®nagios
 
-£¨1£©nagiosµÄÖ÷ÅäÖÃÎÄ¼þ	
-nagiosµÄÖ÷ÅäÖÃÎÄ¼þÊÇnagios.cfg£»Óï·¨·Ç³£¼ò½à£¬Í¨³£#¿ªÍ·µÄÐÐÎª×¢ÊÍÐÐ£¬¶ø²ÎÊýµÄÉèÖÃ¸ñÊ½Îª<parameter>=<vlaue>;ÆäÖÐ£¬ÓÐÐ©²ÎÊýÊÇ¿ÉÒÔÖØ¸´³öÏÖµÄ¡£ÆäÖÐ³£ÓÃµÄ²ÎÊýËµÃ÷ÈçÏÂ£º
+ï¼ˆ1ï¼‰nagiosçš„ä¸»é…ç½®æ–‡ä»¶	
+nagiosçš„ä¸»é…ç½®æ–‡ä»¶æ˜¯nagios.cfgï¼›è¯­æ³•éžå¸¸ç®€æ´ï¼Œé€šå¸¸#å¼€å¤´çš„è¡Œä¸ºæ³¨é‡Šè¡Œï¼Œè€Œå‚æ•°çš„è®¾ç½®æ ¼å¼ä¸º<parameter>=<vlaue>;å…¶ä¸­ï¼Œæœ‰äº›å‚æ•°æ˜¯å¯ä»¥é‡å¤å‡ºçŽ°çš„ã€‚å…¶ä¸­å¸¸ç”¨çš„å‚æ•°è¯´æ˜Žå¦‚ä¸‹ï¼š
 
-log_file£ºÉèÖÃnagiosµÄÈÕÖ¾ÎÄ¼þ£»
-cfg_file£ºnagios¶ÔÏó¶¨ÒåµÄÏà¹ØÎÄ¼þ£¬´Ë²ÎÊý¿ÉÖØ¸´Ê¹ÓÃ¶à´ÎÒÔÖ¸¶¨¶à¸öÎÄ¼þ£»
-cfg_dir£º¶¨Òånagios¶ÔÏó¶¨ÒåµÄÏà¹ØÎÄ¼þËùÔÚµÄÄ¿Â¼£¬´ËÄ¿Â¼ÖÐµÄËùÓÐÎÄ¼þ¶¼»á±»×÷Îª¶ÔÏó¶¨ÒåµÄÎÄ¼þ£»´Ë²ÎÊý¿ÉÖØ¸´Ê¹ÓÃ¶à´ÎÒÔÖ¸¶¨¶à¸öÄ¿Â¼£»
-resource_file£ºÉè¶¨nagios¸½¼ÓµÄºê¶¨ÒåµÄÏà¹ØÎÄ¼þ£»
-status_file£ºÉè¶¨nagios´æ´¢ËùÓÐÖ÷»úºÍ·þÎñµ±Ç°×´Ì¬ÐÅÏ¢µÄÎÄ¼þ£»
-status_update_interval£ºÉè¶¨status_fileÖ¸¶¨µÄÎÄ¼þÖÐ×´Ì¬ÐÅÏ¢µÄ¸üÐÂÆµÂÊ£»
-service_check_timeout£ºÉè¶¨·þÎñ¼ì²âµÄ³¬Ê±Ê±¼ä£¬Ä¬ÈÏÊÇ60Ãë£»
-host_check_timeout£ºÉè¶¨Ö÷»ú¼ì²âµÄ³¬Ê±Ê±¼ä£¬Ä¬ÈÏÊÇ30Ãë£»
-notification_timeout£ºÉè¶¨Í¨ÖªÐÅÏ¢·¢ËÍ³¢ÊÔµÄ³¬Ê±Ê±¼ä£¬Ä¬ÈÏ30s
-
-
-2¡¢resource_fileºÍºê¶¨Òå
-ÔÚÖ÷ÅäÖÃÎÄ¼þÖÐ£¬²ÎÊýresource_fileÓÃÓÚ¶¨ÒåËùÓÐÓÃ»§±äÁ¿£¨¼´ºê£©µÄ´æ´¢ÎÄ¼þ£¬ËüÓÃÓÚ´æ´¢¶ÔÏó¶¨ÒåÖÐµÄ¿ÉÒÔ·ÅÎÄ¼þµÄ¶îÍâÐÅÏ¢£»Èç·ÃÎÊÄ³·þÎñµÄÃÜÂëµÈ£»Òò´Ë£¬ÕâÐ©ÐÅÏ¢Í¨³£¶¼ÊÇÐ©Ãô¸ÐÊý¾Ý£¬Ò»°ã²»ÔÊÐíÍ¨¹ýweb½Ó¿ÚÀ´·ÃÎÊ¡£´ËÎÄ¼þÖÐ¿ÉÒÔ¶¨ÒåµÄºê¿É¶à´ï32¸ö£¬·Ö±ðÊÇ£º$USER1...$USER32£¬ÕâÐ©ºêÒ»°ãÔÚcheckÃüÁîÖÐÒýÓÃ£¬Í¨³£Çé¿öÏÂ$USER1ÓÃÓÚÒýÓÃnagios²å¼þËùÔÚÄ¿Â¼Õâ¸öÂ·¾¶ÐÅÏ¢£¬Òò´Ë£¬Ò»°ã²»½¨ÒéÐÞ¸Ä¸ÃÖµ¡£
+log_fileï¼šè®¾ç½®nagiosçš„æ—¥å¿—æ–‡ä»¶ï¼›
+cfg_fileï¼šnagioså¯¹è±¡å®šä¹‰çš„ç›¸å…³æ–‡ä»¶ï¼Œæ­¤å‚æ•°å¯é‡å¤ä½¿ç”¨å¤šæ¬¡ä»¥æŒ‡å®šå¤šä¸ªæ–‡ä»¶ï¼›
+cfg_dirï¼šå®šä¹‰nagioså¯¹è±¡å®šä¹‰çš„ç›¸å…³æ–‡ä»¶æ‰€åœ¨çš„ç›®å½•ï¼Œæ­¤ç›®å½•ä¸­çš„æ‰€æœ‰æ–‡ä»¶éƒ½ä¼šè¢«ä½œä¸ºå¯¹è±¡å®šä¹‰çš„æ–‡ä»¶ï¼›æ­¤å‚æ•°å¯é‡å¤ä½¿ç”¨å¤šæ¬¡ä»¥æŒ‡å®šå¤šä¸ªç›®å½•ï¼›
+resource_fileï¼šè®¾å®šnagiosé™„åŠ çš„å®å®šä¹‰çš„ç›¸å…³æ–‡ä»¶ï¼›
+status_fileï¼šè®¾å®šnagioså­˜å‚¨æ‰€æœ‰ä¸»æœºå’ŒæœåŠ¡å½“å‰çŠ¶æ€ä¿¡æ¯çš„æ–‡ä»¶ï¼›
+status_update_intervalï¼šè®¾å®šstatus_fileæŒ‡å®šçš„æ–‡ä»¶ä¸­çŠ¶æ€ä¿¡æ¯çš„æ›´æ–°é¢‘çŽ‡ï¼›
+service_check_timeoutï¼šè®¾å®šæœåŠ¡æ£€æµ‹çš„è¶…æ—¶æ—¶é—´ï¼Œé»˜è®¤æ˜¯60ç§’ï¼›
+host_check_timeoutï¼šè®¾å®šä¸»æœºæ£€æµ‹çš„è¶…æ—¶æ—¶é—´ï¼Œé»˜è®¤æ˜¯30ç§’ï¼›
+notification_timeoutï¼šè®¾å®šé€šçŸ¥ä¿¡æ¯å‘é€å°è¯•çš„è¶…æ—¶æ—¶é—´ï¼Œé»˜è®¤30s
 
 
-
-
-
-
-ºê£º¼´±äÁ¿£»resource.cfg¾ÍÊÇ¶¨ÒåºêµÄÅäÖÃÎÄ¼þ¡¾¿ÉÒÔ¶¨Òå32¸öºê£¬$USER1-$USER32¡¿
-
-
-
-¡¾¼à¿Øwindows»úÆ÷£¬¿ÉÒÔÊ¹ÓÃsnmp»òÕßnsclient++¡¿
+2ã€resource_fileå’Œå®å®šä¹‰
+åœ¨ä¸»é…ç½®æ–‡ä»¶ä¸­ï¼Œå‚æ•°resource_fileç”¨äºŽå®šä¹‰æ‰€æœ‰ç”¨æˆ·å˜é‡ï¼ˆå³å®ï¼‰çš„å­˜å‚¨æ–‡ä»¶ï¼Œå®ƒç”¨äºŽå­˜å‚¨å¯¹è±¡å®šä¹‰ä¸­çš„å¯ä»¥æ”¾æ–‡ä»¶çš„é¢å¤–ä¿¡æ¯ï¼›å¦‚è®¿é—®æŸæœåŠ¡çš„å¯†ç ç­‰ï¼›å› æ­¤ï¼Œè¿™äº›ä¿¡æ¯é€šå¸¸éƒ½æ˜¯äº›æ•æ„Ÿæ•°æ®ï¼Œä¸€èˆ¬ä¸å…è®¸é€šè¿‡webæŽ¥å£æ¥è®¿é—®ã€‚æ­¤æ–‡ä»¶ä¸­å¯ä»¥å®šä¹‰çš„å®å¯å¤šè¾¾32ä¸ªï¼Œåˆ†åˆ«æ˜¯ï¼š$USER1...$USER32ï¼Œè¿™äº›å®ä¸€èˆ¬åœ¨checkå‘½ä»¤ä¸­å¼•ç”¨ï¼Œé€šå¸¸æƒ…å†µä¸‹$USER1ç”¨äºŽå¼•ç”¨nagiosæ’ä»¶æ‰€åœ¨ç›®å½•è¿™ä¸ªè·¯å¾„ä¿¡æ¯ï¼Œå› æ­¤ï¼Œä¸€èˆ¬ä¸å»ºè®®ä¿®æ”¹è¯¥å€¼ã€‚
 
 
 
 
 
-ÆóÒµ¼¶¼à¿ØÏµÁÐÖ®Áù ---nagiosµÄ¸ß¼¶Ó¦ÓÃ¼°²å¼þ¿ª·¢
 
-¶¨Òå¶ÔÏó£º
+å®ï¼šå³å˜é‡ï¼›resource.cfgå°±æ˜¯å®šä¹‰å®çš„é…ç½®æ–‡ä»¶ã€å¯ä»¥å®šä¹‰32ä¸ªå®ï¼Œ$USER1-$USER32ã€‘
 
 
-£¨1£©¶¨ÒåÃüÁî
-¸ñÊ½ÈçÏÂ£º
+
+ã€ç›‘æŽ§windowsæœºå™¨ï¼Œå¯ä»¥ä½¿ç”¨snmpæˆ–è€…nsclient++ã€‘
+
+
+
+
+
+ä¼ä¸šçº§ç›‘æŽ§ç³»åˆ—ä¹‹å…­ ---nagiosçš„é«˜çº§åº”ç”¨åŠæ’ä»¶å¼€å‘
+
+å®šä¹‰å¯¹è±¡ï¼š
+
+
+ï¼ˆ1ï¼‰å®šä¹‰å‘½ä»¤
+æ ¼å¼å¦‚ä¸‹ï¼š
 define command {
-   command_name  check_nt   ¡¾¶¨ÒåÃüÁîÃû³Æ£¨¿ÉÒÔËæÒâ¶¨Òå£©¡¿
-   command_line  $USER1/check_nt -H $hostaddress$ -p 12489 -s PASSWORD -v $ARG1$ $ARG2$  ¡¾¶ÔÓ¦²å¼þÃüÁî¸ñÊ½¡¿
+   command_name  check_nt   ã€å®šä¹‰å‘½ä»¤åç§°ï¼ˆå¯ä»¥éšæ„å®šä¹‰ï¼‰ã€‘
+   command_line  $USER1/check_nt -H $hostaddress$ -p 12489 -s PASSWORD -v $ARG1$ $ARG2$  ã€å¯¹åº”æ’ä»¶å‘½ä»¤æ ¼å¼ã€‘
 }
 
-£¨2£©¶¨ÒåÖ÷»ú
-¸ñÊ½ÈçÏÂ£º
+ï¼ˆ2ï¼‰å®šä¹‰ä¸»æœº
+æ ¼å¼å¦‚ä¸‹ï¼š
 define host {
         use              windows-server
         host_name        winhost
@@ -214,38 +214,38 @@ define host {
 	address          192.168.9.104      
 }
 
-£¨3£©¶¨Òå·þÎñ£¨¼´¾ßÌå¼à¿ØÄÄÐ©ÄÚÈÝ£©
-¸ñÊ½ÈçÏÂ£º
+ï¼ˆ3ï¼‰å®šä¹‰æœåŠ¡ï¼ˆå³å…·ä½“ç›‘æŽ§å“ªäº›å†…å®¹ï¼‰
+æ ¼å¼å¦‚ä¸‹ï¼š
 define service {
 	use       	      generic-service
 	host_name             winhost
 	service_description   CPU_LOAD
-	check_command         check_nt!CPULOAD!-l 5,80,90 ¡¾Èç¹ûÃüÁîºóÃæ¸ú²ÎÊý£¬Ö±½ÓÊ¹ÓÃcommand!<para1>!<para2>¡¿	
+	check_command         check_nt!CPULOAD!-l 5,80,90 ã€å¦‚æžœå‘½ä»¤åŽé¢è·Ÿå‚æ•°ï¼Œç›´æŽ¥ä½¿ç”¨command!<para1>!<para2>ã€‘	
 }
 
-¡¾¿ÉÒÔ¶¨Òå¶à¸öservice¡¿
+ã€å¯ä»¥å®šä¹‰å¤šä¸ªserviceã€‘
 
 
 
-ÔõÃ´»ùÓÚnrpeÀ´¼à¿Ølinux£¿
+æ€Žä¹ˆåŸºäºŽnrpeæ¥ç›‘æŽ§linuxï¼Ÿ
 
-·þÎñ¶ËÊ¹ÓÃcheck_nrpeÀ´¼à¿Ø¿Í»§¶Ënrpe½ø³Ì£»
+æœåŠ¡ç«¯ä½¿ç”¨check_nrpeæ¥ç›‘æŽ§å®¢æˆ·ç«¯nrpeè¿›ç¨‹ï¼›
 
-nrpeÊÇÓÃÓÚÔÚÔ¶¶Ë·þÎñÆ÷ÉÏÔËÐÐ¼à²âÃüÁîµÄÊØ»¤½ø³Ì£¬ËüÓÃÓÚÈÃnagios¼à¿Ø¶Ë»ùÓÚ°²×°µÄ·½Ê½´¥·¢Ô¶¶ËÖ÷»úÉÏµÄ¼ì²âÃüÁî£¬²¢½«¼ì²â½á¹ûÊä³öÖÁ¼à¿Ø¶Ë¡£¶øÆäÖ´ÐÐµÄ¿ªÏúÔ¶µÍÓÚ»ùÓÚsshµÄ¼ì²â·½Ê½£¬¶øÇÒ¼ì²â¹ý³Ì²¢²»ÐèÒªÔ¶³ÌÖ÷»úÉÏµÄÏµÍ³ÕËºÅµÈÐÅÏ¢£»Æä°²È«ÐÔÒ²¸ßÓÚsshµÄ¼ì²â·½Ê½¡£
+nrpeæ˜¯ç”¨äºŽåœ¨è¿œç«¯æœåŠ¡å™¨ä¸Šè¿è¡Œç›‘æµ‹å‘½ä»¤çš„å®ˆæŠ¤è¿›ç¨‹ï¼Œå®ƒç”¨äºŽè®©nagiosç›‘æŽ§ç«¯åŸºäºŽå®‰è£…çš„æ–¹å¼è§¦å‘è¿œç«¯ä¸»æœºä¸Šçš„æ£€æµ‹å‘½ä»¤ï¼Œå¹¶å°†æ£€æµ‹ç»“æžœè¾“å‡ºè‡³ç›‘æŽ§ç«¯ã€‚è€Œå…¶æ‰§è¡Œçš„å¼€é”€è¿œä½ŽäºŽåŸºäºŽsshçš„æ£€æµ‹æ–¹å¼ï¼Œè€Œä¸”æ£€æµ‹è¿‡ç¨‹å¹¶ä¸éœ€è¦è¿œç¨‹ä¸»æœºä¸Šçš„ç³»ç»Ÿè´¦å·ç­‰ä¿¡æ¯ï¼›å…¶å®‰å…¨æ€§ä¹Ÿé«˜äºŽsshçš„æ£€æµ‹æ–¹å¼ã€‚
 
 
-°²×°ÅäÖÃ±»¼à¿Ø¶Ë£º
+å®‰è£…é…ç½®è¢«ç›‘æŽ§ç«¯ï¼š
 
-£¨1£©Ê×ÏÈÌí¼ÓnagiosÓÃ»§
+ï¼ˆ1ï¼‰é¦–å…ˆæ·»åŠ nagiosç”¨æˆ·
      useradd -s /sbin/nologin nagios
-£¨2£©ÒòÎªnrpeÒÀÀµÓÚnagios-plugins£¬Òò´Ë£¬ÐèÒªÊ×ÏÈ°²×°Ö®
+ï¼ˆ2ï¼‰å› ä¸ºnrpeä¾èµ–äºŽnagios-pluginsï¼Œå› æ­¤ï¼Œéœ€è¦é¦–å…ˆå®‰è£…ä¹‹
      tar -zxf nagios-plugins-1.4.15.tar.gz
      cd nagios-plugins-1.4.15
      ./configure  --with-nagios-user=nagios  --with-nagios-group=nagios
      make all
      make install
 
-£¨3£©°²×°NRPE
+ï¼ˆ3ï¼‰å®‰è£…NRPE
 	tar -zxf nrpe-2.12.tar.gz
 	cd nrpe-2.12
 	./configure --with-nrpe-user=nagios  --with-nrpe-group=nagios  --with-nagios-user=nagios  --with-nagios-group=nagios  --enable-command-args  --enable-ssl
@@ -254,7 +254,7 @@ nrpeÊÇÓÃÓÚÔÚÔ¶¶Ë·þÎñÆ÷ÉÏÔËÐÐ¼à²âÃüÁîµÄÊØ»¤½ø³Ì£¬ËüÓÃÓÚÈÃnagios¼à¿Ø¶Ë»ùÓÚ°²×°µÄ·½
 	make install-daemon
 	make install-daemon-config
 
-£¨4£©ÅäÖÃNRPE
+ï¼ˆ4ï¼‰é…ç½®NRPE
 	#vim /usr/local/nagios/etc/nrpe.conf
 		
         log_facility=daemon
@@ -267,34 +267,34 @@ nrpeÊÇÓÃÓÚÔÚÔ¶¶Ë·þÎñÆ÷ÉÏÔËÐÐ¼à²âÃüÁîµÄÊØ»¤½ø³Ì£¬ËüÓÃÓÚÈÃnagios¼à¿Ø¶Ë»ùÓÚ°²×°µÄ·½
 	command_timeout=60
 	connention_timeout=300
 
-£¨5£©Æô¶¯nrpe
+ï¼ˆ5ï¼‰å¯åŠ¨nrpe
    	/usr/local/nagios/bin/nrpe  -c /usr/local/nagios/etc/nrpe.cfg -d
 
 
 
-ÅäÖÃ¼à¿Ø¶ËNRPE
+é…ç½®ç›‘æŽ§ç«¯NRPE
 
-£¨1£©°²×°nrpe
+ï¼ˆ1ï¼‰å®‰è£…nrpe
 	tar -zxf nrpe-2.12.tar.gz
 	cd nrpe-2.12
 	./configure --with-nrpe-user=nagios  --with-nrpe-group=nagios  --with-nagios-user=nagios  --with-nagios-group=nagios  --enable-command-args  --enable-ssl
 	make all
 	make install-plugin
 
-£¨2£©¶¨ÒåÈçºÎ¼à¿ØÔ¶³ÌÖ÷»úºÍ·þÎñ
+ï¼ˆ2ï¼‰å®šä¹‰å¦‚ä½•ç›‘æŽ§è¿œç¨‹ä¸»æœºå’ŒæœåŠ¡
 
-Í¨¹ýnrpe¼à¿ØÔ¶³ÌÖ÷»úlinuxÖ÷»úÒªÊ¹ÓÃchech_nrpe²å¼þ½øÐÐ£¬ÆäÓï·¨¸ñÊ½ÈçÏÂ£º
+é€šè¿‡nrpeç›‘æŽ§è¿œç¨‹ä¸»æœºlinuxä¸»æœºè¦ä½¿ç”¨chech_nrpeæ’ä»¶è¿›è¡Œï¼Œå…¶è¯­æ³•æ ¼å¼å¦‚ä¸‹ï¼š
 check_nrpe -H <host> [-n] [-u]  [-p <port>]  [-t <timeout>]  [-c <command>]  [-a <arglist...>]
 
-Ê¹ÓÃÊ¾Àý1£º
-¶¨Òå¼à¿ØÔ¶³ÌlinuxÖ÷»úswap×ÊÔ´µÄÃüÁî£º
+ä½¿ç”¨ç¤ºä¾‹1ï¼š
+å®šä¹‰ç›‘æŽ§è¿œç¨‹linuxä¸»æœºswapèµ„æºçš„å‘½ä»¤ï¼š
 define command 
 {
   command_name check_swap_nrpe
   command_line  $USER1$/check_nrpe -H "$HOSTADDRESS$" -c "check_swap"
 }
 
-¶¨ÒåÔ¶³ÌlinuxÖ÷»úµÄswap×ÊÔ´£º
+å®šä¹‰è¿œç¨‹linuxä¸»æœºçš„swapèµ„æºï¼š
 define service 
 {
   use    generic-service
@@ -305,7 +305,7 @@ define service
   normal_check_interval  30 
 }
 
-Ê¾Àý2£º
+ç¤ºä¾‹2ï¼š
 define service 
 {
   use    generic-service

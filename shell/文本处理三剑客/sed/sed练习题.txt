@@ -1,9 +1,9 @@
-ÌâÄ¿£ºmatrixÎÄµµÄÚÈİÈçÏÂ£º
+é¢˜ç›®ï¼šmatrixæ–‡æ¡£å†…å®¹å¦‚ä¸‹ï¼š
 
-# ·şÎñ¶Ë¿Ú
+# æœåŠ¡ç«¯å£
 server.port = 8080
 
-# Êı¾İ¿â
+# æ•°æ®åº“
 mysql.url = jdbc:mysql://localhost:3306/db_freeradius?useUnicode=yes&characterEncoding=UTF-8
 mysql.user = root
 mysql.password = WisdomHotelMySql
@@ -19,14 +19,14 @@ mongo.maxWaitTime = 60
 mongo.socketKeepAlive = true
 mongo.socketTimeout = 3000
 
-ÏÖÔÚÒªÇó½«mysql.url= jdbc:mysql://localhost:3306/db_freeradius?useUnicode=yes&characterEncoding=UTF-8Ìæ»»³Émysql.url = jdbc:mysql://localhost:3306/radius?useUnicode=yes&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
+ç°åœ¨è¦æ±‚å°†mysql.url= jdbc:mysql://localhost:3306/db_freeradius?useUnicode=yes&characterEncoding=UTF-8æ›¿æ¢æˆmysql.url = jdbc:mysql://localhost:3306/radius?useUnicode=yes&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
 
 
-½â´ğÒ»£º
+è§£ç­”ä¸€ï¼š
 sed '/mysql.url/s/db_freeradius?useUnicode=yes&characterEncoding=UTF-8/radius?useUnicode=yes\&characterEncoding=UTF-8\&zeroDateTimeBehavior=convertToNull/g' matrix.txt 
 
-½â´ğ¶ş£º
+è§£ç­”äºŒï¼š
 sed "s/db_freeradius?useUnicode=yes&characterEncoding=UTF-8/radius\?useUnicode=yes\&characterEncoding=UTF-8\&zeroDateTimeBehavior=convertToNull/g" matrix.txt   
 
 
-×¢£ºÔÚÌæ»»µÄÊ±ºò£¬Ç°ÃæÆ¥ÅäµÄÄÚÈİ&¶¼²»ĞèÒª×ªÒå£¬µ«ÊÇÒªÌæ»»³ÉµÄÄÚÈİÖĞÈç¹û°üº¬&£¨´Ë&±íÊ¾Ç°ÃæÆ¥ÅäµÄÄÚÈİ£©»òÕßÆäËûÌØÊâ×Ö·û¾Í¶¼ĞèÒª×ªÒåÁË¡£
+æ³¨ï¼šåœ¨æ›¿æ¢çš„æ—¶å€™ï¼Œå‰é¢åŒ¹é…çš„å†…å®¹&éƒ½ä¸éœ€è¦è½¬ä¹‰ï¼Œä½†æ˜¯è¦æ›¿æ¢æˆçš„å†…å®¹ä¸­å¦‚æœåŒ…å«&ï¼ˆæ­¤&è¡¨ç¤ºå‰é¢åŒ¹é…çš„å†…å®¹ï¼‰æˆ–è€…å…¶ä»–ç‰¹æ®Šå­—ç¬¦å°±éƒ½éœ€è¦è½¬ä¹‰äº†ã€‚

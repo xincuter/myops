@@ -1,227 +1,227 @@
-54_01����ҵ�����ϵ��֮һ---snmpԭ����ʵս
+54_01、企业级监控系列之一---snmp原理和实战
 
 network monitoring
 
-һ̨������ؼ�ʮ̨������ǧ̨������������
+一台主机监控几十台甚至上千台服务器或主机
 
 
-��Դʵ�������ع��ߣ�
-SNMP�����������Э�顿
-RRDTool����ͼ����
-cacti��ǿ���չʾ���棬php�ű�������RRDTool
-       �����Ǹ�ʱ��������ص�
-nagios��ר�ż�ط�����Ч״̬������״̬�ı伴֪ͨ����Ա�����Խ��SNMPʹ�á�
+开源实现网络监控工具：
+SNMP【简单网络管理协议】
+RRDTool：绘图工具
+cacti：强大的展示引擎，php脚本，调用RRDTool
+       必须是跟时间序列相关的
+nagios：专门监控服务有效状态，发生状态改变即通知管理员【可以结合SNMP使用】
 
 
-���������ͨ������ΪNMS��
+监控主机【通常被称为NMS】
 
-ԭ����NMSͨ��ĳ�ֻ��ƶ��ڵ�����ص������ϻ�ȡ�����Ϣ��������������ĳ���ļ���ȥ����ͨ��ĳ�ַ�ʽ������������ȡ����Ϣ�ļ������ʼ���ʽ���͸�����Ա��
-
-
-
-SNMP�����������Э�飩
-����ͨ���򵥲���ʵ�ּ��Զ�������ϵķ�����Դ��ϵͳ��Ϣ�ȵ�
-
-version��
-SNMPv1����ȫ����community��������֤��community����������֤����
-        community�������֣��ֱ���read-only��read-write��trap������ض���������notify����ضˣ�
-	����ض���Ҫ��װ�������agent�����շ���˷��͵�ָ��
-
-SNMPv2����v1��ֻ࣬�ǹ�����ǿЩ
-
-SNMPv3����ǿ�˰�ȫ����
-
-��Ŀǰ�����еĻ���SNMPv1��
+原理：NMS通过某种机制定期到被监控的主机上获取监控信息，并保存至本地某个文件总去，并通过某种方式（报警器）读取该信息文件，以邮件方式发送给管理员。
 
 
-manager��NMS
+
+SNMP（简单网络管理协议）
+可以通过简单操作实现监控远程主机上的服务资源、系统信息等等
+
+version：
+SNMPv1：安全基于community，建立认证，community的名字是认证密码
+        community：共三种，分别是read-only、read-write、trap（被监控端主动发送notify给监控端）
+	被监控端需要安装服务进程agent，接收服务端发送的指令
+
+SNMPv2：跟v1差不多，只是功能增强些
+
+SNMPv3：增强了安全机制
+
+【目前最流行的还是SNMPv1】
+
+
+manager：NMS
 
 
 MIBS
-MIB(manager information base)���������ݿ⣬MIB�б���ľ��Ǳ���ض����OID�����Ƶ�ӳ�����
+MIB(manager information base)：管理数据库，MIB中保存的就是被监控对象的OID和名称的映射表。
 
-OID�������ʶ����Ψһ����һ̨����ص��豸�򱻼���豸��ĳ����Դ
+OID：对象标识符，唯一定义一台被监控的设备或被监控设备的某项资源
 
-һ��������ƺ�OIDһһ��Ӧ��������������
+一般采用名称和OID一一对应，方便记忆和引用
 
-���������Դ����������MIB�⣬����ض����ϰ�װ��agent�����ṩMIB���ļ���������dns���������ļ���
-
-
-Ŀǰ���õ�MIB��MIB-II
+监控主机资源必须依赖于MIB库，被监控对象上安装的agent都会提供MIB库文件（类似于dns的域数据文件）
 
 
-�ܹ�ʵ�ֵ����������ͣ�
+目前常用的MIB是MIB-II
+
+
+能够实现的网络监控类型：
 fault management
 configuration management
-accounting management�����˹�����
-performance management�����ܹ�����
+accounting management（记账管理）
+performance management（性能管理）
 security management
 
 
-�����ôʵ�֣�
-����SNMP������ض�������udp��161��tcp��199�˿ڣ�ʵʱ���ռ�ض˵Ĳ�ѯ���󣬶���ض˱�����UDP 162�˿ڣ�����trap���ģ�
+监控怎么实现？
+运行SNMP，被监控端主动打开udp的161和tcp的199端口，实时接收监控端的查询请求，而监控端被动打开UDP 162端口（接收trap报文）
 
 
-������������������snmp���ܣ��������������õ�community���ֱ���public��read-only����private��read-write����Ϊ�˰�ȫ���ǣ���ر�private
+对于任意主机，启用snmp功能，都会有两个内置的community，分别是public（read-only）和private（read-write），为了安全考虑，会关闭private
 
 
-MIB��Ҳ�Ƿֲ������
+MIB库也是分层管理的
 
-MIB�ļ��Ǵ�ASCII��
+MIB文件是纯ASCII码
 
 
-SNMP�ı��ģ�
+SNMP的报文：
 get
 getnext
-getbulk��snmpv2��snmpv3��
+getbulk（snmpv2和snmpv3）
 set
 trap
 getresponse
-notification��snmpv2��snmpv3��
-inform ��snmpv2��snmpv3��
-report ��snmpv2��snmpv3��
+notification（snmpv2和snmpv3）
+inform （snmpv2和snmpv3）
+report （snmpv2和snmpv3）
 
 
 
-snmp�ļ򵥲�����
+snmp的简单操作：
 
-snmp��������
-net-snmp��Agent������ض�װ��
-net-snmp-utils��NMS������Ҫ����trap���ģ�����İ�NMSҲҪװ��
+snmp软件包：
+net-snmp（Agent，被监控端装）
+net-snmp-utils（NMS，若想要接收trap报文，上面的包NMS也要装）
 
-linux�������������snmp��
+linux主机上如何启用snmp？
 
-���Ȳ鿴�Ƿ�װ������snmp������������û�а�װʹ�á�yum install net-snmp net-snmp-utils��
+首先查看是否安装了上述snmp的软件包，若没有安装使用【yum install net-snmp net-snmp-utils】
 
-����snmp��/etc/init.d/snmpd start
-��Ҫ����snmp��trap���ܣ�/etc/init.d/snmptrapd start
+启用snmp：/etc/init.d/snmpd start
+若要启用snmp的trap功能：/etc/init.d/snmptrapd start
 
-snmp�������ļ���
-agent���ã�
+snmp的配置文件：
+agent端用：
 /etc/snmp/snmpd.conf
 /etc/sysconfig/snmpd
 
-NMS�ã�
+NMS用：
 /etc/snmp/snmptrapd.conf
 /etc/sysconfig/snmptrapd
 
-MIB���ļ�Ŀ¼��
+MIB库文件目录：
 /usr/share/snmp/mibs/
 
 
-����������ļ�/etc/snmp/snmpd.conf�ж����ض��ܻ�ȡ��Щ��Ϣ���������ӻ�ɾ��MIB�⡿
-���������ļ���view�У����ӻ����޸ļ��ɡ�
+如何在配置文件/etc/snmp/snmpd.conf中定义监控端能获取哪些信息？【即添加或删除MIB库】
+【在配置文件中view行，添加或者修改即可】
 
 
-����community��
-�������ļ������������ݣ�
+定义community：
+在配置文件中有以下内容：
 #       sec.name  source          community
 com2sec notConfigUser  default       public
-�����е�default��ʾ˭�ܹ��ӱ������ϻ�ȡ��Ϣ��public��ʾcommunity�����֣�Ϊ�˰�ȫ������޸Ĵ���Ŀ��
+【其中的default表示谁能够从本主机上获取信息，public表示community的名字，为了安全起见，修改此条目】
 
-�޸����ӣ�
+修改例子：
 com2sec notConfigUser  127.0.0.1      mypublic
-��������Ϣ��ʾֻ����172.0.0.1��ȡ��������Ϣ��community����Ϊmypublic��
+【以上信息表示只允许172.0.0.1获取本机的信息，community名称为mypublic】
 
-����1��
-snmpwalk ---��ȡĿ������MIB����Ϣ��������
-       -v��ָ��snmp�汾
-       -c��ָ��community���͡�Ĭ����public��
-    ���ӣ�snmpwalk -v 2c -c public localhost
-
-
-����2��
-snmpget ---��ȡĿ������ָ��OID��Դ��Ϣ
-    ���ӣ�snmpget -v 2c -c public localhost + ָ��OID����ʽ��MIB��::����ֵ�����磺HOST-RESOURCES-MIB::hrSystemUptime.0
+命令1：
+snmpwalk ---获取目标主机MIB库信息【监控命令】
+       -v：指定snmp版本
+       -c：指定community类型【默认是public】
+    例子：snmpwalk -v 2c -c public localhost
 
 
-MIB����һ�����νṹ
+命令2：
+snmpget ---获取目标主机指定OID资源信息
+    例子：snmpget -v 2c -c public localhost + 指定OID【格式是MIB库::属性值】；如：HOST-RESOURCES-MIB::hrSystemUptime.0
+
+
+MIB库是一个树形结构
 subtree
 
 
-����3��
-snmpnetstat  ---ͨ��SNMP��Զ�������ϻ�ȡ״̬������Ϣ����tcp��udp�˿������
-       -v��ָ��snmp�汾
-       -c��ָ��community���͡�Ĭ����public�� 
-       -Ca��ָ����ʾ��ʽ
-       -Cp��ָ��Э��
-       -n�������ָ�ʽ��ʾ
-���ӣ�snmpnetstat -v 2c -c mypublic -Ca -Cp tcp 172.16.100.1 
+命令3：
+snmpnetstat  ---通过SNMP从远程主机上获取状态连接信息【即tcp、udp端口情况】
+       -v：指定snmp版本
+       -c：指定community类型【默认是public】 
+       -Ca：指定显示格式
+       -Cp：指定协议
+       -n：以数字格式显示
+例子：snmpnetstat -v 2c -c mypublic -Ca -Cp tcp 172.16.100.1 
 
 
 
 
-RRDtool���ߣ�
-round robin database tool����״���ݿ⣬���ݿ��ļ���.rrd��β����ʱ�����б������ݣ�ÿ�����ݶ���һ��ʱ���
-RRA��round robin archive
-PDP��primary data point�������ݽڵ㣬���PDP���һ�����飬Ȼ��ȡƽ��ֵ���������CDP�����CDP�ۺ�ȡƽ��ֵ�ͽ���RRA��
-CDP���ۺϽڵ�
+RRDtool工具：
+round robin database tool：轮状数据库，数据库文件以.rrd结尾；以时间序列保存数据，每个数据都有一个时间戳
+RRA：round robin archive
+PDP：primary data point，主数据节点，多个PDP组成一个分组，然后取平均值，这个叫做CDP，多个CDP聚合取平均值就叫做RRA。
+CDP：聚合节点
 
-������
+解析度
 
-rrd�ļ��������Ա�����������Դ��DS����
+rrd文件：【可以保存两个数据源（DS）】
 
 
 
-������ת���ݿ⣺
-����6��
-rrdtool ---������ת���ݿ�
-   �﷨��ʽ��rrdtool +������ +�ļ�·�� +ѡ��
-	     ѡ�
-             --start|-b��ָ����ʼʱ��
-             --step|-s step��ָ��ʱ����
+创建轮转数据库：
+命令6：
+rrdtool ---创建轮转数据库
+   语法格式：rrdtool +子命令 +文件路径 +选项
+	     选项：
+             --start|-b：指定起始时间
+             --step|-s step：指定时间跨度
              DS:ds-name:DST:dst-argument 
-             RRA:CF:cf arguments��CF�ǾۺϺ�������average��max��min��last��
-   �����
-       create�������տ�
-       graph����ͼ
-       dump����������
-       update��ָ����ĳ��rrd�ļ���������
-            �﷨��ʽ��rrdtool update test.rrd 
-timestamp:value1:value2��vlaue1��2�ֱ��Ӧ����DS��
-       fetch:�鿴����       
+             RRA:CF:cf arguments【CF是聚合函数：有average、max、min、last】
+   子命令：
+       create：创建空库
+       graph：绘图
+       dump：导出数据
+       update：指定想某个rrd文件添加数据
+            语法格式：rrdtool update test.rrd 
+timestamp:value1:value2【vlaue1和2分别对应两个DS】
+       fetch:查看数据       
 
-DST������Դ���ͣ���
-    GAUGE:������ֵԭֵ
-    COUNTER:�������ֵ���������һ��ֵ������ֵ����
-    DERIVE:������COUNTER������ֵ�����ǵ�����ݼ�
-    ABSOLUTE:����ڳ�ʼֵ���ԣ���ȥ��ʼֵ
-    COMPUTE:��Ҫ����
+DST（数据源类型）：
+    GAUGE:保存数值原值
+    COUNTER:保存相对值，相对于上一个值，必须值递增
+    DERIVE:类似于COUNTER，但是值可以是递增或递减
+    ABSOLUTE:相对于初始值而言，减去初始值
+    COMPUTE:需要计算
 
-DST-arguments��
-hearbeat��ָ�����ݽ���ʱ��������ָ��ʱ����δ�����������ΪUNKNOW��
-min������ʱ��۵���Сֵ��U��ʾֵδ����
-max������ʱ��۵����ֵ
+DST-arguments：
+hearbeat：指定数据接收时间间隔【若指定时间内未到来，被标记为UNKNOW】
+min：定义时间槽的最小值【U表示值未定】
+max：定义时间槽的最大值
 
-RRA������DS��ξۺϵ�
+RRA：定义DS如何聚合的
 cf-argumrnts:
-xff������ۺϺ�����pdp����������UNKNOW�Ͷ���ΪUNKNOW
-steps������ۺϺ����ɼ���pdp�ۺ϶���
-rows�����屣����ٸ�steps�����ƽ��ֵ
+xff：定义聚合函数中pdp超过多大比例UNKNOW就定义为UNKNOW
+steps：定义聚合函数由几个pdp聚合而成
+rows：定义保存多少个steps定义的平均值
 
        
-���ӣ�
-��ʼֵ��1
-����Ϊ��2369
+例子：
+初始值：1
+数据为：2369
 GAUGE:2369
 COUNTER:2133
 DERIVE:2133
 ABSOLUTE:1258
 
 
-���ӣ�
+例子：
 rrdtool create test.rrd --step 5 DS:testds:GAUGE:8:0:U RRA:AVERAGE:0.5:1:17280 RRA:AVERAGE:0.5:10:3456
 RRA:AVERAGE:0.5:100:1210
 
 rrdtool update test.rrd N:$RANDOM
 
-rrdtool graph  + ͼƬ���� -s +ʱ��� -t Test -v vtest DEF:vtest=test.rrd:testds:AVERAGE LINE1:vartest#FF0000:"testline"��-s ��ʼʱ�䣬-e ����ʱ�䣬-tָ��title��-vָ������title,DEFָ��ȡ�����ݵı�����;��һ���ߡ�
+rrdtool graph  + 图片名称 -s +时间戳 -t Test -v vtest DEF:vtest=test.rrd:testds:AVERAGE LINE1:vartest#FF0000:"testline"【-s 开始时间，-e 结束时间，-t指定title，-v指定纵向title,DEF指定取得数据的变量名;绘一条线】
 
-��������Ҫ��װrrdtool����
+【首先需要安装rrdtool包】
 
 
 
-54_02����ҵ�����֮��------rrd-tool��ͼԭ����Ӧ��
+54_02、企业级监控之二------rrd-tool绘图原理和应用
 
-cacti����һ��֧��ģ��ģ�rrd��ͼ���ߵ�ǰ��չʾ����
+cacti就是一个支持模板的，rrd画图工具的前端展示工具
 

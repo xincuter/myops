@@ -1,101 +1,101 @@
-54_03¡¢ÆóÒµ¼¶¼à¿ØÖ®Èý------cactiµÄÔ­ÀíºÍ°²×°
+54_03ã€ä¼ä¸šçº§ç›‘æŽ§ä¹‹ä¸‰------cactiçš„åŽŸç†å’Œå®‰è£…
 
-cacti£º
+cactiï¼š
    rrdtool create
-   ÖÜÆÚÐÔÖ´ÐÐÄÜ¹»È¡µÃÊý¾ÝµÄÃüÁî£¬²¢½«È¡»ØµÄÊý¾Ý±£´æÖÁrrdÎÄ¼þµ±ÖÐÈ¥£»
-   ÀûÓÃrrdtool»æÍ¼²¢Õ¹Ê¾£»
-   Ö§³ÖÄ£°å£»
+   å‘¨æœŸæ€§æ‰§è¡Œèƒ½å¤Ÿå–å¾—æ•°æ®çš„å‘½ä»¤ï¼Œå¹¶å°†å–å›žçš„æ•°æ®ä¿å­˜è‡³rrdæ–‡ä»¶å½“ä¸­åŽ»ï¼›
+   åˆ©ç”¨rrdtoolç»˜å›¾å¹¶å±•ç¤ºï¼›
+   æ”¯æŒæ¨¡æ¿ï¼›
 
 
 
-cactiÊÇÒ»¸öphp¿ª·¢µÄÍøÒ³³ÌÐò
+cactiæ˜¯ä¸€ä¸ªphpå¼€å‘çš„ç½‘é¡µç¨‹åº
 
-ËùÒÔ°²×°ÔËÐÐcacti£¬ÐèÒª»·¾³£º
-        	£¨1£©LAMP,LNMP
-		£¨2£©--enable-sockets
-
-
-Ö§³Ö²å¼þ»úÖÆ£º
-	ÄÜ¹»Í¨¹ý²å¼þÊµÏÖ±¨¾¯£»
+æ‰€ä»¥å®‰è£…è¿è¡Œcactiï¼Œéœ€è¦çŽ¯å¢ƒï¼š
+        	ï¼ˆ1ï¼‰LAMP,LNMP
+		ï¼ˆ2ï¼‰--enable-sockets
 
 
-cactiÄ£°å£º
-	Í¼ÐÎÄ£°å
-	Êý¾ÝÄ£°å
-	Ö÷»úÄ£°å
+æ”¯æŒæ’ä»¶æœºåˆ¶ï¼š
+	èƒ½å¤Ÿé€šè¿‡æ’ä»¶å®žçŽ°æŠ¥è­¦ï¼›
 
 
-
-cactiÈçºÎ»ñÈ¡Êý¾Ý£¿
-	£¨1£©½Å±¾
-	£¨2£©snmp
-	£¨3£©ssh
-
-cactiÈçºÎ±£´æÊý¾Ý£¿
-	ÀûÓÃÊý¾ÝÄ£°å¶¨ÒåÈçºÎ±£´æÊý¾Ýµ½cactiÖ÷»úÉÏµÄ·½Ê½µÄ
-
-cactiÈçºÎÕ¹Ê¾Êý¾Ý£¿
-	ÀûÓÃÍ¼ÐÎÄ£°åÀ´¶¨ÒåÈçºÎÕ¹Ê¾
-
-
-cacti×ÔÉí²»±£´æÈÎºÎÊý¾Ý£¬Ö»ÊÇÒ»¸ö¹ÜÀíÆ½Ì¨£¬ÒÀÀµµÄ¶¼ÊÇrrdtool£»ÅäÖÃÎÄ¼þÈ«²¿±£´æÔÚmysqlÊý¾Ý¿âÖÐ
+cactiæ¨¡æ¿ï¼š
+	å›¾å½¢æ¨¡æ¿
+	æ•°æ®æ¨¡æ¿
+	ä¸»æœºæ¨¡æ¿
 
 
 
+cactiå¦‚ä½•èŽ·å–æ•°æ®ï¼Ÿ
+	ï¼ˆ1ï¼‰è„šæœ¬
+	ï¼ˆ2ï¼‰snmp
+	ï¼ˆ3ï¼‰ssh
 
-°²×°cacti
+cactiå¦‚ä½•ä¿å­˜æ•°æ®ï¼Ÿ
+	åˆ©ç”¨æ•°æ®æ¨¡æ¿å®šä¹‰å¦‚ä½•ä¿å­˜æ•°æ®åˆ°cactiä¸»æœºä¸Šçš„æ–¹å¼çš„
 
-£¨1£©Ê×ÏÈ±àÒë°²×°ÅäÖÃºÃLAMP
-£¨2£©ÏÂÔØcactiÔ´Âë°ü£¬½âÑ¹ÖÁÍøÒ³Ä¿Â¼
+cactiå¦‚ä½•å±•ç¤ºæ•°æ®ï¼Ÿ
+	åˆ©ç”¨å›¾å½¢æ¨¡æ¿æ¥å®šä¹‰å¦‚ä½•å±•ç¤º
+
+
+cactiè‡ªèº«ä¸ä¿å­˜ä»»ä½•æ•°æ®ï¼Œåªæ˜¯ä¸€ä¸ªç®¡ç†å¹³å°ï¼Œä¾èµ–çš„éƒ½æ˜¯rrdtoolï¼›é…ç½®æ–‡ä»¶å…¨éƒ¨ä¿å­˜åœ¨mysqlæ•°æ®åº“ä¸­
+
+
+
+
+å®‰è£…cacti
+
+ï¼ˆ1ï¼‰é¦–å…ˆç¼–è¯‘å®‰è£…é…ç½®å¥½LAMP
+ï¼ˆ2ï¼‰ä¸‹è½½cactiæºç åŒ…ï¼Œè§£åŽ‹è‡³ç½‘é¡µç›®å½•
 	tar xf cacti-0.8.8a.tar.gz -C /var/www/html
  	cd /var/www/html;ln -s cacti-0.8.8a cacti
-£¨3£©Îªcacti´´½¨mysqlÊý¾Ý¿â
+ï¼ˆ3ï¼‰ä¸ºcactiåˆ›å»ºmysqlæ•°æ®åº“
 	mysqladmin -u root -p passwd create cactidb
-£¨4£©È»ºó½«cactiµÄÊý¾Ý±íÎÄ¼þµ¼ÈëÖÁcactidbÖÐ
+ï¼ˆ4ï¼‰ç„¶åŽå°†cactiçš„æ•°æ®è¡¨æ–‡ä»¶å¯¼å…¥è‡³cactidbä¸­
 	mysql -u root -p passwd cactidb < cacti.sql
-£¨5£©´´½¨cactiÓÃ»§¼°ÃÜÂë
-	mysql -e ¡±CRANT ALL ON cactidb.* TO cactiuser@localhost IDENTIFIED BY 'cactiuser'¡°
-£¨6£©Ë¢ÐÂ
+ï¼ˆ5ï¼‰åˆ›å»ºcactiç”¨æˆ·åŠå¯†ç 
+	mysql -e â€CRANT ALL ON cactidb.* TO cactiuser@localhost IDENTIFIED BY 'cactiuser'â€œ
+ï¼ˆ6ï¼‰åˆ·æ–°
 	mysqladmin flush-privileges
-£¨7£©²âÊÔcactiuserÄÜ·ñµÇÂ¼
-£¨8£©ÅäÖÃcacti
-	±à¼­cactiÅäÖÃÎÄ¼þconfig.php£¨ÔÚincludeÄ¿Â¼ÏÂ£© 
-£¨9£©cactiÖÜÆÚÐÔÖ´ÐÐ½Å±¾»ñÈ¡Êý¾Ý£¨ÀûÓÃcacti×¨ÓÐÓÃ»§£©
+ï¼ˆ7ï¼‰æµ‹è¯•cactiuserèƒ½å¦ç™»å½•
+ï¼ˆ8ï¼‰é…ç½®cacti
+	ç¼–è¾‘cactié…ç½®æ–‡ä»¶config.phpï¼ˆåœ¨includeç›®å½•ä¸‹ï¼‰ 
+ï¼ˆ9ï¼‰cactiå‘¨æœŸæ€§æ‰§è¡Œè„šæœ¬èŽ·å–æ•°æ®ï¼ˆåˆ©ç”¨cactiä¸“æœ‰ç”¨æˆ·ï¼‰
 	useradd cactiuser
-	chown -R cactiuser: rra log ¡¾½«rraºÍlogÄ¿Â¼µÄÊôÖ÷Êô×é¸ÄÎªcactiuser¡¿
+	chown -R cactiuser: rra log ã€å°†rraå’Œlogç›®å½•çš„å±žä¸»å±žç»„æ”¹ä¸ºcactiuserã€‘
         echo '*/5 * * * * /usr/local/php/bin/php  /var/www/html/cacti/poller.php &>/dev/null' > /var/spool/cron/cactiuser
-£¨10£©°²×°cacti
+ï¼ˆ10ï¼‰å®‰è£…cacti
 	http://192.168.3.137/cacti 
 
 
-ÊÕ¼¯·½·¨£ºÊý¾ÝÊÕ¼¯·½·¨
-	Êý¾Ý²éÑ¯£ºxml¸ñÊ½Êý¾ÝÊÕ¼¯·½·¨
-	Êý¾ÝÊäÈë·½·¨£ºÃüÁî»òÕß½Å±¾
-		½Å±¾£º
-	            Ö»ÐèÒªÖ¸¶¨ÈçºÎ»ñÈ¡Êý¾Ý£¬²¢ÇÒ»ñÈ¡µ½µÄÊý¾Ý¾­¹ý´¦ÀíºóÒª°´¹æ¶¨Êä³ö£»
+æ”¶é›†æ–¹æ³•ï¼šæ•°æ®æ”¶é›†æ–¹æ³•
+	æ•°æ®æŸ¥è¯¢ï¼šxmlæ ¼å¼æ•°æ®æ”¶é›†æ–¹æ³•
+	æ•°æ®è¾“å…¥æ–¹æ³•ï¼šå‘½ä»¤æˆ–è€…è„šæœ¬
+		è„šæœ¬ï¼š
+	            åªéœ€è¦æŒ‡å®šå¦‚ä½•èŽ·å–æ•°æ®ï¼Œå¹¶ä¸”èŽ·å–åˆ°çš„æ•°æ®ç»è¿‡å¤„ç†åŽè¦æŒ‰è§„å®šè¾“å‡ºï¼›
 	
 	
 
 
-¶¨ÖÆÄ£°å
+å®šåˆ¶æ¨¡æ¿
 
-ºóÐøºÜ¶àÓÃµ½µÄÄ£°å¶¼¿ÉÒÔÔÚwww.cacti.netÍøÕ¾ÖÐÏÂÔØ¼´¿É
+åŽç»­å¾ˆå¤šç”¨åˆ°çš„æ¨¡æ¿éƒ½å¯ä»¥åœ¨www.cacti.netç½‘ç«™ä¸­ä¸‹è½½å³å¯
 
-±àÐ´µÄ½Å±¾·ÅÔÚscriptsÄ¿Â¼ÖÐÈ¥
+ç¼–å†™çš„è„šæœ¬æ”¾åœ¨scriptsç›®å½•ä¸­åŽ»
 
-ÒýÓÃ½Å±¾·½Ê½£º
+å¼•ç”¨è„šæœ¬æ–¹å¼ï¼š
 /bin/bash <path_cacti>/scripts/tcpconn.sh <hostname> <snmp_community>
 
 
-¶¨ÒåÊý¾ÝÊäÈë·½·¨
-¶¨Òådata Ä£°å
-¶¨Òådata source
-¶¨ÒåÍ¼ÏñÄ£°å
-È»ºó»­Í¼
+å®šä¹‰æ•°æ®è¾“å…¥æ–¹æ³•
+å®šä¹‰data æ¨¡æ¿
+å®šä¹‰data source
+å®šä¹‰å›¾åƒæ¨¡æ¿
+ç„¶åŽç”»å›¾
 
 
 
-µ¼Èë²å¼þ£¬±à¼­config.phpÅäÖÃÎÄ¼þÌí¼ÓÈçÏÂÄÚÈÝ£º
+å¯¼å…¥æ’ä»¶ï¼Œç¼–è¾‘config.phpé…ç½®æ–‡ä»¶æ·»åŠ å¦‚ä¸‹å†…å®¹ï¼š
 $plugins = array();
 $plugins[]='ntop';
 $plugins[]='flowview';

@@ -1,285 +1,285 @@
-DNSÏà¹Ø¸ÅÄîÏê½â
+DNSç›¸å…³æ¦‚å¿µè¯¦è§£
 
-linuxÖ÷Òª·þÎñ½²½â£º
-DNS£ºÓòÃû½âÎö£¬Ä¿Ç°dns·þÎñÆ÷Ö÷Òª»ùÓÚBINDÈí¼þÊµÏÖ¹¹½¨µÄ¡£
-SSL/TSL£ºhttp-https£¬OpenSSL£¬CA,Digital Certificate£¬PKI
-HTTP£ºhttpÐ­Òé£¬Apache£¬LAMP£¨apache+mysql+php£©£»Nginx£¨Engine X£©£¬LNMP(LEMP,[nginx+mysql+php])
-´æ´¢·þÎñ£ºvarnish
-CDN(ÄÚÈÝ·Ö·¢ÍøÂç)£ºDNS(view)+varnish
-FILE server£ºNFS¡¢SMB/CIFS¡¢FTP
-netfilter£ºiptables£¨filter¡¢nat¡¢mangle¡¢raw£©¡¾ÕâÊÇÄÚºËÖÐµÄ¹¦ÄÜ¡¿£»tcp wrapper¹¤¾ß£¨¹¦ÄÜ²»ÈçiptablesÇ¿´ó£©
-NSSwitch£º¼´ÍøÂç·þÎñ×ª»»£»Ö»ÊÇÌá¹©Ò»¸öÆ½Ì¨Íê³ÉÃû³Æ½âÎö¡¾framework£¨¿ò¼Ü£©£¬platform¡¿£¬PAM
-SMTP/POP3/IMAP4£ºMail Server
-SELinux£ºsecurity enhanced linux£¬²Ù×÷ÏµÍ³µÄ°²È«·Ö¼¶±ð¡¾A£¬B£¬C£¬D£»A¼¶±ð°²È«×î¸ß£¨linuxÓëwindows°²È«¼¶±ðÒ»ÖÂ£¬ÎªC2¼¶±ð£¬Ö»ÊÇlinuxÏµÍ³ÔËÐÐ¸üÎÈ¶¨£¬µ«ÊÇ¼ÓÉÏselinux»úÖÆ£¬linuxµÄ°²È«¼¶±ð¿ÉÒÔÌáÉýÖÁB1¼¶±ð£©¡¿£»selinuxÔËÐÐÓÚÄÚºËÖÐ
-MySQL£ºÓ¦ÓÃ¹ã·ºµÄÊý¾Ý¿â
-¼¯Èº£ºlvs£¬keepalived£¬haproxyµÈµÈ
+linuxä¸»è¦æœåŠ¡è®²è§£ï¼š
+DNSï¼šåŸŸåè§£æžï¼Œç›®å‰dnsæœåŠ¡å™¨ä¸»è¦åŸºäºŽBINDè½¯ä»¶å®žçŽ°æž„å»ºçš„ã€‚
+SSL/TSLï¼šhttp-httpsï¼ŒOpenSSLï¼ŒCA,Digital Certificateï¼ŒPKI
+HTTPï¼šhttpåè®®ï¼ŒApacheï¼ŒLAMPï¼ˆapache+mysql+phpï¼‰ï¼›Nginxï¼ˆEngine Xï¼‰ï¼ŒLNMP(LEMP,[nginx+mysql+php])
+å­˜å‚¨æœåŠ¡ï¼švarnish
+CDN(å†…å®¹åˆ†å‘ç½‘ç»œ)ï¼šDNS(view)+varnish
+FILE serverï¼šNFSã€SMB/CIFSã€FTP
+netfilterï¼šiptablesï¼ˆfilterã€natã€mangleã€rawï¼‰ã€è¿™æ˜¯å†…æ ¸ä¸­çš„åŠŸèƒ½ã€‘ï¼›tcp wrapperå·¥å…·ï¼ˆåŠŸèƒ½ä¸å¦‚iptableså¼ºå¤§ï¼‰
+NSSwitchï¼šå³ç½‘ç»œæœåŠ¡è½¬æ¢ï¼›åªæ˜¯æä¾›ä¸€ä¸ªå¹³å°å®Œæˆåç§°è§£æžã€frameworkï¼ˆæ¡†æž¶ï¼‰ï¼Œplatformã€‘ï¼ŒPAM
+SMTP/POP3/IMAP4ï¼šMail Server
+SELinuxï¼šsecurity enhanced linuxï¼Œæ“ä½œç³»ç»Ÿçš„å®‰å…¨åˆ†çº§åˆ«ã€Aï¼ŒBï¼ŒCï¼ŒDï¼›Açº§åˆ«å®‰å…¨æœ€é«˜ï¼ˆlinuxä¸Žwindowså®‰å…¨çº§åˆ«ä¸€è‡´ï¼Œä¸ºC2çº§åˆ«ï¼Œåªæ˜¯linuxç³»ç»Ÿè¿è¡Œæ›´ç¨³å®šï¼Œä½†æ˜¯åŠ ä¸Šselinuxæœºåˆ¶ï¼Œlinuxçš„å®‰å…¨çº§åˆ«å¯ä»¥æå‡è‡³B1çº§åˆ«ï¼‰ã€‘ï¼›selinuxè¿è¡ŒäºŽå†…æ ¸ä¸­
+MySQLï¼šåº”ç”¨å¹¿æ³›çš„æ•°æ®åº“
+é›†ç¾¤ï¼šlvsï¼Œkeepalivedï¼Œhaproxyç­‰ç­‰
  
 
 
-PAM£º¿É²åÈëÊ½Ä£¿é
+PAMï¼šå¯æ’å…¥å¼æ¨¡å—
 
 
 
-Óò£ºÓÉ¶àÌ¨Ö÷»ú×é³ÉµÄÒ»¸ö·¶Î§½Ð×öÒ»¸öÓò£»Óò·Ö¼¶±ð
+åŸŸï¼šç”±å¤šå°ä¸»æœºç»„æˆçš„ä¸€ä¸ªèŒƒå›´å«åšä¸€ä¸ªåŸŸï¼›åŸŸåˆ†çº§åˆ«
 
-¡¾×¢£ºÀýÈçwww.magedu.com£¬ÕâÊÇÖ÷»úÃû£¨¼´FQDN£ºfull qualified domain name£¬ÍêÈ«ÏÞ¶¨ÓòÃû£©£¬Ö»ÊÇmagedu.comÓòÖÐµÄÒ»Ì¨Ö÷»ú¡¿
+ã€æ³¨ï¼šä¾‹å¦‚www.magedu.comï¼Œè¿™æ˜¯ä¸»æœºåï¼ˆå³FQDNï¼šfull qualified domain nameï¼Œå®Œå…¨é™å®šåŸŸåï¼‰ï¼Œåªæ˜¯magedu.comåŸŸä¸­çš„ä¸€å°ä¸»æœºã€‘
 
-DNS£ºÈ«³Ædomain name server£¬ÓòÃû·þÎñ£»Ö÷ÒªÓÃÀ´½øÐÐÓòÃû½âÎö£¨±³ºóÓÐ²éÑ¯¹ý³Ì£¬Êý¾Ý¿â£©£¬ÊµÏÖFQDNÓëipµØÖ·Ö®¼äµÄË«ÏòÓ³Éä¡£
-     FQDN <---> IPµØÖ·
+DNSï¼šå…¨ç§°domain name serverï¼ŒåŸŸåæœåŠ¡ï¼›ä¸»è¦ç”¨æ¥è¿›è¡ŒåŸŸåè§£æžï¼ˆèƒŒåŽæœ‰æŸ¥è¯¢è¿‡ç¨‹ï¼Œæ•°æ®åº“ï¼‰ï¼Œå®žçŽ°FQDNä¸Žipåœ°å€ä¹‹é—´çš„åŒå‘æ˜ å°„ã€‚
+     FQDN <---> IPåœ°å€
      172.16.0.1   www.magedu.com
      172.16.0.2   mail.magedu.com
 
-Ãû³Æ½âÎö£º·ÖºÜ¶àÖÖÀà£¬°üÀ¨·þÎñÓë¶Ë¿ÚµÄÓ³Éä¡¢FQDNÓëipÓ³Éä¡¢ÓÃ»§ÃûÓëUIDÓ³Éä¡¢×éÓëGIDµÄÓ³ÉäµÈµÈ
+åç§°è§£æžï¼šåˆ†å¾ˆå¤šç§ç±»ï¼ŒåŒ…æ‹¬æœåŠ¡ä¸Žç«¯å£çš„æ˜ å°„ã€FQDNä¸Žipæ˜ å°„ã€ç”¨æˆ·åä¸ŽUIDæ˜ å°„ã€ç»„ä¸ŽGIDçš„æ˜ å°„ç­‰ç­‰
 
  
-NSSwitch£ºÎª¸÷ÖÖÃû³Æ½âÎöÌá¹©Æ½Ì¨¡£
+NSSwitchï¼šä¸ºå„ç§åç§°è§£æžæä¾›å¹³å°ã€‚
 
-ÊµÏÖÓòÃû½âÎöËùÓÃµ½µÄ¿âÎÄ¼þ£ºlibnss_files.soºÍlibnss_dns.so£¬Í¨¹ýnsswitch·þÎñµ÷ÓÃÕâÁ½¸ö¿âÎÄ¼þÀ´ÊµÏÖdns½âÎö¡£
+å®žçŽ°åŸŸåè§£æžæ‰€ç”¨åˆ°çš„åº“æ–‡ä»¶ï¼šlibnss_files.soå’Œlibnss_dns.soï¼Œé€šè¿‡nsswitchæœåŠ¡è°ƒç”¨è¿™ä¸¤ä¸ªåº“æ–‡ä»¶æ¥å®žçŽ°dnsè§£æžã€‚
 
-NSSwitchµÄÅäÖÃÎÄ¼þÊÇ/etc/nsswitch.conf
-      ¸ÃÅäÖÃÎÄ¼þÖÐ£¬hosts£ºfiles  dns ¡¾¶¨ÒåÁËdns²éÑ¯Ë³Ðò¡¿
-                    files£º/etc/hosts
-                    dns£ºDNS·þÎñÆ÷
-      ¡¾domain½âÎö£ºÏÈ²éÕÒ±¾µØ»º´æ/etc/hosts,Èç¹ûÃ»ÓÐ½á¹û£¬ÔòÔÙÍ¨¹ýDNS·þÎñÆ÷½øÐÐ½âÎö£¬È»ºó·µ»Ø¸ø¿Í»§¶Ë½á¹û¡¿
+NSSwitchçš„é…ç½®æ–‡ä»¶æ˜¯/etc/nsswitch.conf
+      è¯¥é…ç½®æ–‡ä»¶ä¸­ï¼Œhostsï¼šfiles  dns ã€å®šä¹‰äº†dnsæŸ¥è¯¢é¡ºåºã€‘
+                    filesï¼š/etc/hosts
+                    dnsï¼šDNSæœåŠ¡å™¨
+      ã€domainè§£æžï¼šå…ˆæŸ¥æ‰¾æœ¬åœ°ç¼“å­˜/etc/hosts,å¦‚æžœæ²¡æœ‰ç»“æžœï¼Œåˆ™å†é€šè¿‡DNSæœåŠ¡å™¨è¿›è¡Œè§£æžï¼Œç„¶åŽè¿”å›žç»™å®¢æˆ·ç«¯ç»“æžœã€‘
 
-stub resolver£ºÃû³Æ½âÎöÆ÷¡¾µ±ÐèÒª½øÐÐÓòÃû½âÎöÊ±£¬¸Ã½âÎöÆ÷»áÈ¥·ÃÎÊnsswitchÅäÖÃÎÄ¼þ£¬°´ÕÕhosts¸ÃÐÐ¶¨ÒåµÄdns²éÑ¯Ë³ÐòÀ´½øÐÐÓòÃû½âÎö·þÎñ¡¿
+stub resolverï¼šåç§°è§£æžå™¨ã€å½“éœ€è¦è¿›è¡ŒåŸŸåè§£æžæ—¶ï¼Œè¯¥è§£æžå™¨ä¼šåŽ»è®¿é—®nsswitché…ç½®æ–‡ä»¶ï¼ŒæŒ‰ç…§hostsè¯¥è¡Œå®šä¹‰çš„dnsæŸ¥è¯¢é¡ºåºæ¥è¿›è¡ŒåŸŸåè§£æžæœåŠ¡ã€‘
 
-IPµØÖ·ÊÇÓÃÀ´Î¨Ò»±êÊ¶Ò»Ì¨Ö÷»úÔÚÍøÂçÖÐµÄÎ»ÖÃ
+IPåœ°å€æ˜¯ç”¨æ¥å”¯ä¸€æ ‡è¯†ä¸€å°ä¸»æœºåœ¨ç½‘ç»œä¸­çš„ä½ç½®
 
 
-Ö÷»úÈçºÎÊ¶±ðÓòÃûÀ´½«Æä×ª»»ÎªIPµØÖ·£º
-£¨1£©/etc/hostsÎÄ¼þ¡¾Ã¿Ì¨Ö÷»ú¶¼ÓÐÕâ¸öÎÄ¼þ£¬Ïàµ±ÓÚ±¾µØ»º´æ¡¿
-     hostsÎÄ¼þµÄ¸ñÊ½£º¡¾·ÖÎªÈýÁÐ£ºIPµØÖ·¡¢Ö÷»úÃû¡¢±ðÃû¡¿
+ä¸»æœºå¦‚ä½•è¯†åˆ«åŸŸåæ¥å°†å…¶è½¬æ¢ä¸ºIPåœ°å€ï¼š
+ï¼ˆ1ï¼‰/etc/hostsæ–‡ä»¶ã€æ¯å°ä¸»æœºéƒ½æœ‰è¿™ä¸ªæ–‡ä»¶ï¼Œç›¸å½“äºŽæœ¬åœ°ç¼“å­˜ã€‘
+     hostsæ–‡ä»¶çš„æ ¼å¼ï¼šã€åˆ†ä¸ºä¸‰åˆ—ï¼šIPåœ°å€ã€ä¸»æœºåã€åˆ«åã€‘
              IPADDRESS         FQDN            Aliases
-       ÀýÈç£º172.16.0.1    www.magedu.com        www
-£¨2£©DNS·þÎñÆ÷
-        ·ÖÎªÁ½ÖÖ¹ÜÀíÄ£Ê½£º
-                    ¼¯ÖÐÊ½Êý¾Ý¿â
-                    ·Ö²¼Ê½Êý¾Ý¿â
+       ä¾‹å¦‚ï¼š172.16.0.1    www.magedu.com        www
+ï¼ˆ2ï¼‰DNSæœåŠ¡å™¨
+        åˆ†ä¸ºä¸¤ç§ç®¡ç†æ¨¡å¼ï¼š
+                    é›†ä¸­å¼æ•°æ®åº“
+                    åˆ†å¸ƒå¼æ•°æ®åº“
      
 
-IANA£¨»¥ÁªÍøµØÖ·Ãû³Æ·ÖÅä»ú¹¹£©£ºIP£¬FQDN¡¾IANAÎ¬»¤IPµØÖ·ÓëÖ÷»úÃûµÄÓ³Éä±í¡¿
-ICANN£º¹ÜÀí×î¶¥¼¶µÄÓòÃû¡£
+IANAï¼ˆäº’è”ç½‘åœ°å€åç§°åˆ†é…æœºæž„ï¼‰ï¼šIPï¼ŒFQDNã€IANAç»´æŠ¤IPåœ°å€ä¸Žä¸»æœºåçš„æ˜ å°„è¡¨ã€‘
+ICANNï¼šç®¡ç†æœ€é¡¶çº§çš„åŸŸåã€‚
 
 
 
-ÓòÃûµÄ·Ö²ã½á¹¹¡¾Ïàµ±ÓÚlinuxµÄÄ¿Â¼½á¹¹¡¿£º
-Í¨¹ýÊÚÈ¨ÊµÏÖ·Ö²ã¹ÜÀí£¬Ã¿Ò»²ã¼¶¶¼ÓÐÏÂÒ»²ã¼¶µÄ¹ÜÀíÕßµÄÓòÃûµ½ipµÄÊý¾Ý¿â¡£
-¸ñÊ½£ºÖ÷»úÃû.Èý¼¶ÓòÃû.¶þ¼¶ÓòÃû.¶¥¼¶ÓòÃû.¡¾×îºóµÄÄÇ¸öµã´ú±í¸ùÓò£¬¿ÉÒÔÊ¡ÂÔ²»Ð´¡¿
-¡¾×¢£º±¾µØ½öÖªµÀÆäÖ±½ÓÏÂ¼¶ËùÔÚ£¬²»ÖªµÀÉÏ¼¶ËùÔÚ£¬µ«¶¼ÖªµÀ¸ùÓòËùÔÚ¡¿
+åŸŸåçš„åˆ†å±‚ç»“æž„ã€ç›¸å½“äºŽlinuxçš„ç›®å½•ç»“æž„ã€‘ï¼š
+é€šè¿‡æŽˆæƒå®žçŽ°åˆ†å±‚ç®¡ç†ï¼Œæ¯ä¸€å±‚çº§éƒ½æœ‰ä¸‹ä¸€å±‚çº§çš„ç®¡ç†è€…çš„åŸŸååˆ°ipçš„æ•°æ®åº“ã€‚
+æ ¼å¼ï¼šä¸»æœºå.ä¸‰çº§åŸŸå.äºŒçº§åŸŸå.é¡¶çº§åŸŸå.ã€æœ€åŽçš„é‚£ä¸ªç‚¹ä»£è¡¨æ ¹åŸŸï¼Œå¯ä»¥çœç•¥ä¸å†™ã€‘
+ã€æ³¨ï¼šæœ¬åœ°ä»…çŸ¥é“å…¶ç›´æŽ¥ä¸‹çº§æ‰€åœ¨ï¼Œä¸çŸ¥é“ä¸Šçº§æ‰€åœ¨ï¼Œä½†éƒ½çŸ¥é“æ ¹åŸŸæ‰€åœ¨ã€‘
 
-¸ùÓò£ºÒ»°ãÓÃ.±íÊ¾£¬¿ÉÒÔÊ¡ÂÔ²»Ð´¡£
-¶¥¼¶Óò£º¡¾TLD£¬´ú±í×éÖ¯»òÕß¹ú¼Ò£¬ÓÉ¸ùÓòÍ³Ò»¹ÜÀí¡¿
-      ×éÖ¯Óò£ºÀýÈç£º.com¡¢.org¡¢.net¡¢.cc
-      ¹ú¼ÒÓò£ºÀýÈç£º.cn¡¢.hk¡¢.jp
-      ·´ÏòÓò£ºIP--->FQDN¡¾¼´·´Ïò½âÎö¡¿
-              FQDN--->IP¡¾¼´ÕýÏò½âÎö¡¿ 
+æ ¹åŸŸï¼šä¸€èˆ¬ç”¨.è¡¨ç¤ºï¼Œå¯ä»¥çœç•¥ä¸å†™ã€‚
+é¡¶çº§åŸŸï¼šã€TLDï¼Œä»£è¡¨ç»„ç»‡æˆ–è€…å›½å®¶ï¼Œç”±æ ¹åŸŸç»Ÿä¸€ç®¡ç†ã€‘
+      ç»„ç»‡åŸŸï¼šä¾‹å¦‚ï¼š.comã€.orgã€.netã€.cc
+      å›½å®¶åŸŸï¼šä¾‹å¦‚ï¼š.cnã€.hkã€.jp
+      åå‘åŸŸï¼šIP--->FQDNã€å³åå‘è§£æžã€‘
+              FQDN--->IPã€å³æ­£å‘è§£æžã€‘ 
 
-¡¾ÎªÁË°²È«¶øÑÔ£¬¸ùÓò·þÎñÆ÷ÊÇ²»¸øÈÎºÎÈËµÝ¹éµÄ¡¿
+ã€ä¸ºäº†å®‰å…¨è€Œè¨€ï¼Œæ ¹åŸŸæœåŠ¡å™¨æ˜¯ä¸ç»™ä»»ä½•äººé€’å½’çš„ã€‘
 
-Ã¿¸öÓò¶¼ÓÐÒ»¸ö¹ÜÀíÕß£¬Î¬»¤ÓòÄÚËùÓÐFQDN--->IPµÄÊý¾Ý¿â±í    
+æ¯ä¸ªåŸŸéƒ½æœ‰ä¸€ä¸ªç®¡ç†è€…ï¼Œç»´æŠ¤åŸŸå†…æ‰€æœ‰FQDN--->IPçš„æ•°æ®åº“è¡¨    
 
-ÓòÈ¨Íþ¼ÇÂ¼
-·ÇÈ¨Íþ¼ÇÂ¼
+åŸŸæƒå¨è®°å½•
+éžæƒå¨è®°å½•
 
-DNS·þÎñÆ÷¹¤×÷ÄÚÈÝ£º
-1¡¢½ÓÊÜ±¾µØ¿Í»§¶Ë²éÑ¯ÇëÇó¡¾µÝ¹é·½Ê½¡¿
-2¡¢Íâ²¿¿Í»§¶ËÇëÇó£ºÇëÇóÈ¨Íþ¼ÇÂ¼£¬È»ºó»º´æ¡¾µÝ¹é¼Óµü´ú¡¿
-           ¿Ï¶¨´ð°¸£ºTTL
-           ·ñ¶¨´ð°¸£ºTTL
-3¡¢Íâ²¿¿Í»§¶ËÇëÇó£º·ÇÈ¨Íþ¼ÇÂ¼¡¾µÝ¹é¼Óµü´ú¡¿
+DNSæœåŠ¡å™¨å·¥ä½œå†…å®¹ï¼š
+1ã€æŽ¥å—æœ¬åœ°å®¢æˆ·ç«¯æŸ¥è¯¢è¯·æ±‚ã€é€’å½’æ–¹å¼ã€‘
+2ã€å¤–éƒ¨å®¢æˆ·ç«¯è¯·æ±‚ï¼šè¯·æ±‚æƒå¨è®°å½•ï¼Œç„¶åŽç¼“å­˜ã€é€’å½’åŠ è¿­ä»£ã€‘
+           è‚¯å®šç­”æ¡ˆï¼šTTL
+           å¦å®šç­”æ¡ˆï¼šTTL
+3ã€å¤–éƒ¨å®¢æˆ·ç«¯è¯·æ±‚ï¼šéžæƒå¨è®°å½•ã€é€’å½’åŠ è¿­ä»£ã€‘
 
 
-Ò»Ì¨DNS·þÎñÆ÷¿ÉÒÔÎ¬»¤¶à¸öÓò£¬Ã¿¸öÓòÊ¹ÓÃÒ»ÕÅÊý¾Ý¿â¡¾¼´Ò»¸öip¶ÔÓ¦¶à¸öÓòÃû¡¿
-Ò»¸öÓòÃûÒ²¶ÔÓ¦¶àÌ¨dns·þÎñÆ÷¡¾¼´Ò»¸öÓòÃû¶ÔÓ¦¶à¸öip£¬dnsµÄ¸ß¼¶¹¦ÄÜ£¬ÊµÏÖ¸ºÔØ¾ùºâ¡¿
+ä¸€å°DNSæœåŠ¡å™¨å¯ä»¥ç»´æŠ¤å¤šä¸ªåŸŸï¼Œæ¯ä¸ªåŸŸä½¿ç”¨ä¸€å¼ æ•°æ®åº“ã€å³ä¸€ä¸ªipå¯¹åº”å¤šä¸ªåŸŸåã€‘
+ä¸€ä¸ªåŸŸåä¹Ÿå¯¹åº”å¤šå°dnsæœåŠ¡å™¨ã€å³ä¸€ä¸ªåŸŸåå¯¹åº”å¤šä¸ªipï¼Œdnsçš„é«˜çº§åŠŸèƒ½ï¼Œå®žçŽ°è´Ÿè½½å‡è¡¡ã€‘
        
 
-DNSµÄ²éÑ¯·½Ê½£º
-    µÝ¹é£ºÖ»·¢³öÒ»´ÎÇëÇó¡¾¶ÔÓÚ¿Í»§¶Ë·¢ÆðÇëÇó¸ø±¾µØdns·þÎñÆ÷¡¿
-    µü´ú£º·¢³ö¶à´ÎÇëÇó¡¾dns·þÎñÆ÷Ö®¼ä¡¿
+DNSçš„æŸ¥è¯¢æ–¹å¼ï¼š
+    é€’å½’ï¼šåªå‘å‡ºä¸€æ¬¡è¯·æ±‚ã€å¯¹äºŽå®¢æˆ·ç«¯å‘èµ·è¯·æ±‚ç»™æœ¬åœ°dnsæœåŠ¡å™¨ã€‘
+    è¿­ä»£ï¼šå‘å‡ºå¤šæ¬¡è¯·æ±‚ã€dnsæœåŠ¡å™¨ä¹‹é—´ã€‘
 
-¡¾×¢£ºÈ«Çò¹²ÓÐ13Ì¨¸ùÓò·þÎñÆ÷£¨·Ö±ðÊÇa.root-servers.net. -- m.root-servers.net.¡¿
+ã€æ³¨ï¼šå…¨çƒå…±æœ‰13å°æ ¹åŸŸæœåŠ¡å™¨ï¼ˆåˆ†åˆ«æ˜¯a.root-servers.net. -- m.root-servers.net.ã€‘
 
-±£Ö¤¸ùÓò·þÎñÆ÷°²È«£º
-(1)±£Ö¤ÎïÀí°²È«
-(2)ÍøÂç°²È«
-
-
-DNS·þÎñÆ÷µÄÖ÷´Ó½á¹¹£º
-       Ö÷DNS·þÎñÆ÷£ºÊý¾ÝÐÞ¸Ä¶¼ÔÚÖ÷·þÎñÆ÷ÉÏÐÞ¸Ä
-       ¸¨ÖúDNS·þÎñÆ÷£º¶¨ÆÚÏòÖ÷DNS·þÎñÆ÷·¢ÆðÇëÇóÊý¾ÝÍ¬²½
-
-¸¨ÖúDNS·þÎñÆ÷ÈçºÎ¼à¿ØÖ÷DNS·þÎñÆ÷×´Ì¬¼°Í¬²½Êý¾Ý£º¡¾¼´¶¨ÒåÖ÷´ÓÍ¬²½ÊôÐÔ¡¿
-   serial number£º°æ±¾ºÅ¡¾×î¶à10¸ö×Ö·û´®¡¿
-   refresh£º¼ì²éµÄÊ±¼äÖÜÆÚ¡¾¶¨ÒåÃ¿¸ô¶à³¤Ê±¼ä¸¨Öú·þÎñÆ÷È¥¼ì²éÖ÷·þÎñÆ÷µÄ°æ±¾ºÅ¡¿ 
-   retry£ºÖØÊÔÊ±¼ä
-   expire£º¹ýÆÚÊ±¼ä             
-   nagative answer TTL£º·ñ¶¨¼ÇÂ¼´æ»îÖÜÆÚ
-
-DNS·þÎñÆ÷µÄ³£¼ûÀàÐÍ£º
-       Ö÷DNS·þÎñÆ÷£ºÊý¾ÝÐÞ¸Ä¶¼ÔÚÖ÷·þÎñÆ÷ÉÏÐÞ¸Ä
-       ¸¨ÖúDNS·þÎñÆ÷£º¶¨ÆÚÏòÖ÷DNS·þÎñÆ÷·¢ÆðÇëÇóÊý¾ÝÍ¬²½
-       »º´æDNS·þÎñÆ÷£º²»¸ºÔðÓ¦´ð£¬Ö»ÎªÁË»º´æÐÅÏ¢
-       ×ª·¢Æ÷£ºÖ»×ª·¢ÇëÇó£¬×Ô¼º²»×ö½âÎö
+ä¿è¯æ ¹åŸŸæœåŠ¡å™¨å®‰å…¨ï¼š
+(1)ä¿è¯ç‰©ç†å®‰å…¨
+(2)ç½‘ç»œå®‰å…¨
 
 
-DNSÓòÃû½âÎöÐèÒªÒÀÀµÊý¾Ý¿âÀ´Íê³É½âÎö¹¤×÷¡£
+DNSæœåŠ¡å™¨çš„ä¸»ä»Žç»“æž„ï¼š
+       ä¸»DNSæœåŠ¡å™¨ï¼šæ•°æ®ä¿®æ”¹éƒ½åœ¨ä¸»æœåŠ¡å™¨ä¸Šä¿®æ”¹
+       è¾…åŠ©DNSæœåŠ¡å™¨ï¼šå®šæœŸå‘ä¸»DNSæœåŠ¡å™¨å‘èµ·è¯·æ±‚æ•°æ®åŒæ­¥
+
+è¾…åŠ©DNSæœåŠ¡å™¨å¦‚ä½•ç›‘æŽ§ä¸»DNSæœåŠ¡å™¨çŠ¶æ€åŠåŒæ­¥æ•°æ®ï¼šã€å³å®šä¹‰ä¸»ä»ŽåŒæ­¥å±žæ€§ã€‘
+   serial numberï¼šç‰ˆæœ¬å·ã€æœ€å¤š10ä¸ªå­—ç¬¦ä¸²ã€‘
+   refreshï¼šæ£€æŸ¥çš„æ—¶é—´å‘¨æœŸã€å®šä¹‰æ¯éš”å¤šé•¿æ—¶é—´è¾…åŠ©æœåŠ¡å™¨åŽ»æ£€æŸ¥ä¸»æœåŠ¡å™¨çš„ç‰ˆæœ¬å·ã€‘ 
+   retryï¼šé‡è¯•æ—¶é—´
+   expireï¼šè¿‡æœŸæ—¶é—´             
+   nagative answer TTLï¼šå¦å®šè®°å½•å­˜æ´»å‘¨æœŸ
+
+DNSæœåŠ¡å™¨çš„å¸¸è§ç±»åž‹ï¼š
+       ä¸»DNSæœåŠ¡å™¨ï¼šæ•°æ®ä¿®æ”¹éƒ½åœ¨ä¸»æœåŠ¡å™¨ä¸Šä¿®æ”¹
+       è¾…åŠ©DNSæœåŠ¡å™¨ï¼šå®šæœŸå‘ä¸»DNSæœåŠ¡å™¨å‘èµ·è¯·æ±‚æ•°æ®åŒæ­¥
+       ç¼“å­˜DNSæœåŠ¡å™¨ï¼šä¸è´Ÿè´£åº”ç­”ï¼Œåªä¸ºäº†ç¼“å­˜ä¿¡æ¯
+       è½¬å‘å™¨ï¼šåªè½¬å‘è¯·æ±‚ï¼Œè‡ªå·±ä¸åšè§£æž
 
 
-DNSÊý¾Ý¿âÖÐµÄÃ¿Ò»¸öÌõÄ¿³Æ×÷Ò»¸ö×ÊÔ´¼ÇÂ¼£¨resource record£¬RR£©
-×ÊÔ´¼ÇÂ¼µÄ¸ñÊ½£º¡¾ÓÐÒÔÏÂÎå¶Î×é³É¡¿
+DNSåŸŸåè§£æžéœ€è¦ä¾èµ–æ•°æ®åº“æ¥å®Œæˆè§£æžå·¥ä½œã€‚
+
+
+DNSæ•°æ®åº“ä¸­çš„æ¯ä¸€ä¸ªæ¡ç›®ç§°ä½œä¸€ä¸ªèµ„æºè®°å½•ï¼ˆresource recordï¼ŒRRï¼‰
+èµ„æºè®°å½•çš„æ ¼å¼ï¼šã€æœ‰ä»¥ä¸‹äº”æ®µç»„æˆã€‘
         NAME     [TTL]          IN           RRT         VLAUE
-        (Ãû³Æ) £¨Éú´æÖÜÆÚ£©  £¨internet£© £¨RRÀàÐÍ£©     (Öµ)
-Àý×Ó£ºwww.xin.com.            IN            A        2.2.2.2
+        (åç§°) ï¼ˆç”Ÿå­˜å‘¨æœŸï¼‰  ï¼ˆinternetï¼‰ ï¼ˆRRç±»åž‹ï¼‰     (å€¼)
+ä¾‹å­ï¼šwww.xin.com.            IN            A        2.2.2.2
       2.2.2.2                 IN           PTR   www.xin.com.
 
-×ÊÔ´¼ÇÂ¼ÖÐTTL¶Î¿ÉÒÔÊ¡ÂÔ£¬¿ÉÈ«¾Ö¶¨Òå£»
+èµ„æºè®°å½•ä¸­TTLæ®µå¯ä»¥çœç•¥ï¼Œå¯å…¨å±€å®šä¹‰ï¼›
 
-×ÊÔ´¼ÇÂ¼µÄÀàÐÍ£º
-SOA(start of authority)£ºÓÃÀ´±êÃ÷Ò»¸öÇøÓòÄÚ²¿Ö÷´Ó·þÎñÆ÷Ö®¼äÈçºÎÍ¬²½Êý¾Ý£¬ÒÔ¼°ÆðÊ¼ÊÚÈ¨¶ÔÏóÊÇË­µÄ£»±ØÐëÊÇµÚÒ»Ìõ¼ÇÂ¼
-  ¸ñÊ½£ºZONENAME  TTL  IN  SOA  FQDN  administrator_mailbox(  
+èµ„æºè®°å½•çš„ç±»åž‹ï¼š
+SOA(start of authority)ï¼šç”¨æ¥æ ‡æ˜Žä¸€ä¸ªåŒºåŸŸå†…éƒ¨ä¸»ä»ŽæœåŠ¡å™¨ä¹‹é—´å¦‚ä½•åŒæ­¥æ•°æ®ï¼Œä»¥åŠèµ·å§‹æŽˆæƒå¯¹è±¡æ˜¯è°çš„ï¼›å¿…é¡»æ˜¯ç¬¬ä¸€æ¡è®°å½•
+  æ ¼å¼ï¼šZONENAME  TTL  IN  SOA  FQDN  administrator_mailbox(  
                           serial number
                           refresh
                           retry
                           expire
                           na ttl)
-   Ê±¼äµ¥Î»£ºM(·ÖÖÓ)H£¨Ê±£©D£¨Ìì£©W£¨ÖÜ£©£¬Ä¬ÈÏÎªÃë
-   ÓÊÏä¸ñÊ½£º²»ÄÜÊ¹ÓÃ@·ûºÅ£¬ÓÃ.À´´úÌæ£¨Èç£ºadmin@magedu.com--->admin.magedu.com£©¡¾ÒòÎª@ÓÐÌØÊâÒâÒå£¬¿ÉÒÔÓÃ@±íÊ¾ÇøÓòÃû¡¿
- Èç£ºmagedu.com.  600 IN SOA ns1.magedu.com.  xin.magedu.com£¨
+   æ—¶é—´å•ä½ï¼šM(åˆ†é’Ÿ)Hï¼ˆæ—¶ï¼‰Dï¼ˆå¤©ï¼‰Wï¼ˆå‘¨ï¼‰ï¼Œé»˜è®¤ä¸ºç§’
+   é‚®ç®±æ ¼å¼ï¼šä¸èƒ½ä½¿ç”¨@ç¬¦å·ï¼Œç”¨.æ¥ä»£æ›¿ï¼ˆå¦‚ï¼šadmin@magedu.com--->admin.magedu.comï¼‰ã€å› ä¸º@æœ‰ç‰¹æ®Šæ„ä¹‰ï¼Œå¯ä»¥ç”¨@è¡¨ç¤ºåŒºåŸŸåã€‘
+ å¦‚ï¼šmagedu.com.  600 IN SOA ns1.magedu.com.  xin.magedu.comï¼ˆ
                      2013040501
                      1M
                      5M
-                     1W     ¡¾Ã¿ÐÐºó¿É¼Ó·ÖºÅ£¬ÔÙ¸ú×¢ÊÍÐÅÏ¢¡¿
-                     1D £©
-NS(nameserver)£º¼´zone name--->FQDN¡¾ÕâÀïµÄFQDNÖ¸µÄÊÇ¹ÜÀíÕâ¸öÇøÓòµÄÄÇÌ¨dns·þÎñÆ÷µÄÖ÷»úÃû£¬³ý´ËÖ®Íâ»¹Òª¸øÕâÌ¨FQDNÌí¼ÓÒ»ÌõA¼ÇÂ¼£»NS¿ÉÒÔÓÐ¶àÌ¨£¬Ö÷´Ó¹ØÏµÊÇ¶¨ÒåÇøÓòÊ±À´Ö¸¶¨,ÎÞÐèÔÚ´Ë¶¨Òå¡¿
-   Àý×Ó£ºmagedu.com.       600  IN   NS   ns1.magedu.com.
+                     1W     ã€æ¯è¡ŒåŽå¯åŠ åˆ†å·ï¼Œå†è·Ÿæ³¨é‡Šä¿¡æ¯ã€‘
+                     1D ï¼‰
+NS(nameserver)ï¼šå³zone name--->FQDNã€è¿™é‡Œçš„FQDNæŒ‡çš„æ˜¯ç®¡ç†è¿™ä¸ªåŒºåŸŸçš„é‚£å°dnsæœåŠ¡å™¨çš„ä¸»æœºåï¼Œé™¤æ­¤ä¹‹å¤–è¿˜è¦ç»™è¿™å°FQDNæ·»åŠ ä¸€æ¡Aè®°å½•ï¼›NSå¯ä»¥æœ‰å¤šå°ï¼Œä¸»ä»Žå…³ç³»æ˜¯å®šä¹‰åŒºåŸŸæ—¶æ¥æŒ‡å®š,æ— éœ€åœ¨æ­¤å®šä¹‰ã€‘
+   ä¾‹å­ï¼šmagedu.com.       600  IN   NS   ns1.magedu.com.
          magedu.com.       600  IN   NS   ns2.magedu.com.
          ns1.magedu.com.   600  IN   A    1.1.1.2
          ns2.magedu.com.   600  IN   A    1.1.1.5
-MX(mail exchange)£ºzone name--->FQDN¡¾Í¬ÑùÒ²ÐèÒª¶îÍâÎªÃ¿Ì¨ÓÊ¼þ·þÎñÆ÷¶¼Ìí¼ÓÒ»ÌõA¼ÇÂ¼£¬ÓÊ¼þ·þÎñÆ÷Ò²¿ÉÒÔÓÐ¶àÌ¨¡¿
-   ¸ñÊ½£ºZONENAME        TTL    IN   MX  pri       VLAUE
-   ÓÅÏÈ¼¶£º0-99£¬Êý×ÖÔ½Ð¡ÓÅÏÈ¼¶Ô½¸ß¡£
-   Àý×Ó£ºmagedu.com.     600    IN   MX   10  mail1.magedu.com.
+MX(mail exchange)ï¼šzone name--->FQDNã€åŒæ ·ä¹Ÿéœ€è¦é¢å¤–ä¸ºæ¯å°é‚®ä»¶æœåŠ¡å™¨éƒ½æ·»åŠ ä¸€æ¡Aè®°å½•ï¼Œé‚®ä»¶æœåŠ¡å™¨ä¹Ÿå¯ä»¥æœ‰å¤šå°ã€‘
+   æ ¼å¼ï¼šZONENAME        TTL    IN   MX  pri       VLAUE
+   ä¼˜å…ˆçº§ï¼š0-99ï¼Œæ•°å­—è¶Šå°ä¼˜å…ˆçº§è¶Šé«˜ã€‚
+   ä¾‹å­ï¼šmagedu.com.     600    IN   MX   10  mail1.magedu.com.
          magedu.com.     600    IN   MX   15  mail2.magedu.com.
          mail1.magedu.com. 600   IN    A       1.1.1.3
          mail2.magedu.com. 600   IN    A       1.1.1.4
-A(address)£ºFQDN--->ipv4¡¾¼´½«Ö÷»úÃû×ª»»³ÉIPv4µØÖ·¡¿
-AAAA£ºFQDN--->ipv6¡¾¼´½«Ö÷»úÃû×ª»»³Éipv6µØÖ·¡¿
-PTR£¨pointer£©£ºÖ¸Õë¼ÇÂ¼£¬ip--->FQDN¡¾¼´½«ipµØÖ·×ª»»³ÉFQDN¡¿
-CNAME£¨canonical name£©£ºFQDN--->FQDN¡¾¼´±ðÃû¼ÇÂ¼¡¿
-      ÀýÈç£ºmagedu   IN   CNAME    www.magedu.com.
+A(address)ï¼šFQDN--->ipv4ã€å³å°†ä¸»æœºåè½¬æ¢æˆIPv4åœ°å€ã€‘
+AAAAï¼šFQDN--->ipv6ã€å³å°†ä¸»æœºåè½¬æ¢æˆipv6åœ°å€ã€‘
+PTRï¼ˆpointerï¼‰ï¼šæŒ‡é’ˆè®°å½•ï¼Œip--->FQDNã€å³å°†ipåœ°å€è½¬æ¢æˆFQDNã€‘
+CNAMEï¼ˆcanonical nameï¼‰ï¼šFQDN--->FQDNã€å³åˆ«åè®°å½•ã€‘
+      ä¾‹å¦‚ï¼šmagedu   IN   CNAME    www.magedu.com.
 TXT
 CHAOS
 SRV
 
  
 
-ÓòºÍÇøÓò£º
-Óò£ºdomain£»Âß¼­¸ÅÄî
-ÇøÓò£ºzone£»ÎïÀí¸ÅÄî
+åŸŸå’ŒåŒºåŸŸï¼š
+åŸŸï¼šdomainï¼›é€»è¾‘æ¦‚å¿µ
+åŒºåŸŸï¼šzoneï¼›ç‰©ç†æ¦‚å¿µ
 
 
-DNS·þÎñÆ÷µÄÁ½ÖÖ½âÎö·½Ê½£º¡¾dns½âÎöÐèÒªÒÀÀµÊý¾Ý¿â£¬ËùÒÔÁ½ÖÖ½âÎö·½Ê½ÐèÒªÁ½¸öÊý¾Ý¿âÎÄ¼þ¡¿
-£¨1£©ÕýÏò½âÎö¡¾FQDN--->IP¡¿
-£¨2£©·´Ïò½âÎö¡¾IP--->FQDN¡¿
+DNSæœåŠ¡å™¨çš„ä¸¤ç§è§£æžæ–¹å¼ï¼šã€dnsè§£æžéœ€è¦ä¾èµ–æ•°æ®åº“ï¼Œæ‰€ä»¥ä¸¤ç§è§£æžæ–¹å¼éœ€è¦ä¸¤ä¸ªæ•°æ®åº“æ–‡ä»¶ã€‘
+ï¼ˆ1ï¼‰æ­£å‘è§£æžã€FQDN--->IPã€‘
+ï¼ˆ2ï¼‰åå‘è§£æžã€IP--->FQDNã€‘
 
 
 
 
-¹æ»®dns·þÎñÆ÷Àý×Ó£º
-ÓòÃû£ºmagedu.com     
-Íø¶Î£º192.168.0.0/24
-Ö÷»ú£ºwww  192.168.0.2
-      mail 192.168.0.3£¬MX
+è§„åˆ’dnsæœåŠ¡å™¨ä¾‹å­ï¼š
+åŸŸåï¼šmagedu.com     
+ç½‘æ®µï¼š192.168.0.0/24
+ä¸»æœºï¼šwww  192.168.0.2
+      mail 192.168.0.3ï¼ŒMX
 
-ÔÚÉÏ¼¶ÓòÖÐ¶¨ÒåÊÚÈ¨£º
+åœ¨ä¸Šçº§åŸŸä¸­å®šä¹‰æŽˆæƒï¼š
 .com
 magedu.com.     IN   NS   ns.magedu.com.
 ns.magedu.com.  IN   A    192.168.0.10
 
-È»ºó½ÓÏÂÀ´¾Í²¿ÊðÕâÌ¨dns·þÎñÆ÷¼´¿É£¬Ö®ºóÔÚ±¾ÇøÓòÄÚ¹æ»®Ö÷»ú£¬È»ºó½¨Á¢ÇøÓòÎÄ¼þÓÃÓÚ½âÎöÓÃ¡£
+ç„¶åŽæŽ¥ä¸‹æ¥å°±éƒ¨ç½²è¿™å°dnsæœåŠ¡å™¨å³å¯ï¼Œä¹‹åŽåœ¨æœ¬åŒºåŸŸå†…è§„åˆ’ä¸»æœºï¼Œç„¶åŽå»ºç«‹åŒºåŸŸæ–‡ä»¶ç”¨äºŽè§£æžç”¨ã€‚
 
-¡¾zoneµÄÇøÓòÎÄ¼þÊÇ×ÊÔ´¼ÇÂ¼µÄ¼¯ºÏ£¬ÇøÓòÎÄ¼þµÚÒ»Ìõ¼ÇÂ¼±ØÐëÊÇSOA¼ÇÂ¼¡¿
+ã€zoneçš„åŒºåŸŸæ–‡ä»¶æ˜¯èµ„æºè®°å½•çš„é›†åˆï¼ŒåŒºåŸŸæ–‡ä»¶ç¬¬ä¸€æ¡è®°å½•å¿…é¡»æ˜¯SOAè®°å½•ã€‘
 
-½¨Á¢Á½¸öÇøÓòÎÄ¼þ£º
-ÕýÏòÇøÓòÎÄ¼þ£º
+å»ºç«‹ä¸¤ä¸ªåŒºåŸŸæ–‡ä»¶ï¼š
+æ­£å‘åŒºåŸŸæ–‡ä»¶ï¼š
 magedu.com.    IN   SOA  ...
 
 www.magedu.com.   IN   A   192.168.0.2
-¿ÉÒÔ¼òÐ´Îª£º
-www    IN     A    192.168.0.2  ¡¾ÏµÍ³»á×Ô¶¯²¹ÉÏÇøÓòÃû¡¿
+å¯ä»¥ç®€å†™ä¸ºï¼š
+www    IN     A    192.168.0.2  ã€ç³»ç»Ÿä¼šè‡ªåŠ¨è¡¥ä¸ŠåŒºåŸŸåã€‘
 
-·´ÏòÇøÓòÎÄ¼þ£º¡¾SOA¼ÇÂ¼¸ñÊ½£º£¨·´Íø¶ÎµØÖ·£©.in-addr.arpa.¡¿
+åå‘åŒºåŸŸæ–‡ä»¶ï¼šã€SOAè®°å½•æ ¼å¼ï¼šï¼ˆåç½‘æ®µåœ°å€ï¼‰.in-addr.arpa.ã€‘
 0.168.192.in-addr.arpa.   IN   SOA  ...
 
 2.0.168.192.in-addr.arpa.    IN  PTR    www.magedu.com. 
-¡¾·´ÏòÇøÓòÖÐ£¬FQDN²»¿ÉÒÔ¼òÐ´£¬ÒòÎª²¹ÉÏµÄÇøÓòºó×ºÊÇ0.168.192.in-addr.arpa.¡¿
+ã€åå‘åŒºåŸŸä¸­ï¼ŒFQDNä¸å¯ä»¥ç®€å†™ï¼Œå› ä¸ºè¡¥ä¸Šçš„åŒºåŸŸåŽç¼€æ˜¯0.168.192.in-addr.arpa.ã€‘
 
 
 
-ÇøÓò´«ËÍÀàÐÍ£º
-    ÍêÈ«ÇøÓò´«ËÍ£ºaxf¡¾´Ó·þÎñÆ÷Îª¿Õ£¬ÍêÈ«Í¬²½Ö÷·þÎñÆ÷Êý¾Ý¡¿
-    ÔöÁ¿ÇøÓò´«ËÍ£ºixfr¡¾Ö÷·þÎñÆ÷¸Ä±ä£¬Ö÷¶¯Í¨Öª´Ó·þÎñÆ÷Í¬²½¡¿
+åŒºåŸŸä¼ é€ç±»åž‹ï¼š
+    å®Œå…¨åŒºåŸŸä¼ é€ï¼šaxfã€ä»ŽæœåŠ¡å™¨ä¸ºç©ºï¼Œå®Œå…¨åŒæ­¥ä¸»æœåŠ¡å™¨æ•°æ®ã€‘
+    å¢žé‡åŒºåŸŸä¼ é€ï¼šixfrã€ä¸»æœåŠ¡å™¨æ”¹å˜ï¼Œä¸»åŠ¨é€šçŸ¥ä»ŽæœåŠ¡å™¨åŒæ­¥ã€‘
 
-ÇøÓòÀàÐÍ¡¾°´ÕÕ´«ÊäÊý¾ÝÀ´·Ö¡¿
-    Ö÷ÇøÓò£ºmaster
-    ´ÓÇøÓò£ºslave
-    ÆðÊ¼ÇøÓò£¨¼´¸ùÇøÓò£©£ºhint
-    ×ª·¢ÇøÓò£¨×ª·¢¿Í»§¶ËÇëÇó£©£ºforward
+åŒºåŸŸç±»åž‹ã€æŒ‰ç…§ä¼ è¾“æ•°æ®æ¥åˆ†ã€‘
+    ä¸»åŒºåŸŸï¼šmaster
+    ä»ŽåŒºåŸŸï¼šslave
+    èµ·å§‹åŒºåŸŸï¼ˆå³æ ¹åŒºåŸŸï¼‰ï¼šhint
+    è½¬å‘åŒºåŸŸï¼ˆè½¬å‘å®¢æˆ·ç«¯è¯·æ±‚ï¼‰ï¼šforward
 
 
 
-°²×°ºÍÅäÖÃDNS·þÎñÆ÷£º
+å®‰è£…å’Œé…ç½®DNSæœåŠ¡å™¨ï¼š
 
-²¿Êð°¸Àý£º
-ÉêÇëµÄÓòÃû£ºmagedu.com      IPµØÖ·¶Î£º172.16.100.0/24
+éƒ¨ç½²æ¡ˆä¾‹ï¼š
+ç”³è¯·çš„åŸŸåï¼šmagedu.com      IPåœ°å€æ®µï¼š172.16.100.0/24
 
-¹æ»®£º
+è§„åˆ’ï¼š
 ns   172.16.100.1
-www  172.16.100.1 £¬172.16.100.3
+www  172.16.100.1 ï¼Œ172.16.100.3
 mail 172.16.100.2
 ftp  www
 
 
-DNS£ºÍ¨¹ýBINDÈí¼þÀ´ÊµÏÖºÍ¹¹½¨dns·þÎñÆ÷¡£
-     BINDÈí¼þÊÇÓÉ²®¿ËÀû·ÖÐ£ÑÐ¾¿¿ª·¢³öÀ´µÄ£¬ÊÇÄ¿Ç°Ó¦ÓÃ×î¹ã·ºµÄÃû³Æ·þÎñÈí¼þ¡£
+DNSï¼šé€šè¿‡BINDè½¯ä»¶æ¥å®žçŽ°å’Œæž„å»ºdnsæœåŠ¡å™¨ã€‚
+     BINDè½¯ä»¶æ˜¯ç”±ä¼¯å…‹åˆ©åˆ†æ ¡ç ”ç©¶å¼€å‘å‡ºæ¥çš„ï¼Œæ˜¯ç›®å‰åº”ç”¨æœ€å¹¿æ³›çš„åç§°æœåŠ¡è½¯ä»¶ã€‚
 
-ISC£¨»¥ÁªÍøÏµÍ³×éÖ¯£©£ºÎ¬»¤BINDÈí¼þ
-
-
-BINDÈí¼þ°ü½éÉÜ£º
-bind97°üÊÇ·þÎñÆ÷¶ËÈí¼þ
-utils°üÊÇÌá¹©dns³£ÓÃ¹¤¾ßµÄÈí¼þ°ü
-devel°üÓÃÓÚ¶þ´Î¿ª·¢
-chroot°üÓÃÓÚ¸ùÇÐ»»£¬±£»¤ÏµÍ³°²È«
-caching-nameserver°üÓÃÓÚ½«dns·þÎñÆ÷ÅäÖÃ³ÉÎª»º´ædns·þÎñÆ÷
+ISCï¼ˆäº’è”ç½‘ç³»ç»Ÿç»„ç»‡ï¼‰ï¼šç»´æŠ¤BINDè½¯ä»¶
 
 
-°²×°BIND£º
-°²×°bind·þÎñÆ÷¶ËÈí¼þ£º¡¾yum install BIND97¡¿
-°²×°bindµÄlibs°üºÍutils°ü£º¡¾yum install bind97-libs bind97-utils¡¿
-°²×°bindµÄchroot°ü£º¡¾yum install bind97-chroot¡¿
+BINDè½¯ä»¶åŒ…ä»‹ç»ï¼š
+bind97åŒ…æ˜¯æœåŠ¡å™¨ç«¯è½¯ä»¶
+utilsåŒ…æ˜¯æä¾›dnså¸¸ç”¨å·¥å…·çš„è½¯ä»¶åŒ…
+develåŒ…ç”¨äºŽäºŒæ¬¡å¼€å‘
+chrootåŒ…ç”¨äºŽæ ¹åˆ‡æ¢ï¼Œä¿æŠ¤ç³»ç»Ÿå®‰å…¨
+caching-nameserveråŒ…ç”¨äºŽå°†dnsæœåŠ¡å™¨é…ç½®æˆä¸ºç¼“å­˜dnsæœåŠ¡å™¨
 
 
-BIND97£º
-    Ö÷ÅäÖÃÎÄ¼þ£º/etc/named.conf¡¾Ö÷ÒªÓÃÓÚ¶¨ÒåBIND½ø³ÌµÄ¹¤×÷ÊôÐÔ¡¢ÇøÓòµÄ¶¨ÒåµÈµÈ¡¿
-    rndcÅäÖÃÎÄ¼þ£º/etc/rndc.key¡¾ÊÇ¸öÃÜÔ¿ÎÄ¼þ£¬ÊÇÓÃÀ´ÈÃrndc¹¤¾ßÄÜ¹»½øÐÐÔ¶³Ì¿ØÖÆdns·þÎñ½ø³ÌÆô¶¯¡¢¹Ø±ÕµÈ¹¤×÷µÄ¡¿
-                       rndc£ºremote name domain controller
-                       ÃÜÔ¿ÎÄ¼þ
-                       ÅäÖÃÐÅÏ¢£º/etc/rndc.conf
-    ÇøÓòÊý¾ÝÎÄ¼þ£ºÐèÒª¹ÜÀíÔ±×Ô¼ºÊÖ¶¯´´½¨ºÍ¶¨ÒåµÄ£¬Ä¬ÈÏ±£´æÔÚ/var/named/Ä¿Â¼ÏÂ¡£
+å®‰è£…BINDï¼š
+å®‰è£…bindæœåŠ¡å™¨ç«¯è½¯ä»¶ï¼šã€yum install BIND97ã€‘
+å®‰è£…bindçš„libsåŒ…å’ŒutilsåŒ…ï¼šã€yum install bind97-libs bind97-utilsã€‘
+å®‰è£…bindçš„chrootåŒ…ï¼šã€yum install bind97-chrootã€‘
+
+
+BIND97ï¼š
+    ä¸»é…ç½®æ–‡ä»¶ï¼š/etc/named.confã€ä¸»è¦ç”¨äºŽå®šä¹‰BINDè¿›ç¨‹çš„å·¥ä½œå±žæ€§ã€åŒºåŸŸçš„å®šä¹‰ç­‰ç­‰ã€‘
+    rndcé…ç½®æ–‡ä»¶ï¼š/etc/rndc.keyã€æ˜¯ä¸ªå¯†é’¥æ–‡ä»¶ï¼Œæ˜¯ç”¨æ¥è®©rndcå·¥å…·èƒ½å¤Ÿè¿›è¡Œè¿œç¨‹æŽ§åˆ¶dnsæœåŠ¡è¿›ç¨‹å¯åŠ¨ã€å…³é—­ç­‰å·¥ä½œçš„ã€‘
+                       rndcï¼šremote name domain controller
+                       å¯†é’¥æ–‡ä»¶
+                       é…ç½®ä¿¡æ¯ï¼š/etc/rndc.conf
+    åŒºåŸŸæ•°æ®æ–‡ä»¶ï¼šéœ€è¦ç®¡ç†å‘˜è‡ªå·±æ‰‹åŠ¨åˆ›å»ºå’Œå®šä¹‰çš„ï¼Œé»˜è®¤ä¿å­˜åœ¨/var/named/ç›®å½•ä¸‹ã€‚
     
-    ·þÎñ¿ØÖÆ½Å±¾£º/etc/rc.d/init.d/named
+    æœåŠ¡æŽ§åˆ¶è„šæœ¬ï¼š/etc/rc.d/init.d/named
                       {start|stop|restart|status|configtest}
-    ·þÎñ½Å±¾µÄÅäÖÃÎÄ¼þ£º/etc/sysconfig/named
+    æœåŠ¡è„šæœ¬çš„é…ç½®æ–‡ä»¶ï¼š/etc/sysconfig/named
 
-    ¶þ½øÖÆ³ÌÐò£ºnamed¡¾¼´BINDµÄ½ø³Ì¡¿
+    äºŒè¿›åˆ¶ç¨‹åºï¼šnamedã€å³BINDçš„è¿›ç¨‹ã€‘
 
-bind chroot£º
-     Ä¬ÈÏ£ºnamed
-         ÓÃ»§£ºnamed
-         ×é£ºnamed
-     Ê¹ÓÃchrootºó£¬ÒÔ/var/named/chrootÎªÕæÕýµÄ¸ù£¬±£Ö¤ÏµÍ³°²È«
+bind chrootï¼š
+     é»˜è®¤ï¼šnamed
+         ç”¨æˆ·ï¼šnamed
+         ç»„ï¼šnamed
+     ä½¿ç”¨chrootåŽï¼Œä»¥/var/named/chrootä¸ºçœŸæ­£çš„æ ¹ï¼Œä¿è¯ç³»ç»Ÿå®‰å…¨
          /var/named/chroot/
                    etc/named.conf
                    etc/rdnc.conf
@@ -287,112 +287,112 @@ bind chroot£º
                    var/named/
 
 
-ÅäÖÃdns·þÎñÆ÷£º
-»º´æ--->Ö÷--->´Ó
+é…ç½®dnsæœåŠ¡å™¨ï¼š
+ç¼“å­˜--->ä¸»--->ä»Ž
 
 
 
-ÅäÖÃdns·þÎñÆ÷²½Öè£º
-£¨1£©Ê¹ÓÃyum°²×°BINDÈí¼þ°ü
-     °²×°·þÎñÆ÷¶Ë°ü£º¡¾yum install bind97 -y¡¿
-               /usr/sbin/named-checkconf¡¾¼ì²éÅäÖÃÎÄ¼þÓï·¨¡¿
-               /usr/sbin/named-checkzone¡¾¼ì²éÇøÓòÎÄ¼þÓï·¨¡¿
-£¨2£©ÐÞ¸ÄÖ÷ÅäÖÃÎÄ¼þ/etc/named.conf
-             ÅäÖÃÎÄ¼þÒ»°ãÓÐËÄ¶Î£º¡¾optionsÈ«¾ÖÅäÖÃ¶Î¡¢logÈÕÖ¾ÅäÖÃ¶Î£¬zoneÇøÓòÅäÖÃ¶ÎÒÔ¼°include×Ö¶Î£¨¼´¶îÍâÅäÖÃÎÄ¼þ£©¡¿
-£¨3£©¶¨ÒåÓòÊý¾ÝÎÄ¼þ
-         ¸ùÇøÓòÎÄ¼þ£º/var/named/named.ca¡¾¶¨ÒåÁË13¸ö¸ùÓò·þÎñÆ÷µÄÎ»ÖÃ¡¿£»ÈôÃ»ÓÐ¸ÃÎÄ¼þ£¬¿ÉÒÔÊ¹ÓÃdigÃüÁîÀ´ÊÖ¶¯´´½¨¡£
-         ±¾µØÖ÷»úÓòÊý¾ÝÎÄ¼þ£º/var/named/named.localhost¡¾±¾µØÖ÷»úµÄÕýÏò½âÎö¡¿ºÍ/var/named/named.loopback¡¾±¾µØÖ÷»úµÄ·´Ïò½âÎö¡¿ 
-         ¶¨ÒåÏëÒªÅäÖÃµÄÇøÓòÊý¾ÝÎÄ¼þ£¬×Ô¼ºÃüÃû¡£
+é…ç½®dnsæœåŠ¡å™¨æ­¥éª¤ï¼š
+ï¼ˆ1ï¼‰ä½¿ç”¨yumå®‰è£…BINDè½¯ä»¶åŒ…
+     å®‰è£…æœåŠ¡å™¨ç«¯åŒ…ï¼šã€yum install bind97 -yã€‘
+               /usr/sbin/named-checkconfã€æ£€æŸ¥é…ç½®æ–‡ä»¶è¯­æ³•ã€‘
+               /usr/sbin/named-checkzoneã€æ£€æŸ¥åŒºåŸŸæ–‡ä»¶è¯­æ³•ã€‘
+ï¼ˆ2ï¼‰ä¿®æ”¹ä¸»é…ç½®æ–‡ä»¶/etc/named.conf
+             é…ç½®æ–‡ä»¶ä¸€èˆ¬æœ‰å››æ®µï¼šã€optionså…¨å±€é…ç½®æ®µã€logæ—¥å¿—é…ç½®æ®µï¼ŒzoneåŒºåŸŸé…ç½®æ®µä»¥åŠincludeå­—æ®µï¼ˆå³é¢å¤–é…ç½®æ–‡ä»¶ï¼‰ã€‘
+ï¼ˆ3ï¼‰å®šä¹‰åŸŸæ•°æ®æ–‡ä»¶
+         æ ¹åŒºåŸŸæ–‡ä»¶ï¼š/var/named/named.caã€å®šä¹‰äº†13ä¸ªæ ¹åŸŸæœåŠ¡å™¨çš„ä½ç½®ã€‘ï¼›è‹¥æ²¡æœ‰è¯¥æ–‡ä»¶ï¼Œå¯ä»¥ä½¿ç”¨digå‘½ä»¤æ¥æ‰‹åŠ¨åˆ›å»ºã€‚
+         æœ¬åœ°ä¸»æœºåŸŸæ•°æ®æ–‡ä»¶ï¼š/var/named/named.localhostã€æœ¬åœ°ä¸»æœºçš„æ­£å‘è§£æžã€‘å’Œ/var/named/named.loopbackã€æœ¬åœ°ä¸»æœºçš„åå‘è§£æžã€‘ 
+         å®šä¹‰æƒ³è¦é…ç½®çš„åŒºåŸŸæ•°æ®æ–‡ä»¶ï¼Œè‡ªå·±å‘½åã€‚
 
 
 
-ÃüÁî1£º
-dig  ---£¨domain information gropher£©£»dns²éÑ¯¹¤¾ß
-     ¸ñÊ½£ºdig +Ñ¡Ïî +×ÊÔ´ÀàÐÍ(RRT) +NAME¡¾ºóÃæµÄnameÒªÓëÇ°ÃæµÄ×ÊÔ´ÀàÐÍ¶ÔÓ¦£¨¼´×ÊÔ´ÀàÐÍËù¶ÔÓ¦µÄÃû³Æ£©¡¿           
-               -t£ºÖ¸¶¨×ÊÔ´ÀàÐÍ²éÑ¯
-              ¡¾Èç£ºdig -t NS .£¨½èÖú±¾µØ·þÎñÆ÷²éÑ¯¸ùÓòËùÓÐµÄNS¼ÇÂ¼£¬Ç°ÌáÊÇÖ÷»úÒªÄÜÉÏÍø£©¡¿
-              ¡¾dig -t NS . @a.root-servers.net. £¨±íÊ¾½èÖúa.root-servers.net.ÕâÌ¨·þÎñÆ÷À´²éÕÒËùÓÐ¸ùÓòµÄNS¼ÇÂ¼£©¡¿  
-               -x +ip£º¸ù¾ÝIPµØÖ·²éÑ¯FQDN
-               ¡¾Èç£ºdig -x 172.16.0.1¡¿ 
-               + ¹¤×÷Ä£Ê½£¨Èç£ºtcp£¬recurse...£©¡¾±íÊ¾dns·þÎñÆ÷ÒÔÄ³ÖÖ¹¤×÷Ä£Ê½¹¤×÷¡¿
-               +trace£º±íÊ¾×·×Ù²éÑ¯¹ý³Ì
+å‘½ä»¤1ï¼š
+dig  ---ï¼ˆdomain information gropherï¼‰ï¼›dnsæŸ¥è¯¢å·¥å…·
+     æ ¼å¼ï¼šdig +é€‰é¡¹ +èµ„æºç±»åž‹(RRT) +NAMEã€åŽé¢çš„nameè¦ä¸Žå‰é¢çš„èµ„æºç±»åž‹å¯¹åº”ï¼ˆå³èµ„æºç±»åž‹æ‰€å¯¹åº”çš„åç§°ï¼‰ã€‘           
+               -tï¼šæŒ‡å®šèµ„æºç±»åž‹æŸ¥è¯¢
+              ã€å¦‚ï¼šdig -t NS .ï¼ˆå€ŸåŠ©æœ¬åœ°æœåŠ¡å™¨æŸ¥è¯¢æ ¹åŸŸæ‰€æœ‰çš„NSè®°å½•ï¼Œå‰ææ˜¯ä¸»æœºè¦èƒ½ä¸Šç½‘ï¼‰ã€‘
+              ã€dig -t NS . @a.root-servers.net. ï¼ˆè¡¨ç¤ºå€ŸåŠ©a.root-servers.net.è¿™å°æœåŠ¡å™¨æ¥æŸ¥æ‰¾æ‰€æœ‰æ ¹åŸŸçš„NSè®°å½•ï¼‰ã€‘  
+               -x +ipï¼šæ ¹æ®IPåœ°å€æŸ¥è¯¢FQDN
+               ã€å¦‚ï¼šdig -x 172.16.0.1ã€‘ 
+               + å·¥ä½œæ¨¡å¼ï¼ˆå¦‚ï¼štcpï¼Œrecurse...ï¼‰ã€è¡¨ç¤ºdnsæœåŠ¡å™¨ä»¥æŸç§å·¥ä½œæ¨¡å¼å·¥ä½œã€‘
+               +traceï¼šè¡¨ç¤ºè¿½è¸ªæŸ¥è¯¢è¿‡ç¨‹
        
-Æô¶¯dns·þÎñÆ÷½ø³Ì£º¡¾service named start»ò/etc/init.d/named start¡¿
+å¯åŠ¨dnsæœåŠ¡å™¨è¿›ç¨‹ï¼šã€service named startæˆ–/etc/init.d/named startã€‘
 
-ÃüÁî2£º
-host  ---dns²éÑ¯¹¤¾ß
-Ò²¿ÉÒÔÊ¹ÓÃhostÃüÁî²éÕÒ×ÊÔ´¼ÇÂ¼¡¾host -t +RRT +NAME¡¿
-Èç£ºhost -t NS ns1.magedu.com
+å‘½ä»¤2ï¼š
+host  ---dnsæŸ¥è¯¢å·¥å…·
+ä¹Ÿå¯ä»¥ä½¿ç”¨hostå‘½ä»¤æŸ¥æ‰¾èµ„æºè®°å½•ã€host -t +RRT +NAMEã€‘
+å¦‚ï¼šhost -t NS ns1.magedu.com
 
 
-ÃüÁî3£º
-nslookup  ---dns²éÑ¯¹¤¾ß
-½»»¥Ê½ÃüÁî£º
+å‘½ä»¤3ï¼š
+nslookup  ---dnsæŸ¥è¯¢å·¥å…·
+äº¤äº’å¼å‘½ä»¤ï¼š
 nslookup
-Ö¸¶¨dns·þÎñÆ÷£ºserver +dns·þÎñÆ÷IPµØÖ·
-Ö¸¶¨×ÊÔ´¼ÇÂ¼ÀàÐÍ½øÐÐ²éÑ¯£º
+æŒ‡å®šdnsæœåŠ¡å™¨ï¼šserver +dnsæœåŠ¡å™¨IPåœ°å€
+æŒ‡å®šèµ„æºè®°å½•ç±»åž‹è¿›è¡ŒæŸ¥è¯¢ï¼š
 set q={A|NS...}
 www.magedu.com
 
 
 
 
-DNS¼àÌýµÄÐ­Òé¼°¶Ë¿Ú£º
+DNSç›‘å¬çš„åè®®åŠç«¯å£ï¼š
        53/ucp
        53/tcp
-       953/tcp¡¾rndc¼àÌý¡¿
+       953/tcpã€rndcç›‘å¬ã€‘
 
-socket£ºÌ×½Ó×Ö£¬µ±Á½¸ö²»Í¬Ö÷»úµÄ½ø³ÌÐèÒªÍ¨ÐÅ£¬Ò»°ãÀ´½²·þÎñÆ÷ÐèÒªÔÚÄ³¸öÎ»ÖÃÉÏµÈ´ý¿Í»§¶ËµÄÇëÇó£¬Õâ¸öÎ»ÖÃÒ»¶¨Òª¶¨Òå£¬Õâ¸öÎ»ÖÃ¼´Ì×½Ó×Ö£¬¸ñÊ½Îª¡¾IPµØÖ·:¶Ë¿Ú¡¿
-        C/S¼Ü¹¹£ºclient/server
-           127.0.0.1:53¡¾±íÊ¾Ö»ÄÜ½ÓÊÕ±¾»úµÄÇëÇó¡¿
-           172.16.100.1:53¡¾¿ÉÒÔ½ÓÊÜÍâ²¿Ö÷»úµÄÇëÇó¡¿
-           0.0.0.0:53¡¾¼àÌý±¾µØËùÓÐµØÖ·µÄ53ºÅ¶Ë¿Ú¡¿
+socketï¼šå¥—æŽ¥å­—ï¼Œå½“ä¸¤ä¸ªä¸åŒä¸»æœºçš„è¿›ç¨‹éœ€è¦é€šä¿¡ï¼Œä¸€èˆ¬æ¥è®²æœåŠ¡å™¨éœ€è¦åœ¨æŸä¸ªä½ç½®ä¸Šç­‰å¾…å®¢æˆ·ç«¯çš„è¯·æ±‚ï¼Œè¿™ä¸ªä½ç½®ä¸€å®šè¦å®šä¹‰ï¼Œè¿™ä¸ªä½ç½®å³å¥—æŽ¥å­—ï¼Œæ ¼å¼ä¸ºã€IPåœ°å€:ç«¯å£ã€‘
+        C/Sæž¶æž„ï¼šclient/server
+           127.0.0.1:53ã€è¡¨ç¤ºåªèƒ½æŽ¥æ”¶æœ¬æœºçš„è¯·æ±‚ã€‘
+           172.16.100.1:53ã€å¯ä»¥æŽ¥å—å¤–éƒ¨ä¸»æœºçš„è¯·æ±‚ã€‘
+           0.0.0.0:53ã€ç›‘å¬æœ¬åœ°æ‰€æœ‰åœ°å€çš„53å·ç«¯å£ã€‘
            
 
 
-DNSÖ÷ÅäÖÃÎÄ¼þ/etc/named.confÄÚÈÝ£º
-Óï·¨¹æÔò£ºÃ¿Ò»ÐÐ½áÊø±ØÐëÓÃ·ÖºÅ½áÎ²£»Ã¿¸ö»¨À¨ºÅÇ°±ØÐëÓÐ¿Õ¸ñ
-1¡¢options¶Î¶¨ÒåµÄÊÇdns·þÎñÆ÷µÄ¹¤×÷ÊôÐÔ£¨¼´È«¾Ö²ÎÊý£©£¬¡¾×îÖØÒªµÄ²¿·ÖÊÇ¶¨ÒådnsµÄÇøÓòÊý¾ÝÎÄ¼þÄ¿Â¼£¬¼´directory ¡°/var/named¡±;¡¿
+DNSä¸»é…ç½®æ–‡ä»¶/etc/named.confå†…å®¹ï¼š
+è¯­æ³•è§„åˆ™ï¼šæ¯ä¸€è¡Œç»“æŸå¿…é¡»ç”¨åˆ†å·ç»“å°¾ï¼›æ¯ä¸ªèŠ±æ‹¬å·å‰å¿…é¡»æœ‰ç©ºæ ¼
+1ã€optionsæ®µå®šä¹‰çš„æ˜¯dnsæœåŠ¡å™¨çš„å·¥ä½œå±žæ€§ï¼ˆå³å…¨å±€å‚æ•°ï¼‰ï¼Œã€æœ€é‡è¦çš„éƒ¨åˆ†æ˜¯å®šä¹‰dnsçš„åŒºåŸŸæ•°æ®æ–‡ä»¶ç›®å½•ï¼Œå³directory â€œ/var/namedâ€;ã€‘
    
-2¡¢ÇøÓòµÄ¶¨Òå£º
-   ¸ñÊ½£º 
+2ã€åŒºåŸŸçš„å®šä¹‰ï¼š
+   æ ¼å¼ï¼š 
      zone "ZONE NAME" IN {
            type {master|slave|hint|forward};
-           file "zhengshen.com";   ¡¾¶¨ÒåÇøÓòÊý¾ÝÎÄ¼þµÄÂ·¾¶£¬Ê¹ÓÃµÄÊÇÏà¶ÔÂ·¾¶£¬¼´Ïà¶ÔÓÚÖ÷ÅäÖÃÎÄ¼þµÄdirectory¶¨ÒåµÄÂ·¾¶¶øÑÔ¡¿                                     
+           file "zhengshen.com";   ã€å®šä¹‰åŒºåŸŸæ•°æ®æ–‡ä»¶çš„è·¯å¾„ï¼Œä½¿ç”¨çš„æ˜¯ç›¸å¯¹è·¯å¾„ï¼Œå³ç›¸å¯¹äºŽä¸»é…ç½®æ–‡ä»¶çš„directoryå®šä¹‰çš„è·¯å¾„è€Œè¨€ã€‘                                     
      };
 
-   Ö÷ÇøÓò£º
-       ³ýÁËÒÔÉÏµÄ¸ñÊ½£¬»¹ÐèÒª¶¨ÒåÇøÓòÊý¾ÝÎÄ¼þËùÔÚ
-       file "ÇøÓòÊý¾ÝÎÄ¼þ";
-   ´ÓÇøÓò
-       file "ÇøÓòÊý¾ÝÎÄ¼þ";
-       masters {master_ip;};¡¾¶¨ÒåÖ÷·þÎñÆ÷µÄdnsµÄIPµØÖ·¡¿
-   ¸ùÇøÓò£º
-       Ö¸¶¨ÀàÐÍÎªhint£¬È»ºó¶¨ÒåfileËùÔÚ¼´¿É
+   ä¸»åŒºåŸŸï¼š
+       é™¤äº†ä»¥ä¸Šçš„æ ¼å¼ï¼Œè¿˜éœ€è¦å®šä¹‰åŒºåŸŸæ•°æ®æ–‡ä»¶æ‰€åœ¨
+       file "åŒºåŸŸæ•°æ®æ–‡ä»¶";
+   ä»ŽåŒºåŸŸ
+       file "åŒºåŸŸæ•°æ®æ–‡ä»¶";
+       masters {master_ip;};ã€å®šä¹‰ä¸»æœåŠ¡å™¨çš„dnsçš„IPåœ°å€ã€‘
+   æ ¹åŒºåŸŸï¼š
+       æŒ‡å®šç±»åž‹ä¸ºhintï¼Œç„¶åŽå®šä¹‰fileæ‰€åœ¨å³å¯
 
 
-ÁÙÊ±ÐÔ¹Ø±Õselinux£º
-²é¿´selinux×´Ì¬£ºgetenforce   
-¹Ø±Õselinux£ºsetenforce 0  ¡¾×´Ì¬Îªenforcing¡¿
-Æô¶¯selinux£ºsetenforce 1  ¡¾×´Ì¬Îªpermissive¡¿
+ä¸´æ—¶æ€§å…³é—­selinuxï¼š
+æŸ¥çœ‹selinuxçŠ¶æ€ï¼šgetenforce   
+å…³é—­selinuxï¼šsetenforce 0  ã€çŠ¶æ€ä¸ºenforcingã€‘
+å¯åŠ¨selinuxï¼šsetenforce 1  ã€çŠ¶æ€ä¸ºpermissiveã€‘
 
 
-ÓÀ¾Ã¹Ø±Õ£º
-ÐÞ¸ÄselinuxµÄÅäÖÃÎÄ¼þ/etc/selinux/config»òÕßÁ´½ÓÎÄ¼þ/etc/sysconfig/selinux£¬È»ºóÖØÆôÖ÷»ú
+æ°¸ä¹…å…³é—­ï¼š
+ä¿®æ”¹selinuxçš„é…ç½®æ–‡ä»¶/etc/selinux/configæˆ–è€…é“¾æŽ¥æ–‡ä»¶/etc/sysconfig/selinuxï¼Œç„¶åŽé‡å¯ä¸»æœº
 
 
-¼ì²édns·þÎñÆ÷Ö÷ÅäÖÃÎÄ¼þÓï·¨¡¾named-checkconf¡¿
-¼ì²édns·þÎñÆ÷ÇøÓòÎÄ¼þÓï·¨¡¾named-checkzone +¡°ÇøÓòÃû¡± +ÓòÊý¾ÝÎÄ¼þ¡¿
+æ£€æŸ¥dnsæœåŠ¡å™¨ä¸»é…ç½®æ–‡ä»¶è¯­æ³•ã€named-checkconfã€‘
+æ£€æŸ¥dnsæœåŠ¡å™¨åŒºåŸŸæ–‡ä»¶è¯­æ³•ã€named-checkzone +â€œåŒºåŸŸåâ€ +åŸŸæ•°æ®æ–‡ä»¶ã€‘
 
 
 
-´´½¨ÓòÊý¾ÝÎÄ¼þ£º
-¸ñÊ½£º
+åˆ›å»ºåŸŸæ•°æ®æ–‡ä»¶ï¼š
+æ ¼å¼ï¼š
 NAME    [TTL]   IN     RRT    VLAUE
 
-ÕýÏò½âÎöÎÄ¼þÀý×Ó£º
+æ­£å‘è§£æžæ–‡ä»¶ä¾‹å­ï¼š
 $TTL 600
-magedu.com. IN  SOA  ns1.magedu.com. admin.magedu.com. £¨
+magedu.com. IN  SOA  ns1.magedu.com. admin.magedu.com. ï¼ˆ
                      2013040104
                      1H
                      5M
@@ -405,13 +405,13 @@ mail              IN    A     172.16.0.2
 www               IN    A     172.16.0.3
 www               IN    A     172.16.0.4
 ftp               IN    CNAME    www
-¡¾×¢£ºÇøÓòÃû³Æ¿ÉÒÔÊ¡ÂÔ²»Ð´£¬ÏµÍ³»á×Ô¶¯²¹È«¡¿                              
+ã€æ³¨ï¼šåŒºåŸŸåç§°å¯ä»¥çœç•¥ä¸å†™ï¼Œç³»ç»Ÿä¼šè‡ªåŠ¨è¡¥å…¨ã€‘                              
 
-·´Ïò½âÎöÎÄ¼þÀý×Ó£º
-·´ÏòÇøÓòÃû¶¨Òå¸ñÊ½±ØÐëÊÇ¡¾·´Íø¶Î.in-addr.arpa¡¿£¬Èç0.16.172.in-addr.arpa£»µ«ÊÇÇøÓòÊý¾ÝÎÄ¼þµÄÃüÃû¿ÉÒÔÈÎÒâ¡£
+åå‘è§£æžæ–‡ä»¶ä¾‹å­ï¼š
+åå‘åŒºåŸŸåå®šä¹‰æ ¼å¼å¿…é¡»æ˜¯ã€åç½‘æ®µ.in-addr.arpaã€‘ï¼Œå¦‚0.16.172.in-addr.arpaï¼›ä½†æ˜¯åŒºåŸŸæ•°æ®æ–‡ä»¶çš„å‘½åå¯ä»¥ä»»æ„ã€‚
 
 $TTL 600
-@  IN  SOA  ns1.magedu.com. admin.magedu.com. £¨
+@  IN  SOA  ns1.magedu.com. admin.magedu.com. ï¼ˆ
                      2013040104
                      1H
                      5M
@@ -428,118 +428,118 @@ ftp               IN    CNAME    www
 
 
 
-DNSÖ÷´Ó¸´ÖÆ¼°ÇøÓò´«ËÍ
+DNSä¸»ä»Žå¤åˆ¶åŠåŒºåŸŸä¼ é€
 
-·ºÓòÃû½âÎö£º¡¾¸ñÊ½Îª£º*.magedu.com.  600  IN   A   172.16.0.3¡¿
+æ³›åŸŸåè§£æžï¼šã€æ ¼å¼ä¸ºï¼š*.magedu.com.  600  IN   A   172.16.0.3ã€‘
 
-´íÎóÒ³ÃæÖØ¶¨Ïò
+é”™è¯¯é¡µé¢é‡å®šå‘
 
-dns·þÎñÆ÷¸øËùÓÐµÄ¿Í»§¶ËÇëÇóµÝ¹é£¬±ØÐëÊÇºÏ·¨µÄÇëÇó¡¾¼´²»ÄÜ¸øËùÓÐµÄ¿Í»§¶ËµÝ¹é£»ÄÜÉÏÍøµÄ»°£¬¿ÉÒÔ¸ø¿Í»§¶Ë×öÈÎºÎÓòµÄµÝ¹é¡¿¡£
+dnsæœåŠ¡å™¨ç»™æ‰€æœ‰çš„å®¢æˆ·ç«¯è¯·æ±‚é€’å½’ï¼Œå¿…é¡»æ˜¯åˆæ³•çš„è¯·æ±‚ã€å³ä¸èƒ½ç»™æ‰€æœ‰çš„å®¢æˆ·ç«¯é€’å½’ï¼›èƒ½ä¸Šç½‘çš„è¯ï¼Œå¯ä»¥ç»™å®¢æˆ·ç«¯åšä»»ä½•åŸŸçš„é€’å½’ã€‘ã€‚
 
-¶¨ÒåµÝ¹é¶ÔÏó£¿
-ÔÚdnsÖ÷ÅäÖÃÎÄ¼þÖÐµÄoptionsÈ«¾Ö¶ÎÖÐ¶¨Òå
-£¨1£©recursion {yes|no};¡¾¿ªÆô»ò¹Ø±ÕµÝ¹é¹¦ÄÜ¡¿
-£¨2£©allow-recursion { 172.16.0.0/24; };¡¾Ö»¸ø172.16.0.0/24Íø¶ÎµÝ¹é¡¿
+å®šä¹‰é€’å½’å¯¹è±¡ï¼Ÿ
+åœ¨dnsä¸»é…ç½®æ–‡ä»¶ä¸­çš„optionså…¨å±€æ®µä¸­å®šä¹‰
+ï¼ˆ1ï¼‰recursion {yes|no};ã€å¼€å¯æˆ–å…³é—­é€’å½’åŠŸèƒ½ã€‘
+ï¼ˆ2ï¼‰allow-recursion { 172.16.0.0/24; };ã€åªç»™172.16.0.0/24ç½‘æ®µé€’å½’ã€‘
 
-¶¨ÒåÖ»ÔÊÐíË­À´²éÑ¯£º
-allow-query { localhost; };¡¾¶¨ÒåÖ»ÔÊÐí±¾»úÀ´½øÐÐdns²éÑ¯¡¿
-
-
-
-axfr£ºÍêÈ«ÇøÓò´«ËÍ 
-      Èç£ºdig -t axfr magedu.com @192.168.3.130¡¾»ñµÃÖ¸¶¨ÇøÓòÄÚµÄËùÓÐ¼ÇÂ¼¡¿
-ixfr£ºÔöÁ¿ÇøÓò´«ËÍ
-      Èç£ºdig -t IXFR=2013040201 magedu.com¡¾¿ÉÒÔ»ñÈ¡µ½ÇøÓò±ä»¯µÄÄÚÈÝ£¨Ã¿´ÎÐÞ¸ÄÒÔºó£¬ÐòÁÐºÅÐèÒª¼Ó1£©¡¿
-¡¾¿ÉÒÔÊ¹ÓÃdigÃüÁîÊµÏÖÉÏÊö¹¦ÄÜ¡¿
+å®šä¹‰åªå…è®¸è°æ¥æŸ¥è¯¢ï¼š
+allow-query { localhost; };ã€å®šä¹‰åªå…è®¸æœ¬æœºæ¥è¿›è¡ŒdnsæŸ¥è¯¢ã€‘
 
 
-ÇøÓò´«ËÍºÜ²»°²È«£¬Ö»ÔÊÐí´Ó·þÎñÆ÷½øÐÐÇøÓò´«ËÍ
+
+axfrï¼šå®Œå…¨åŒºåŸŸä¼ é€ 
+      å¦‚ï¼šdig -t axfr magedu.com @192.168.3.130ã€èŽ·å¾—æŒ‡å®šåŒºåŸŸå†…çš„æ‰€æœ‰è®°å½•ã€‘
+ixfrï¼šå¢žé‡åŒºåŸŸä¼ é€
+      å¦‚ï¼šdig -t IXFR=2013040201 magedu.comã€å¯ä»¥èŽ·å–åˆ°åŒºåŸŸå˜åŒ–çš„å†…å®¹ï¼ˆæ¯æ¬¡ä¿®æ”¹ä»¥åŽï¼Œåºåˆ—å·éœ€è¦åŠ 1ï¼‰ã€‘
+ã€å¯ä»¥ä½¿ç”¨digå‘½ä»¤å®žçŽ°ä¸Šè¿°åŠŸèƒ½ã€‘
 
 
-ÈçºÎ¶¨ÒåÇøÓò´«ËÍ£¿
-ÐèÒªÔÚ¶¨ÒåÃ¿¸öÇøÓòÊ±£¬Ê¹ÓÃ¡¾allow-transfer {;};¡¿Óï¾äÀ´¶¨Òå¡£
-    ÀýÈç£ºallow-transfer { 172.16.100.2; };¡¾±íÊ¾Ö»ÔÊÐí172.16.100.2ÕâÌ¨´Ó·þÎñÆ÷½øÐÐÇøÓò´«ËÍ¡¿
+åŒºåŸŸä¼ é€å¾ˆä¸å®‰å…¨ï¼Œåªå…è®¸ä»ŽæœåŠ¡å™¨è¿›è¡ŒåŒºåŸŸä¼ é€
+
+
+å¦‚ä½•å®šä¹‰åŒºåŸŸä¼ é€ï¼Ÿ
+éœ€è¦åœ¨å®šä¹‰æ¯ä¸ªåŒºåŸŸæ—¶ï¼Œä½¿ç”¨ã€allow-transfer {;};ã€‘è¯­å¥æ¥å®šä¹‰ã€‚
+    ä¾‹å¦‚ï¼šallow-transfer { 172.16.100.2; };ã€è¡¨ç¤ºåªå…è®¸172.16.100.2è¿™å°ä»ŽæœåŠ¡å™¨è¿›è¡ŒåŒºåŸŸä¼ é€ã€‘
           allow-transfer { none; };
 
 
-ÈçºÎ½¨Á¢´Ó·þÎñÆ÷£¿
-¡¾Ö»ÐèÒª°²×°bindÈí¼þ£¬ÐÞ¸ÄÖ÷ÅäÖÃÎÄ¼þ¼´¿É£¬²»ÐèÒª½¨Á¢ÇøÓòÊý¾ÝÎÄ¼þ¡¿
-´Ó·þÎñÆ÷µÄÖ÷ÅäÖÃÎÄ¼þÐÞ¸ÄÈçÏÂ£º
-¡¾´óÖÂÅäÖÃ¸úÖ÷dns·þÎñÆ÷Ò»Ñù£¬Ö»ÐèÒª²¿·ÖÄÚÈÝÐÞ¸Ä¼´¿É¡¿
-°¸ÀýÈçÏÂ£º
+å¦‚ä½•å»ºç«‹ä»ŽæœåŠ¡å™¨ï¼Ÿ
+ã€åªéœ€è¦å®‰è£…bindè½¯ä»¶ï¼Œä¿®æ”¹ä¸»é…ç½®æ–‡ä»¶å³å¯ï¼Œä¸éœ€è¦å»ºç«‹åŒºåŸŸæ•°æ®æ–‡ä»¶ã€‘
+ä»ŽæœåŠ¡å™¨çš„ä¸»é…ç½®æ–‡ä»¶ä¿®æ”¹å¦‚ä¸‹ï¼š
+ã€å¤§è‡´é…ç½®è·Ÿä¸»dnsæœåŠ¡å™¨ä¸€æ ·ï¼Œåªéœ€è¦éƒ¨åˆ†å†…å®¹ä¿®æ”¹å³å¯ã€‘
+æ¡ˆä¾‹å¦‚ä¸‹ï¼š
 zone "magedu.com"  IN	{
-      type slave ;        ¡¾¶¨Òå´Ó·þÎñÆ÷½ÇÉ«¡¿
-      file "slaves/magedu.com.zone"; ¡¾¶¨Òå´ÓÖ÷·þÎñÆ÷ÉÏÍ¬²½¹ýÀ´µÄÇøÓòÊý¾ÝÎÄ¼þµÄ±£´æÂ·¾¶£¬Ê¹ÓÃÏà¶ÔÂ·¾¶¼´¿É¡¿
-      masters { 172.16.100.1; }; ¡¾¶¨ÒåÖ÷·þÎñÆ÷ÊÇË­¡¿
-      allow-transfer { none;}; ¡¾²»ÔÊÐíÈÎºÎ½øÐÐÇøÓò´«ËÍ¡¿
+      type slave ;        ã€å®šä¹‰ä»ŽæœåŠ¡å™¨è§’è‰²ã€‘
+      file "slaves/magedu.com.zone"; ã€å®šä¹‰ä»Žä¸»æœåŠ¡å™¨ä¸ŠåŒæ­¥è¿‡æ¥çš„åŒºåŸŸæ•°æ®æ–‡ä»¶çš„ä¿å­˜è·¯å¾„ï¼Œä½¿ç”¨ç›¸å¯¹è·¯å¾„å³å¯ã€‘
+      masters { 172.16.100.1; }; ã€å®šä¹‰ä¸»æœåŠ¡å™¨æ˜¯è°ã€‘
+      allow-transfer { none;}; ã€ä¸å…è®¸ä»»ä½•è¿›è¡ŒåŒºåŸŸä¼ é€ã€‘
 
 
 
-¶¨ÒåÖ÷´Ó·þÎñÆ÷Ê±£¬¿ÉÒÔÖ»¶¨ÒåÕýÏòÖ÷´Ó»ò·´ÏòÖ÷´Ó£¬Ò²¿ÉÒÔÈ«²¿¶¨Òå¡£
+å®šä¹‰ä¸»ä»ŽæœåŠ¡å™¨æ—¶ï¼Œå¯ä»¥åªå®šä¹‰æ­£å‘ä¸»ä»Žæˆ–åå‘ä¸»ä»Žï¼Œä¹Ÿå¯ä»¥å…¨éƒ¨å®šä¹‰ã€‚
 
-¡¾×¢£ºÔÚÅäÖÃ¹ý³ÌÖÐ³öÏÖÈ¨ÏÞÎÊÌâÊ±£¬Í¨¹ý²é¿´ÈÕÖ¾À´ÅÅ´í¡¿
-
-
-¶¨ÒåÍ¬²½´«ËÍÍ¨Öª¹¦ÄÜ£º
-optionÓï¾äÖÐ¶¨Òå£º¡¾notify yes;¡¿
+ã€æ³¨ï¼šåœ¨é…ç½®è¿‡ç¨‹ä¸­å‡ºçŽ°æƒé™é—®é¢˜æ—¶ï¼Œé€šè¿‡æŸ¥çœ‹æ—¥å¿—æ¥æŽ’é”™ã€‘
 
 
-
-ÈçºÎÊ¹ÓÃrndcÀ´¿ØÖÆdns·þÎñÆ÷
-
-rndcÃüÁîµÄÊ¹ÓÃ
-
-ÃüÁî4£º
-rndc  ---ÓòÃû·þÎñÆ÷¿ØÖÆ¹¤¾ß
-      ¸ñÊ½£ºrndc Ñ¡Ïî {congfig|server|...} +×ÓÃüÁî
-            -c£ºÖ¸¶¨rndcÅäÖÃÎÄ¼þ¶ÁÈ¡keyÎÄ¼þ¡¾Ä¬ÈÏ¾Í¶ÁÈ¡¡¿
-            -s£ºÖ¸¶¨·þÎñÆ÷
-            -p£ºÖ¸¶¨¶Ë¿Ú
-      rndcµÄ×ÓÃüÁîÓÐ£º
-            status£º²é¿´ÓòÃû·þÎñÆ÷×´Ì¬
-            stop£º¹Ø±ÕÓòÃû·þÎñÆ÷
-            flush£ºÇå³ý»º´æ
-
-¡¾Ä¬ÈÏÇé¿öÏÂ£¬Éú³ÉµÄrndc keyÖ»ÄÜ¿ØÖÆ±¾»úÓòÃû·þÎñÆ÷£¬Èç¹ûÏëÒª¿ØÖÆÔ¶³ÌÓòÃû·þÎñÆ÷£¬ÔòÐèÒªÔÚÖ÷ÅäÖÃÎÄ¼þÖÐµÄrndc key×Ö¶ÎÖÐÐÞ¸Ä£¬Ò»°ãÖ»Ê¹ÓÃrndcÀ´¿ØÖÆ±¾»ú¼´¿É¡£¡¿
+å®šä¹‰åŒæ­¥ä¼ é€é€šçŸ¥åŠŸèƒ½ï¼š
+optionè¯­å¥ä¸­å®šä¹‰ï¼šã€notify yes;ã€‘
 
 
-¡¾×¢£ºÎªÁËÔö¼Ó°²È«ÐÔ£¬ÔÚÊ¹ÓÃrndcÃüÁî¹ÜÀíÓòÃû·þÎñÆ÷Ê±£¬ÐèÒªÊ×ÏÈÊ¹ÓÃrndc-confgenÃüÁîÀ´Éú³ÉÒ»¸ökeyÎÄ¼þ£¨rndc-confgen > /etc/rndc.conf£©£¬ÔÙÊ¹ÓÃrndcÀ´¹ÜÀí·þÎñÆ÷¡¿
+
+å¦‚ä½•ä½¿ç”¨rndcæ¥æŽ§åˆ¶dnsæœåŠ¡å™¨
+
+rndcå‘½ä»¤çš„ä½¿ç”¨
+
+å‘½ä»¤4ï¼š
+rndc  ---åŸŸåæœåŠ¡å™¨æŽ§åˆ¶å·¥å…·
+      æ ¼å¼ï¼šrndc é€‰é¡¹ {congfig|server|...} +å­å‘½ä»¤
+            -cï¼šæŒ‡å®šrndcé…ç½®æ–‡ä»¶è¯»å–keyæ–‡ä»¶ã€é»˜è®¤å°±è¯»å–ã€‘
+            -sï¼šæŒ‡å®šæœåŠ¡å™¨
+            -pï¼šæŒ‡å®šç«¯å£
+      rndcçš„å­å‘½ä»¤æœ‰ï¼š
+            statusï¼šæŸ¥çœ‹åŸŸåæœåŠ¡å™¨çŠ¶æ€
+            stopï¼šå…³é—­åŸŸåæœåŠ¡å™¨
+            flushï¼šæ¸…é™¤ç¼“å­˜
+
+ã€é»˜è®¤æƒ…å†µä¸‹ï¼Œç”Ÿæˆçš„rndc keyåªèƒ½æŽ§åˆ¶æœ¬æœºåŸŸåæœåŠ¡å™¨ï¼Œå¦‚æžœæƒ³è¦æŽ§åˆ¶è¿œç¨‹åŸŸåæœåŠ¡å™¨ï¼Œåˆ™éœ€è¦åœ¨ä¸»é…ç½®æ–‡ä»¶ä¸­çš„rndc keyå­—æ®µä¸­ä¿®æ”¹ï¼Œä¸€èˆ¬åªä½¿ç”¨rndcæ¥æŽ§åˆ¶æœ¬æœºå³å¯ã€‚ã€‘
 
 
-ÃüÁî5£º
-rndc-confgen  ---rndc keyÉú³É¹¤¾ß¡¾ÎªÁËÔöÇ¿°²È«ÐÔ¡¿
-              ¸ñÊ½£ºrndc-confgen > /etc/rndc.con¡¾½«Éú³ÉµÄ/etc/rndc.confÎÄ¼þÖÐµÄ×¢ÊÍÄÚÈÝ¸´ÖÆµ½/etc/named.confÎÄ¼þÖÐÈ¥¼´¿É¡¿
+ã€æ³¨ï¼šä¸ºäº†å¢žåŠ å®‰å…¨æ€§ï¼Œåœ¨ä½¿ç”¨rndcå‘½ä»¤ç®¡ç†åŸŸåæœåŠ¡å™¨æ—¶ï¼Œéœ€è¦é¦–å…ˆä½¿ç”¨rndc-confgenå‘½ä»¤æ¥ç”Ÿæˆä¸€ä¸ªkeyæ–‡ä»¶ï¼ˆrndc-confgen > /etc/rndc.confï¼‰ï¼Œå†ä½¿ç”¨rndcæ¥ç®¡ç†æœåŠ¡å™¨ã€‘
+
+
+å‘½ä»¤5ï¼š
+rndc-confgen  ---rndc keyç”Ÿæˆå·¥å…·ã€ä¸ºäº†å¢žå¼ºå®‰å…¨æ€§ã€‘
+              æ ¼å¼ï¼šrndc-confgen > /etc/rndc.conã€å°†ç”Ÿæˆçš„/etc/rndc.confæ–‡ä»¶ä¸­çš„æ³¨é‡Šå†…å®¹å¤åˆ¶åˆ°/etc/named.confæ–‡ä»¶ä¸­åŽ»å³å¯ã€‘
   
 
 
-DNS×ÓÓòÊÚÈ¨Ïê½â
+DNSå­åŸŸæŽˆæƒè¯¦è§£
 
-°¸Àý£º
-Óò£ºmagedu.com
-    www.magedu.com   ¡¾±¾×éÖ¯¡¿ ---Ïàµ±ÓÚ¸¸Óò
-      www.fin.magedu.com ¡¾×éÖ¯²ÆÎñ²¿¡¿     ---×ÓÓò1
-      www.market.magedu.com ¡¾×éÖ¯ÊÐ³¡²¿¡¿  ---×ÓÓò2
-
-
-ÈÎºÎÒ»¸ö×ÓÓò¶¼±ØÐëµÃµ½¸¸ÓòµÄÊÚÈ¨²Å¿ÉÒÔ
-×ÓÓòºÍ¸¸Óò¿ÉÒÔ²»ÔÙÍ¬Ò»Íø¶Î£¬Ö»ÒªÂ·ÓÉ»¥Í¨¼´¿É
+æ¡ˆä¾‹ï¼š
+åŸŸï¼šmagedu.com
+    www.magedu.com   ã€æœ¬ç»„ç»‡ã€‘ ---ç›¸å½“äºŽçˆ¶åŸŸ
+      www.fin.magedu.com ã€ç»„ç»‡è´¢åŠ¡éƒ¨ã€‘     ---å­åŸŸ1
+      www.market.magedu.com ã€ç»„ç»‡å¸‚åœºéƒ¨ã€‘  ---å­åŸŸ2
 
 
-ÕýÏòÇøÓòÊµÏÖ×ÓÓòÊÚÈ¨£º¡¾¼´ÔÚ¸¸ÓòÉÏ½¨Á¢×ÓÓòµÄNS¼ÇÂ¼ºÍA¼ÇÂ¼¡¿
-Ð´·¨¸ñÊ½ÈçÏÂ£º       
-  SUB_ZONE_NAME   IN  NS  NSSERVER_SUB_ZONE_NAME£¨×ÓÓò¹ÜÀíÕß£©
-  NSSERVER_SUB_ZONE_NAME   IN   A    IPµØÖ·  
+ä»»ä½•ä¸€ä¸ªå­åŸŸéƒ½å¿…é¡»å¾—åˆ°çˆ¶åŸŸçš„æŽˆæƒæ‰å¯ä»¥
+å­åŸŸå’Œçˆ¶åŸŸå¯ä»¥ä¸å†åŒä¸€ç½‘æ®µï¼Œåªè¦è·¯ç”±äº’é€šå³å¯
 
-Àý×ÓÈçÏÂ£º
-Èç¹û×¢²áÓòÃûÊÇ£ºmagedu.com 
 
-.comÉÏÊÚÈ¨£º
+æ­£å‘åŒºåŸŸå®žçŽ°å­åŸŸæŽˆæƒï¼šã€å³åœ¨çˆ¶åŸŸä¸Šå»ºç«‹å­åŸŸçš„NSè®°å½•å’ŒAè®°å½•ã€‘
+å†™æ³•æ ¼å¼å¦‚ä¸‹ï¼š       
+  SUB_ZONE_NAME   IN  NS  NSSERVER_SUB_ZONE_NAMEï¼ˆå­åŸŸç®¡ç†è€…ï¼‰
+  NSSERVER_SUB_ZONE_NAME   IN   A    IPåœ°å€  
+
+ä¾‹å­å¦‚ä¸‹ï¼š
+å¦‚æžœæ³¨å†ŒåŸŸåæ˜¯ï¼šmagedu.com 
+
+.comä¸ŠæŽˆæƒï¼š
     magedu.com.     IN   NS    ns1.magedu.com.
                     IN   NS    ns2.magedu.com.
     ns1.magedu.com. IN   A     172.16.100.1 
     ns2.magedu.com. IN   A     172.16.100.2   
 
-magedu.comÉÏÊÚÈ¨£º
+magedu.comä¸ŠæŽˆæƒï¼š
     fin.magedu.com.      IN   NS   ns1.fin.magedu.com.
     ns1.fin.magedu.com.  IN   A    192.168.2.50
     market.magedu.com.      IN   NS   ns1.market.magedu.com.
@@ -547,12 +547,12 @@ magedu.comÉÏÊÚÈ¨£º
  
 
 
-¶¨Òå×ÓÓò½«ËùÓÐÇëÇó×ª·¢¸ø¸¸Óò½âÎö£º¡¾¼´¶¨Òå×ª·¢¡¿
-¿ÉÒÔÔÚoptions×Ö¶ÎÖÐÈ«¾Ö¶¨Òå£º
-       forward {only|first}; ¡¾¶¨Òå×ª·¢Ä£Ê½¡¿
-       forwarders { 172.16.100.1; };¡¾¶¨Òå×ª·¢¸øË­À´½âÎö£¨¼´¶¨Òå×ª·¢Æ÷£©¡¿
+å®šä¹‰å­åŸŸå°†æ‰€æœ‰è¯·æ±‚è½¬å‘ç»™çˆ¶åŸŸè§£æžï¼šã€å³å®šä¹‰è½¬å‘ã€‘
+å¯ä»¥åœ¨optionså­—æ®µä¸­å…¨å±€å®šä¹‰ï¼š
+       forward {only|first}; ã€å®šä¹‰è½¬å‘æ¨¡å¼ã€‘
+       forwarders { 172.16.100.1; };ã€å®šä¹‰è½¬å‘ç»™è°æ¥è§£æžï¼ˆå³å®šä¹‰è½¬å‘å™¨ï¼‰ã€‘
 
-Ò²¿ÉÒÔÖ»¶¨ÒåÄ³¸öÇøÓò×ª·¢£º¡¾¼´ÔÚ×ÓÓò·þÎñÆ÷ÉÏ¶¨Òå¸¸ÓòÊ±£¬×ª·¢¡¿
+ä¹Ÿå¯ä»¥åªå®šä¹‰æŸä¸ªåŒºåŸŸè½¬å‘ï¼šã€å³åœ¨å­åŸŸæœåŠ¡å™¨ä¸Šå®šä¹‰çˆ¶åŸŸæ—¶ï¼Œè½¬å‘ã€‘
        zone "ZONE_NAME" IN {
              type  forward;
              forward first;
@@ -563,66 +563,66 @@ magedu.comÉÏÊÚÈ¨£º
 
 
 
-DNSµÄÊÓÍ¼¼°ÈÕÖ¾ÏµÍ³Ïê½â
+DNSçš„è§†å›¾åŠæ—¥å¿—ç³»ç»Ÿè¯¦è§£
 
-¶¨Òåacl£º¡¾ÔÚÖ÷ÅäÖÃÎÄ¼þÖÐ¶¨Òå¼´¿É£¬µ«±ØÐëÊÂÏÈ¶¨Òåºó²ÅÄÜÊ¹ÓÃ¡¿
-¸ñÊ½£ºacl ACL_NAME {
+å®šä¹‰aclï¼šã€åœ¨ä¸»é…ç½®æ–‡ä»¶ä¸­å®šä¹‰å³å¯ï¼Œä½†å¿…é¡»äº‹å…ˆå®šä¹‰åŽæ‰èƒ½ä½¿ç”¨ã€‘
+æ ¼å¼ï¼šacl ACL_NAME {
          172.16.0.0/16;      
          127.0.0.0/8;
       };
 
-¡¾ÈçºÎÊ¹ÓÃallow-recursion {}¡¢allow-query {}¡¢allow-transfer {}¶¨ÒåºÜ¶àµÄÍø¶ÎÊ±£¬¿ÉÒÔÊ¹ÓÃacl¶¨Òå£¬È»ºóµ÷ÓÃaclÃû³Æ¼´¿É£¬¼ò»¯ÁËÅäÖÃ¹ý³Ì¡¿
+ã€å¦‚ä½•ä½¿ç”¨allow-recursion {}ã€allow-query {}ã€allow-transfer {}å®šä¹‰å¾ˆå¤šçš„ç½‘æ®µæ—¶ï¼Œå¯ä»¥ä½¿ç”¨aclå®šä¹‰ï¼Œç„¶åŽè°ƒç”¨aclåç§°å³å¯ï¼Œç®€åŒ–äº†é…ç½®è¿‡ç¨‹ã€‘
 
-aclÀý×Ó£º
+aclä¾‹å­ï¼š
    acl innet {
        172.16.0.0/16;
        10.0.0.0/8;
        192.168.0.0/16;
    };   
 
-µ÷ÓÃacl£ºallow-query { innet; }; ¡¾ÔÊÐíinnetÖÐ¶¨ÒåµÄÍø¶Î²éÑ¯¡¿          allow-transfer { innet; };¡¾ÔÊÐíinnetÖÐ¶¨ÒåµÄÍø¶ÎµÄÖ÷»ú½øÐÐÇøÓò´«ËÍ¡¿
+è°ƒç”¨aclï¼šallow-query { innet; }; ã€å…è®¸innetä¸­å®šä¹‰çš„ç½‘æ®µæŸ¥è¯¢ã€‘          allow-transfer { innet; };ã€å…è®¸innetä¸­å®šä¹‰çš„ç½‘æ®µçš„ä¸»æœºè¿›è¡ŒåŒºåŸŸä¼ é€ã€‘
 
 
-DNSµÄÏà¹ØÊé¼®£º[DNS and BIND]
+DNSçš„ç›¸å…³ä¹¦ç±ï¼š[DNS and BIND]
 
 
 
-DNSµÄ¸ß¼¶¹¦ÄÜ£º
-ÊÓÍ¼¹¦ÄÜ£¨view£©
-     dns·þÎñÆ÷ÄÜ¹»¸ù¾Ý¿Í»§¶ËÀ´Ô´ËùÊôÍøÂç½øÐÐÅÐ¶Ï£¬²¢ÇÒ·µ»ØÒ»¸öÀëËû×î½üµÄdns·þÎñÆ÷ÏìÓ¦¸ø¿Í»§¶Ë£¬ÕâÖÖ»úÖÆ³ÆÎªÖÇÄÜDNS£¨¼´DNSµÄÊÓÍ¼¹¦ÄÜ£©
-     dns·þÎñÆ÷¿ÉÒÔÔÚÄÚ²¿¶¨ÒåÊÓÍ¼¹¦ÄÜ¡¾Ò²ÐèÒª½«ÕûÌåµÄÓòÊý¾ÝÎÄ¼þ»®·Ö³É¶à¸ö²»Í¬µÄÓòÊý¾ÝÎÄ¼þÒÔÏìÓ¦²»Í¬Íø¶Î¿Í»§¶ËµÄÇëÇó¡¿
+DNSçš„é«˜çº§åŠŸèƒ½ï¼š
+è§†å›¾åŠŸèƒ½ï¼ˆviewï¼‰
+     dnsæœåŠ¡å™¨èƒ½å¤Ÿæ ¹æ®å®¢æˆ·ç«¯æ¥æºæ‰€å±žç½‘ç»œè¿›è¡Œåˆ¤æ–­ï¼Œå¹¶ä¸”è¿”å›žä¸€ä¸ªç¦»ä»–æœ€è¿‘çš„dnsæœåŠ¡å™¨å“åº”ç»™å®¢æˆ·ç«¯ï¼Œè¿™ç§æœºåˆ¶ç§°ä¸ºæ™ºèƒ½DNSï¼ˆå³DNSçš„è§†å›¾åŠŸèƒ½ï¼‰
+     dnsæœåŠ¡å™¨å¯ä»¥åœ¨å†…éƒ¨å®šä¹‰è§†å›¾åŠŸèƒ½ã€ä¹Ÿéœ€è¦å°†æ•´ä½“çš„åŸŸæ•°æ®æ–‡ä»¶åˆ’åˆ†æˆå¤šä¸ªä¸åŒçš„åŸŸæ•°æ®æ–‡ä»¶ä»¥å“åº”ä¸åŒç½‘æ®µå®¢æˆ·ç«¯çš„è¯·æ±‚ã€‘
 
-¿ÉÒÔ¸ù¾ÝÈ«¹ú¸÷¸öÇøÓò²»Í¬ÍøÂç½«ÓòÊý¾ÝÎÄ¼þ·Ö³É¶à¸ö£¬À´ÊµÏÖCDN¼Ü¹¹¡¾Àë¿Í»§¶Ë×î½üµÄdns·þÎñÆ÷ÏìÓ¦¿Í»§¶ËµÄÇëÇó¡¿¡£
+å¯ä»¥æ ¹æ®å…¨å›½å„ä¸ªåŒºåŸŸä¸åŒç½‘ç»œå°†åŸŸæ•°æ®æ–‡ä»¶åˆ†æˆå¤šä¸ªï¼Œæ¥å®žçŽ°CDNæž¶æž„ã€ç¦»å®¢æˆ·ç«¯æœ€è¿‘çš„dnsæœåŠ¡å™¨å“åº”å®¢æˆ·ç«¯çš„è¯·æ±‚ã€‘ã€‚
 
-Ô´·þÎñÆ÷ºÍ»º´æ·þÎñÆ÷ 
+æºæœåŠ¡å™¨å’Œç¼“å­˜æœåŠ¡å™¨ 
 
-¾²Ì¬ÄÚÈÝ²ÅÄÜ»º´æ
-
-
-CDN¼Ü¹¹£ºÄÜ¹»ÅÐ¶Ï¿Í»§¶ËËùÊôÍøÂç£¬²¢·µ»ØÀëÆä×î½üµÄdns·þÎñÆ÷ÏìÓ¦ÆäÇëÇó¡£
+é™æ€å†…å®¹æ‰èƒ½ç¼“å­˜
 
 
-ÖÇÄÜdns°¸Àý£º
-µçÐÅ¿Í»§¶Ë£º172.16.0.0/16
-ÁªÍ¨¿Í»§¶Ë£º192.168.1.0/24
+CDNæž¶æž„ï¼šèƒ½å¤Ÿåˆ¤æ–­å®¢æˆ·ç«¯æ‰€å±žç½‘ç»œï¼Œå¹¶è¿”å›žç¦»å…¶æœ€è¿‘çš„dnsæœåŠ¡å™¨å“åº”å…¶è¯·æ±‚ã€‚
 
-Í¨¹ýÉèÖÃÊµÏÖ¸ù¾Ý²»Í¬À´Ô´¿Í»§¶ËÍøÂç£¬ÖÇÄÜÏìÓ¦ÆäÇëÇó¡£
-Ã¿Ò»¸öÊÓÍ¼±ØÐë¶¼ÓÐÒ»¸öÓòÊý¾ÝÎÄ¼þ
 
-¶¨ÒåÊÓÍ¼¹¦ÄÜ£º
-    Óï·¨¸ñÊ½£ºview VIEW_NAME {
+æ™ºèƒ½dnsæ¡ˆä¾‹ï¼š
+ç”µä¿¡å®¢æˆ·ç«¯ï¼š172.16.0.0/16
+è”é€šå®¢æˆ·ç«¯ï¼š192.168.1.0/24
+
+é€šè¿‡è®¾ç½®å®žçŽ°æ ¹æ®ä¸åŒæ¥æºå®¢æˆ·ç«¯ç½‘ç»œï¼Œæ™ºèƒ½å“åº”å…¶è¯·æ±‚ã€‚
+æ¯ä¸€ä¸ªè§†å›¾å¿…é¡»éƒ½æœ‰ä¸€ä¸ªåŸŸæ•°æ®æ–‡ä»¶
+
+å®šä¹‰è§†å›¾åŠŸèƒ½ï¼š
+    è¯­æ³•æ ¼å¼ï¼šview VIEW_NAME {
               
               };
 
-¡¾×¢£ºÒ»µ©¶¨ÒåÁËÊÓÍ¼£¬ËùÓÐµÄÇøÓò±ØÐë¶¼¶¨ÒåÔÚÊÓÍ¼ÖÐ¡¿
+ã€æ³¨ï¼šä¸€æ—¦å®šä¹‰äº†è§†å›¾ï¼Œæ‰€æœ‰çš„åŒºåŸŸå¿…é¡»éƒ½å®šä¹‰åœ¨è§†å›¾ä¸­ã€‘
 
-Àý×ÓÈçÏÂ£º
+ä¾‹å­å¦‚ä¸‹ï¼š
        acl telecom {             
            172.16.0.0/16;
-       };                  ¡¾Í¨¹ý¶¨ÒåaclÀ´Æ¥Åä¿Í»§¶ËÀ´Ô´ÍøÂç¡¿
+       };                  ã€é€šè¿‡å®šä¹‰aclæ¥åŒ¹é…å®¢æˆ·ç«¯æ¥æºç½‘ç»œã€‘
 
-       view telecom {                   ¡¾¶¨ÒåµçÐÅ¿Í»§¶Ëview¡¿
-             match-clients { telecom; };¡¾Æ¥Åäacl telecomÖÐ¶¨ÒåµÄµçÐÅ¿Í»§¶ËÍøÂç¡¿
+       view telecom {                   ã€å®šä¹‰ç”µä¿¡å®¢æˆ·ç«¯viewã€‘
+             match-clients { telecom; };ã€åŒ¹é…acl telecomä¸­å®šä¹‰çš„ç”µä¿¡å®¢æˆ·ç«¯ç½‘ç»œã€‘
              zone "magedu.com" IN {
                     type master;
                     file "telecom.magedu.com.zone"; 
@@ -646,57 +646,57 @@ CDN¼Ü¹¹£ºÄÜ¹»ÅÐ¶Ï¿Í»§¶ËËùÊôÍøÂç£¬²¢·µ»ØÀëÆä×î½üµÄdns·þÎñÆ÷ÏìÓ¦ÆäÇëÇó¡£
              };
         };
 
-¡¾viewÖÐ¶¨ÒåµÄÓòÊý¾ÝÎÄ¼þÒ²±ØÐë´æÔÚ£¬ËùÒÔ±ØÐë´´½¨¡¿
+ã€viewä¸­å®šä¹‰çš„åŸŸæ•°æ®æ–‡ä»¶ä¹Ÿå¿…é¡»å­˜åœ¨ï¼Œæ‰€ä»¥å¿…é¡»åˆ›å»ºã€‘
 
-¡¾×¢£ºÈç¹û¶ÔÄ³¸öÓòµÄ½âÎö²»Çø·ÖÍøÂç£¬¿ÉÒÔÔÚÃ¿¸ö¶¨ÒåµÄviewÖÐ¶¼¶¨Òå¸ÃÓò¼´¿É¡¿
-
-
-DNS½âÎö£ºÐèÒªÊÂÏÈ¶¨ÒåºÃ¡¾ÇøÓò¡¿ºÍ¡¾ÓòÊý¾ÝÎÄ¼þ¡¿¼´¿É
-
-Èç¹ûÏëÒª½âÎö¸ü¶àµÄÇøÓòµÄ»°£¬ÐèÒªÍ¨¹ý½«Êý¾Ý·ÅÈëÊý¾Ý¿âÖÐÀ´ÊµÏÖ¸ü·½±ãµÄ¹ÜÀí£¬Ö»ÊÇËÙ¶È»ØÂýÐ©¡£
+ã€æ³¨ï¼šå¦‚æžœå¯¹æŸä¸ªåŸŸçš„è§£æžä¸åŒºåˆ†ç½‘ç»œï¼Œå¯ä»¥åœ¨æ¯ä¸ªå®šä¹‰çš„viewä¸­éƒ½å®šä¹‰è¯¥åŸŸå³å¯ã€‘
 
 
-ÖÇÄÜdns·þÎñÆ÷ÔËÓªÉÌ£º
-£¨1£©dnspod
-£¨2£©www.dns.la
+DNSè§£æžï¼šéœ€è¦äº‹å…ˆå®šä¹‰å¥½ã€åŒºåŸŸã€‘å’Œã€åŸŸæ•°æ®æ–‡ä»¶ã€‘å³å¯
+
+å¦‚æžœæƒ³è¦è§£æžæ›´å¤šçš„åŒºåŸŸçš„è¯ï¼Œéœ€è¦é€šè¿‡å°†æ•°æ®æ”¾å…¥æ•°æ®åº“ä¸­æ¥å®žçŽ°æ›´æ–¹ä¾¿çš„ç®¡ç†ï¼Œåªæ˜¯é€Ÿåº¦å›žæ…¢äº›ã€‚
+
+
+æ™ºèƒ½dnsæœåŠ¡å™¨è¿è¥å•†ï¼š
+ï¼ˆ1ï¼‰dnspod
+ï¼ˆ2ï¼‰www.dns.la
 
 
 
-DNSµÄÈÕÖ¾ÏµÍ³¹¦ÄÜ
+DNSçš„æ—¥å¿—ç³»ç»ŸåŠŸèƒ½
 
-ÈçºÎÆôÓÃdnsµÄÈÕÖ¾¹¦ÄÜ£¿
-ÔÚÖ÷ÅäÖÃÎÄ¼þÖÐµÄoptionsÈ«¾Ö×Ö¶ÎÖÐ¶¨Òå£º¡¾querylog yes;¡¿
+å¦‚ä½•å¯ç”¨dnsçš„æ—¥å¿—åŠŸèƒ½ï¼Ÿ
+åœ¨ä¸»é…ç½®æ–‡ä»¶ä¸­çš„optionså…¨å±€å­—æ®µä¸­å®šä¹‰ï¼šã€querylog yes;ã€‘
 
-ÈÕÖ¾ÏµÍ³²ÎÊý£º
-catagory£ºÈÕÖ¾Ô´¡¾¼´¶¨ÒåÈÕÖ¾Àà±ðÀ´Ô´,¹²15ÖÖ¡¿
-      ²éÑ¯
-      ÇøÓò´«ËÍ
-    ¡¾¿ÉÒÔÍ¨¹ýcategory×Ô¶¨ÒåÈÕÖ¾À´Ô´¡¿
+æ—¥å¿—ç³»ç»Ÿå‚æ•°ï¼š
+catagoryï¼šæ—¥å¿—æºã€å³å®šä¹‰æ—¥å¿—ç±»åˆ«æ¥æº,å…±15ç§ã€‘
+      æŸ¥è¯¢
+      åŒºåŸŸä¼ é€
+    ã€å¯ä»¥é€šè¿‡categoryè‡ªå®šä¹‰æ—¥å¿—æ¥æºã€‘
 
-channel£ºÈÕÖ¾±£´æÎ»ÖÃ¡¾¼´¶¨ÒåÈÕÖ¾±£´æÂ·¾¶¸ñÊ½¡¿
-     Á½ÖÖ±£´æÂ·¾¶·½Ê½£º
-           £¨1£©syslog¡¾syslogÊÇÓÐÈÕÖ¾¼¶±ðµÄ£¬¹²7¸ö£¬´Ó¸ßµ½µÍÒÀ´ÎÊÇcritical¡¢error¡¢warning¡¢notice¡¢info¡¢debug¡¢dynamic£»Ä¬ÈÏÊÇinfo¼¶±ð¡¿
+channelï¼šæ—¥å¿—ä¿å­˜ä½ç½®ã€å³å®šä¹‰æ—¥å¿—ä¿å­˜è·¯å¾„æ ¼å¼ã€‘
+     ä¸¤ç§ä¿å­˜è·¯å¾„æ–¹å¼ï¼š
+           ï¼ˆ1ï¼‰syslogã€syslogæ˜¯æœ‰æ—¥å¿—çº§åˆ«çš„ï¼Œå…±7ä¸ªï¼Œä»Žé«˜åˆ°ä½Žä¾æ¬¡æ˜¯criticalã€errorã€warningã€noticeã€infoã€debugã€dynamicï¼›é»˜è®¤æ˜¯infoçº§åˆ«ã€‘
 
-  ÈçºÎ¶¨Òåchannel£¿
-    ¸ñÊ½£ºchannel CHANNEL_NAME {ÈÕÖ¾·½Ê½;severityÈÕÖ¾¼¶±ð;};
-        ¡¾Àý×Ó£ºchannel xin_syslog {syslog daemon;severity info;}¡¿;   
-           £¨2£©file£º×Ô¶¨Òå±£´æÈÕÖ¾ÐÅÏ¢µÄÎÄ¼þ
+  å¦‚ä½•å®šä¹‰channelï¼Ÿ
+    æ ¼å¼ï¼šchannel CHANNEL_NAME {æ—¥å¿—æ–¹å¼;severityæ—¥å¿—çº§åˆ«;};
+        ã€ä¾‹å­ï¼šchannel xin_syslog {syslog daemon;severity info;}ã€‘;   
+           ï¼ˆ2ï¼‰fileï¼šè‡ªå®šä¹‰ä¿å­˜æ—¥å¿—ä¿¡æ¯çš„æ–‡ä»¶
 
 
-¡¾Ò»¸öcategory¿ÉÒÔ¶ÔÓ¦¶à¸öchannel£¬µ«Ò»¸öchannelÖ»ÄÜ¶ÔÓ¦Ò»¸öcategory¡¿
+ã€ä¸€ä¸ªcategoryå¯ä»¥å¯¹åº”å¤šä¸ªchannelï¼Œä½†ä¸€ä¸ªchannelåªèƒ½å¯¹åº”ä¸€ä¸ªcategoryã€‘
 
-¶¨ÒådnsµÄÈÕÖ¾ÏµÍ³£¬ÐèÒª¶¨ÒåÔÚ¡¾logging {};¡¿¶ÎÄÚ
+å®šä¹‰dnsçš„æ—¥å¿—ç³»ç»Ÿï¼Œéœ€è¦å®šä¹‰åœ¨ã€logging {};ã€‘æ®µå†…
 
-¶¨ÒåÈÕÖ¾ÏµÍ³°¸Àý£º
+å®šä¹‰æ—¥å¿—ç³»ç»Ÿæ¡ˆä¾‹ï¼š
     logging {
        channel my_file {
-          file "log.msgs" versions 3 size 10K; ¡¾¶¨ÒåÈÕÖ¾±£´æ¸ñÊ½Îªfile¡¢°æ±¾¡¢ÎÄ¼þ´óÐ¡¡¿
-          severity dynamic;¡¾¶¨ÒåÈÕÖ¾¼¶±ð¡¿
-          print-time yes;      ¡¾¼ÇÂ¼Ê±¼ä¡¿
-          print-severity yes;  ¡¾¼ÇÂ¼ÈÕÖ¾¼¶±ð¡¿
-          print-category yes;  ¡¾¼ÇÂ¼ÈÕÖ¾Àà±ð¡¿
+          file "log.msgs" versions 3 size 10K; ã€å®šä¹‰æ—¥å¿—ä¿å­˜æ ¼å¼ä¸ºfileã€ç‰ˆæœ¬ã€æ–‡ä»¶å¤§å°ã€‘
+          severity dynamic;ã€å®šä¹‰æ—¥å¿—çº§åˆ«ã€‘
+          print-time yes;      ã€è®°å½•æ—¶é—´ã€‘
+          print-severity yes;  ã€è®°å½•æ—¥å¿—çº§åˆ«ã€‘
+          print-category yes;  ã€è®°å½•æ—¥å¿—ç±»åˆ«ã€‘
        };
-       category xfer-in { my_file;}; ¡¾¶¨ÒåÈÕÖ¾Àà±ð£¬{}ÖÐ¶¨ÒåµÄÊÇ£¬¸ÃÀà±ðµÄÈÕÖ¾ÐÅÏ¢±£´æÔÚmy_file¶¨ÒåµÄÎÄ¼þÖÐÈ¥¡¿
+       category xfer-in { my_file;}; ã€å®šä¹‰æ—¥å¿—ç±»åˆ«ï¼Œ{}ä¸­å®šä¹‰çš„æ˜¯ï¼Œè¯¥ç±»åˆ«çš„æ—¥å¿—ä¿¡æ¯ä¿å­˜åœ¨my_fileå®šä¹‰çš„æ–‡ä»¶ä¸­åŽ»ã€‘
        channel my_syslog {
           syslog local0;
           severity info;
@@ -706,14 +706,14 @@ channel£ºÈÕÖ¾±£´æÎ»ÖÃ¡¾¼´¶¨ÒåÈÕÖ¾±£´æÂ·¾¶¸ñÊ½¡¿
 
 
 
-ÈçºÎ²âÊÔdns·þÎñÆ÷µÄÐÔÄÜ£¿
-dnstopÈí¼þ£º¼à¿Ødns·þÎñÆ÷²éÑ¯ÇëÇóµÄ¡¾¿ÉÒÔÔ´Âë±àÒë°²×°À´¼à¿Ødns·þÎñÆ÷µÄÐÔÄÜ¡¿
-queryperfÈí¼þ°ü£º¶Ôdns·þÎñÆ÷×öÑ¹Á¦²âÊÔ
-      Ê×ÏÈÐèÒª°²×°queryperfÈí¼þ°ü£»½ÓÏÂÀ´¾Í¿ÉÒÔÊ¹ÓÃqueryperfÃüÁîÀ´¶Ôdns·þÎñÆ÷×öÑ¹Á¦²âÊÔ¡£
-      ÃüÁî7£º
-      queryperf  ---dns·þÎñÆ÷Ñ¹Á¦²âÊÔ¹¤¾ß
-              -d +ÎÄ¼þ£ºÖ¸¶¨Êý¾ÝÎÄ¼þ¡¾¶¨Òå²éÑ¯Ê²Ã´ÄÚÈÝ¡¿
-              -s£ºÖ¸¶¨dns·þÎñÆ÷
-              -p£ºÖ¸¶¨¶Ë¿Ú
-              -q£ºÖ¸¶¨²éÑ¯´ÎÊý
-          Àý×Ó£º¡¾queryperf -d /root/test -s 172.16.100.1¡¿
+å¦‚ä½•æµ‹è¯•dnsæœåŠ¡å™¨çš„æ€§èƒ½ï¼Ÿ
+dnstopè½¯ä»¶ï¼šç›‘æŽ§dnsæœåŠ¡å™¨æŸ¥è¯¢è¯·æ±‚çš„ã€å¯ä»¥æºç ç¼–è¯‘å®‰è£…æ¥ç›‘æŽ§dnsæœåŠ¡å™¨çš„æ€§èƒ½ã€‘
+queryperfè½¯ä»¶åŒ…ï¼šå¯¹dnsæœåŠ¡å™¨åšåŽ‹åŠ›æµ‹è¯•
+      é¦–å…ˆéœ€è¦å®‰è£…queryperfè½¯ä»¶åŒ…ï¼›æŽ¥ä¸‹æ¥å°±å¯ä»¥ä½¿ç”¨queryperfå‘½ä»¤æ¥å¯¹dnsæœåŠ¡å™¨åšåŽ‹åŠ›æµ‹è¯•ã€‚
+      å‘½ä»¤7ï¼š
+      queryperf  ---dnsæœåŠ¡å™¨åŽ‹åŠ›æµ‹è¯•å·¥å…·
+              -d +æ–‡ä»¶ï¼šæŒ‡å®šæ•°æ®æ–‡ä»¶ã€å®šä¹‰æŸ¥è¯¢ä»€ä¹ˆå†…å®¹ã€‘
+              -sï¼šæŒ‡å®šdnsæœåŠ¡å™¨
+              -pï¼šæŒ‡å®šç«¯å£
+              -qï¼šæŒ‡å®šæŸ¥è¯¢æ¬¡æ•°
+          ä¾‹å­ï¼šã€queryperf -d /root/test -s 172.16.100.1ã€‘

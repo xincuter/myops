@@ -1,0 +1,241 @@
+一、监控系统基础及zabbix介绍
+
+1、监控：
+	传感器：用于探测数据；
+	
+	监控步骤：数据采集（通常是时间序列数据） ---> 数据存储 ---> 数据展示
+	报警：采集到的数据超出阈值时，报警机制才会工作；
+	
+
+	开源监控工具：
+		（1）cacti：利用snmp周期性采集数据，并即时绘制图形展示；
+		（2）nagios：即时报警，支持各种各样的报警机制；定义各组件的依赖关系；
+		（3）zabbix（主讲这个）：综合了nagios和cacti的功能；
+		（4）zennos
+		（5）icinga（nagios的升级版本）
+	
+	SNMP（simple network management protocol）：简单网络管理协议
+		snmp server（snmp服务端（即NMS））
+		snmp agent（snmp客户端）
+		
+	snmp监控模式：
+		（1）主动模式【监控端主动到被监控端采集数据】
+		（2）被动模式【被监控端主动向监控端报告数据】
+		（3）请求修改模式【NMS请求agent修改配置】
+		
+	snmp的组件：
+		MIB：mangement information base【管理信息库】
+			树状结构，分叉的叫做mib view，不能分叉的叫做mib object
+			OID
+		SMI：MIB的表示符号
+		SNMP协议本身
+		
+	snmp版本：
+		v1
+		v2c
+		v3：认证，加密，解密
+		
+		
+	监控端（NMS）可发起的操作：
+		Get，GetNext（获取多个数据），Set（用于设定，即请求修改模式），Trap（被动模式，监控端等待被监控端主动报告）
+		
+	被监控端（agent）操作：
+		reponse
+		
+	snmp监控监听端口：
+		NMS：161
+		agent：162
+		
+	
+	snmp只负责数据采集
+	
+	agent监控方式要比snmp强大的多；
+	
+	监控功能实现：
+		agent
+		ssh
+		snmp
+		IPMI（硬件）：智慧平台管理接口，原本是一种inter架构的企业系统的周边设备所采用的的一种工业标准，亦是一个开放的标准；
+	
+	
+	linux上snmp程序包：net-snmp net-snmp-utils
+	
+	
+2、zabbix概述【兼备cacti和nagios的功能】
+
+	zabbix2.0版本使用JSON（xml）格式描述数据，非常消耗带宽；
+	zabbix2.4之后不再使用JSON格式
+	
+	zabbix：拥有专用agent的监控工具
+		监控主机：linux、windows、freebsd
+		网络设备：
+			snmp，ssh（并非所有）
+			
+	可监控对象：
+		（1）设备/软件
+			设备：服务器、路由器、交换机、IO
+			软件：OS、网络、应用程序服务
+		（2）偶发性故障
+			主机down机、主机不可达、服务不可用
+		（3）严重故障
+		（4）系统性能指标
+		（5）时间序列数据
+		（6）基本监控
+		
+	数据存储：
+		cacti：rrd（环壮数据库），使用rrd绘图
+		zabbix：mysql，pgsql【绘图使用自己的绘图引擎绘图】
+		
+		
+	监控系统功能：
+		数据采集
+		数据存储
+		报警【需要定义触发器】
+		数据展示【数据可视化】
+		
+	
+	zabbix分布式监控：
+		中心节点（不监控，只负责从代理节点取数据）和多个proxy节点（负责监控不同类型的监控内容）
+		
+	zabbix是企业级监控首选，目前主流，完全开源；
+	
+	
+
+	
+二、zabbix工作原理及安装配置
+
+	zabbix结构的组件：
+		服务端：
+			zabbix-server：C语言开发，性能高效；负责监控采集数据，数据展示，数据分析等；
+			zabbix-database：mysql，pgsql，oracle等等；
+			zabbix-web GUI：用于实现zabbix设定和配置，使用php开发的；
+		
+		zabbix-agent：也是c语言开发
+		
+		zabbix-proxy：分布式监控专用组件；
+		
+	zabbix-server工作特性在zabbix_server.conf配置文件中设定；
+	zabbix-server可以通过自己本身或者zabbix_get组件去收集数据；
+	zabbix-agent工作特性由zabbix_agentd.conf配置文件设定；
+	zabbix-proxy工作特性由zabbix_proxy.conf配置文件设定；
+	
+	
+	zabbix常用术语：
+		主机：要监控的网络设备，可由ip或dns域名指定；
+		主机组（host group）：主机的逻辑容器，可以包含主机和模板，但同一个组内的主机和模板不能互相链接；主机组通常在给用户或用户组指派监控权限时使用；
+		监控项（item）：一个特定监控指标的相关数据，这些数据来自于被监控对象，item是zabbix进行数据采集的核心，没有item，就没有数据；相对于某监控对象而言，每个item都由"key"进行标识；
+		触发器（trigger）：一个表达式，用于评估某监控对象的某特定item内所接收到的数据是否在合理范围内，即阈值；接收到的数据量大于阈值时，触发器状态将从“ok”转变为“problem”，当数据量再次回归到合理范围时，其状态将从“problem”转换为“ok”；
+		事件（event）：即发生的一个值得关注的事情，例如触发器状态转变，新的agent或重新上线的agent的自动注册等；
+		动作（action）：指对于特定事件事先定义的处理方法，通过包含操作（如发送通知）和条件（何时执行操作）；
+		报警升级（escalation）：发送警报或执行远程命令的自定义方案，如每隔五分钟发送一次警报，共发送5次等；
+		媒介（media）：发送通知的手段或通道，如email、jabber或sms等；
+		通知（notification）：通过选定的媒介向用户发送的有关事件的信息；
+		远程命令（remote command）：预定义的命令，可在被监控主机处于某特定条件下时自动执行；
+		模板（template）：用于快速定义被监控主机的预设条目集合，通常包含了item、trigger、graph、screen、application以及low-level discovery rule；模板可以直接链接至单个主机；
+		应用（application）：一组item的集合；
+		web场景（web scennario）：用于检测web站点可用性的一个或多个http请求；
+		前端（frontend）:zabbix的web接口；
+		
+	zabbix产生的数据主要由四部分组成：
+		配置数据
+		历史数据：50bytes
+		历史趋势数据：128bytes
+		事件数据：130bytes
+		
+		
+	zabbix安装配置：
+		步骤如下：
+		服务端：
+			（1）创建zabbix用户；
+			（2）因为zabbix需要lamp环境支持，所以需要搭建lamp平台；
+			（3）修改php.ini配置：
+					date.timezone = Asia/Shanghai
+			（4）创建zabbix数据库，初始化并授权；
+			（5）源码编译安装zabbix；
+			（6）zabbix服务端配置修改；
+			（7）启动zabbix-server；
+			（8）通过zabbix-web gui配置zabbix；
+		
+		zabbix安装配置案例：
+			1、搭建lamp环境；
+			2、创建zabbix数据库并授权，并完成初始化；
+				CREATE DATABASE zabbix CHARACTER SET utf8; 【创建zabbix数据库并修改默认字符集】
+				GRANT ALL on zabbix.* TO 'zabbix'@'172.16.%.%' IDENTIFIED BY 'zabbix';【授权】
+				GRANT ALL on zabbix.* TO 'zabbix'@'node1.magedu.com' IDENTIFIED BY 'zabbix';【授权】
+				FLUSH PRIVILEGES;【刷新权限】
+				
+				
+			3、下载zabbix-server软件包
+				zabbix-release-2.4-1.el6.noarch.rpm【这个包安装后可以自动在/etc/yum.repos.d目录下生成yum源，这样就可以使用yum安装了】
+				
+				zabbix server端所需软件包：
+					（1）zabbix-2.4.0-1.el6.x86.rpm【zabbix主程序】
+					（2）zabbix-server-2.4.0-1.el6.x86.rpm
+					（3）zabbix-server-mysql-2.4.0-1.el6.x86.rpm
+					（4）zabbix-get-2.4.0-1.el6.x86.rpm（手动获取数据用，可选）
+					
+				zabbix-proxy需要安装的软件包：
+					（1）zabbix-2.4.0-1.el6.x86.rpm
+					（2）zabbix-proxy-2.4.0-1.el6.x86.rpm
+					（3）zabbix-proxy-mysql-2.4.0-1.el6.x86.rpm
+					
+				zabbix-agent需要安装的软件包：
+					zabbix-2.4.0-1.el6.x86.rpm
+					zabbix-agent-2.4.0-1.el6.x86.rpm
+					zabbix-sender-2.4.0-1.el6.x86.rpm
+					
+				zabbix-web需要安装软件包：
+					（1）zabbix-2.4.0-1.el6.x86.rpm
+					（2）zabbix-web-2.4.0-1.el6.x86.rpm
+					（3）zabbix-web-mysql-2.4.0-1.el6.x86.rpm
+				
+				也可以编译方式安装zabbix：
+					如果同时安装server和agent，并支持将数据放入mysql中，可使用如下命令：
+						./configure --enable-server --enable-agent --with-mysql --enable-ipv6 --with-net-snmp	--with-libcurl --with-ssh2
+
+					如果仅安装server，并支持将数据放入mysql，可使用如下命令：
+						./configure --enable-server --with-mysql --enable-ipv6 --with-net-snmp	--with-libcurl
+						
+					如果仅安装proxy，并支持将数据放入mysql数据库中，可使用如下命令：
+						./configure --prefix=/usr/local/zabbix-proxy --enable-proxy --with-mysql  --with-net-snmp	--with-libcurl --with-ssh2
+					
+					如果仅安装agent，可使用如下命令：
+						./configure --enable-agent
+						
+					之后执行安装命令即可：
+						make
+						make install 
+						
+			4、配置zabbix
+				server的配置文件是zabbix_server.conf，至少应该为其配置数据库等相关信息；
+				agent的配置文件zabbix_agentd.conf，至少应该为其指定server的ip地址；
+				proxy的配置文件是zabbix_proxy.conf，至少应该为其指定proxy主机名和server的IP地址，以及数据库相关的配置信息；
+				
+			5、导入数据到zabbix数据库中【导入顺序反过来】
+				mysql -uzabbix -pzabbix zabbix < /usr/local/zabbix/database/schema.sql
+				
+				mysql -uzabbix -pzabbix zabbix < /usr/local/zabbix/database/images.sql
+				
+				mysql -uzabbix -pzabbix zabbix < /usr/local/zabbix/database/data.sql     【这三个sql的存放路径根据安装不同也会不同】
+			
+			6、修改php.ini配置：
+				date.timezone = Asia/Shanghai
+				
+				修改完毕后重启apache服务即可
+				
+			7、启动zabbix
+				server端：service zabbix-server start
+				agentd端：service zabbix-agent start
+				
+			zabbix_server默认监听端口是10051
+			zabbix_agent默认监听端口是10050
+			
+			
+
+zabbix监控系统具备的功能：
+   数据采集：多种方式采集数据；agent、snmp、java gateway、ipmi、自定义监控；
+   告警：trigger、action、event、maintenace（维护时间）
+   数据存储：history（历史数据）、tread（趋势）
+   可视化：graph、screen
+
+			

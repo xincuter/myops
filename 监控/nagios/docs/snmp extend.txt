@@ -1,30 +1,30 @@
-snmp extend����snmp���Զ���mib-oid��ء�
+snmp extend【即snmp的自定义mib-oid监控】
 
-�Զ���oid��.1.3.6.1.4.1.8072.1.3.2.4.1.2 ������+�Զ����ص���Ŀ���Ƽ��ɡ�
+自定义oid：.1.3.6.1.4.1.8072.1.3.2.4.1.2 【后面+自定义监控的项目名称即可】
 
-���ӣ�
-��Ҫ���mysql��״̬��Ϣ������״̬�ȣ�ʹ���Զ�����
+例子：
+想要监控mysql的状态信息，主从状态等，使用自定义监控
 
-��1����Ҫ��mysql��������snmp�������ļ�/etc/snmp/snmpd.conf�ļ�������extend��չ��
-	��ʽ���£�
-	extend + [MIB-OID] +����  +�Զ����ؽű�
+（1）需要在mysql服务器上snmp的配置文件/etc/snmp/snmpd.conf文件中添加extend扩展；
+	格式如下：
+	extend + [MIB-OID] +名称  +自定义监控脚本
 
-��2��ע���Զ����ؽű�дȫ·��������/etc/snmp/Ŀ¼�¡��ҽű��ڲ���Ҫʹ������ȫ·�����Ա�snmp����˲�ѯʱ�����ڱ���Զ��ִ�иýű���
+（2）注：自定义监控脚本写全路径，放在/etc/snmp/目录下【且脚本内部需要使用命令全路径，以便snmp服务端查询时可以在本地远程执行该脚本】
 
-��3���ڷ�������ʹ��snmpwalk -c public -v 2c +IP��ַ  .1.3.6.1.4.1.8072.1.3.2.4.1.2 ��ѯ��չ���
+（3）在服务器端使用snmpwalk -c public -v 2c +IP地址  .1.3.6.1.4.1.8072.1.3.2.4.1.2 查询扩展监控
 
-������
-1��snmpd.conf�ļ������ӣ�
+案例：
+1、snmpd.conf文件中添加：
 extend   db-replication    /etc/snmp/db-replication.sh
 
-2����snmpĿ¼��д���shell�ű�db-replication.sh
+2、在snmp目录下写监控shell脚本db-replication.sh
 
-3����������snmpwalk  
+3、服务器端snmpwalk  
 snmpwalk -c public -v 2c 172.16.4.1  .1.3.6.1.4.1.8072.1.3.2.4.1.2
 NET-SNMP-EXTEND-MIB::nsExtendOutLine."db-replication".1 = STRING: 
 NET-SNMP-EXTEND-MIB::nsExtendOutLine."db-replication".2 = STRING: 
 NET-SNMP-EXTEND-MIB::nsExtendOutLine."db-replication".3 = STRING: alive
 
-4��Ȼ�������Ҫ��д�Զ���ļ�ز����ֻҪʹ�á�snmpwalk -c public -v 2c 172.16.4.1  .1.3.6.1.4.1.8072.1.3.2.4.1.2 -On������ȡ��ÿ���Զ�����Ŀ��oid�����жϼ���
+4、然后如果想要编写自定义的监控插件，只要使用【snmpwalk -c public -v 2c 172.16.4.1  .1.3.6.1.4.1.8072.1.3.2.4.1.2 -On】参数取出每个自定义项目的oid进行判断即可
 
 	

@@ -1,90 +1,90 @@
-k8sÍøÂçÀàĞÍ£º
-    ½ÚµãÍøÂç£º½ÚµãµØÖ·
-    podÍøÂç£º¸÷podÔËĞĞ£¬ÅäÖÃÔÚpodÄÚ²¿µÄÍøÂçÃû³Æ¿Õ¼ä
-    serviceÍøÂç£¨¼´¼¯ÈºÍøÂç£©£º¼¯Èº¶ÔÍâµÄĞéÄâµØÖ·
+k8sç½‘ç»œç±»å‹ï¼š
+    èŠ‚ç‚¹ç½‘ç»œï¼šèŠ‚ç‚¹åœ°å€
+    podç½‘ç»œï¼šå„podè¿è¡Œï¼Œé…ç½®åœ¨podå†…éƒ¨çš„ç½‘ç»œåç§°ç©ºé—´
+    serviceç½‘ç»œï¼ˆå³é›†ç¾¤ç½‘ç»œï¼‰ï¼šé›†ç¾¤å¯¹å¤–çš„è™šæ‹Ÿåœ°å€
    
 
-k8s×é¼ş£º
-    master£º
-        api server£º¸ºÔğ½ÓÊÕÇëÇó£¬´¦ÀíÇëÇó£»
-        controller-manager£º¿ØÖÆÆ÷¹ÜÀíÆ÷£»
-        scheduler£ºµ÷¶ÈÆ÷£¬¸ºÔğµ÷¶È×ÊÔ´ÇëÇóµÄ£»
+k8sç»„ä»¶ï¼š
+    masterï¼š
+        api serverï¼šè´Ÿè´£æ¥æ”¶è¯·æ±‚ï¼Œå¤„ç†è¯·æ±‚ï¼›
+        controller-managerï¼šæ§åˆ¶å™¨ç®¡ç†å™¨ï¼›
+        schedulerï¼šè°ƒåº¦å™¨ï¼Œè´Ÿè´£è°ƒåº¦èµ„æºè¯·æ±‚çš„ï¼›
     etcd
-        ¼¯ÈºÄ£Ê½
-    node£º
-        kube-proxy£ºÊµÏÖserviceµÄ¶¯Ì¬¹ÜÀí£¨´´½¨¡¢É¾³ı¡¢±ä»¯¡¢serviceÍøÂç¹ÜÀíµÈ£©
-        kubelet£º½ÓÊÕÈÎÎñ²¢ÔÚ±¾»úÉÏÊÓÍ¼ÔËĞĞÈİÆ÷£»
-		ÈİÆ÷ÒıÇæ£ºÈç×îÁ÷ĞĞµÄÊÇdocker£»
+        é›†ç¾¤æ¨¡å¼
+    nodeï¼š
+        kube-proxyï¼šå®ç°serviceçš„åŠ¨æ€ç®¡ç†ï¼ˆåˆ›å»ºã€åˆ é™¤ã€å˜åŒ–ã€serviceç½‘ç»œç®¡ç†ç­‰ï¼‰
+        kubeletï¼šæ¥æ”¶ä»»åŠ¡å¹¶åœ¨æœ¬æœºä¸Šè§†å›¾è¿è¡Œå®¹å™¨ï¼›
+		å®¹å™¨å¼•æ“ï¼šå¦‚æœ€æµè¡Œçš„æ˜¯dockerï¼›
         docker
-        flannel£ºÍøÂç×é¼ş
+        flannelï¼šç½‘ç»œç»„ä»¶
     
-°²×°k8s·½Ê½£º
-    £¨1£©yum°²×°»òÕß±àÒë°²×°
-        ÈÃk8s¼¯Èº¸÷¸ö×é¼ş¶¼ÔËĞĞÎªÊØ»¤½ø³Ì
-    £¨2£©kubeadm¼¯Èº°²×°×é¼ş ¡¾k8s¸÷¸ö×é¼ş¶¼ÊÇÔËĞĞÎªpod¡¿
-        Ã¿¸ö½ÚµãÉÏ¶¼ĞèÒª°²×°kubelet¡¢docker²¢ÔËĞĞ£¬ÓÉkubeadmÈí¼ş³õÊ¼»¯master»ònode¡£
+å®‰è£…k8sæ–¹å¼ï¼š
+    ï¼ˆ1ï¼‰yumå®‰è£…æˆ–è€…ç¼–è¯‘å®‰è£…
+        è®©k8sé›†ç¾¤å„ä¸ªç»„ä»¶éƒ½è¿è¡Œä¸ºå®ˆæŠ¤è¿›ç¨‹
+    ï¼ˆ2ï¼‰kubeadmé›†ç¾¤å®‰è£…ç»„ä»¶ ã€k8så„ä¸ªç»„ä»¶éƒ½æ˜¯è¿è¡Œä¸ºpodã€‘
+        æ¯ä¸ªèŠ‚ç‚¹ä¸Šéƒ½éœ€è¦å®‰è£…kubeletã€dockerå¹¶è¿è¡Œï¼Œç”±kubeadmè½¯ä»¶åˆå§‹åŒ–masteræˆ–nodeã€‚
         
 
         
-Ê¹ÓÃkubeadm³õÊ¼»¯k8s¼¯Èº£º
+ä½¿ç”¨kubeadmåˆå§‹åŒ–k8sé›†ç¾¤ï¼š
 
-kubeadm°²×°k8s²½Öè£º
-    £¨1£©master£¬nodesÉÏ£º°²×°kubelet£¬kubeadm£¬docker£»
-    £¨2£©masterÉÏ£ºÔËĞĞkubeadm init£¬Íê³É¼¯Èº³õÊ¼»¯£¨Ô¤¼ì¡¢Éú³ÉÖ¤Êé¡¢Ë½Ô¿µÈµÈ£©£»
-    £¨3£©¸÷nodes½ÚµãÉÏ£ºÔËĞĞkubeadm join£¬ÈÏÖ¤²¢¼ÓÈëk8s¼¯Èº¡£
+kubeadmå®‰è£…k8sæ­¥éª¤ï¼š
+    ï¼ˆ1ï¼‰masterï¼Œnodesä¸Šï¼šå®‰è£…kubeletï¼Œkubeadmï¼Œdockerï¼›
+    ï¼ˆ2ï¼‰masterä¸Šï¼šè¿è¡Œkubeadm initï¼Œå®Œæˆé›†ç¾¤åˆå§‹åŒ–ï¼ˆé¢„æ£€ã€ç”Ÿæˆè¯ä¹¦ã€ç§é’¥ç­‰ç­‰ï¼‰ï¼›
+    ï¼ˆ3ï¼‰å„nodesèŠ‚ç‚¹ä¸Šï¼šè¿è¡Œkubeadm joinï¼Œè®¤è¯å¹¶åŠ å…¥k8sé›†ç¾¤ã€‚
 
-°²×°kubeadm£º
-    ÔÚ°¢ÀïÔÆµÄ¾µÏñ²Ö¿âÖĞ£¬ÏÂÔØÏà¹ØµÄrepoÎÄ¼ş£¬È»ºóÊ¹ÓÃyum install°²×°¡£
+å®‰è£…kubeadmï¼š
+    åœ¨é˜¿é‡Œäº‘çš„é•œåƒä»“åº“ä¸­ï¼Œä¸‹è½½ç›¸å…³çš„repoæ–‡ä»¶ï¼Œç„¶åä½¿ç”¨yum installå®‰è£…ã€‚
     
-ÏêÏ¸²¿Êğ²½Öè£º
-£¨1£©¹Ø±Õiptables£¬²¢ÏÂÔØkubernetesºÍdockerµÄrepoÎÄ¼ş£¬ÅäÖÃyum²Ö¿â£»
-£¨2£©master½ÚµãºÍËùÓĞnode½ÚµãÉÏÊ¹ÓÃyum°²×°kubelet¡¢kubectl¡¢kubeadm¡¢dockerÈí¼ş£»
+è¯¦ç»†éƒ¨ç½²æ­¥éª¤ï¼š
+ï¼ˆ1ï¼‰å…³é—­iptablesï¼Œå¹¶ä¸‹è½½kuberneteså’Œdockerçš„repoæ–‡ä»¶ï¼Œé…ç½®yumä»“åº“ï¼›
+ï¼ˆ2ï¼‰masterèŠ‚ç‚¹å’Œæ‰€æœ‰nodeèŠ‚ç‚¹ä¸Šä½¿ç”¨yumå®‰è£…kubeletã€kubectlã€kubeadmã€dockerè½¯ä»¶ï¼›
 yum install -y kubelet kubeadm kubectl docker-ce
-£¨3£©Æô¶¯docker·şÎñ
+ï¼ˆ3ï¼‰å¯åŠ¨dockeræœåŠ¡
 systemctl start docker.service
 systemctl enable docker.service
-£¨4£©´ò¿ªÄÚÉúÇÅ½Ó¹¦ÄÜ
-#²é¿´ÇÅ½Ó¹¦ÄÜÊÇ·ñ´ò¿ª£¬1ÊÇ¿ªÆô£¬0ÊÇ¹Ø±Õ
-cat /proc/sys/net/bridge/bridge-nf-call-iptables   ##ÉèÖÃÎª1
-cat /proc/sys/net/bridge/bridge-nf-call-ip6tables  ##ÉèÖÃÎª1
-£¨5£©ÉèÖÃkubelet×ÔÆô¶¯
-°²×°µÄkubeletÈí¼ş£¬Éú³ÉÈçÏÂÎÄ¼ş£º
-/etc/kubernetes/manifests   ¡¾Çåµ¥Ä¿Â¼¡¿
-/etc/sysconfig/kubelet      ¡¾ÅäÖÃÎÄ¼ş¡¿
-/usr/bin/kubelet            ¡¾Ö÷³ÌĞò¡¿
-/usr/lib/systemd/system/kubelet.service ¡¾unit·şÎñµ¥Ôª¡¿
+ï¼ˆ4ï¼‰æ‰“å¼€å†…ç”Ÿæ¡¥æ¥åŠŸèƒ½
+#æŸ¥çœ‹æ¡¥æ¥åŠŸèƒ½æ˜¯å¦æ‰“å¼€ï¼Œ1æ˜¯å¼€å¯ï¼Œ0æ˜¯å…³é—­
+cat /proc/sys/net/bridge/bridge-nf-call-iptables   ##è®¾ç½®ä¸º1
+cat /proc/sys/net/bridge/bridge-nf-call-ip6tables  ##è®¾ç½®ä¸º1
+ï¼ˆ5ï¼‰è®¾ç½®kubeletè‡ªå¯åŠ¨
+å®‰è£…çš„kubeletè½¯ä»¶ï¼Œç”Ÿæˆå¦‚ä¸‹æ–‡ä»¶ï¼š
+/etc/kubernetes/manifests   ã€æ¸…å•ç›®å½•ã€‘
+/etc/sysconfig/kubelet      ã€é…ç½®æ–‡ä»¶ã€‘
+/usr/bin/kubelet            ã€ä¸»ç¨‹åºã€‘
+/usr/lib/systemd/system/kubelet.service ã€unitæœåŠ¡å•å…ƒã€‘
 
-##k8s²»¿ÉÒÔ¿ªÆôswap£¬·ñÔò²»ÄÜ¼ÓÔØÅäÖÃÎÄ¼ş£¬ÇÒ²»ÄÜÆô¶¯·şÎñ
+##k8sä¸å¯ä»¥å¼€å¯swapï¼Œå¦åˆ™ä¸èƒ½åŠ è½½é…ç½®æ–‡ä»¶ï¼Œä¸”ä¸èƒ½å¯åŠ¨æœåŠ¡
 
 systemctl enable kubelet.service
-£¨6£©ĞŞ¸ÄkubeletÈí¼şµÄÅäÖÃÎÄ¼ş
+ï¼ˆ6ï¼‰ä¿®æ”¹kubeletè½¯ä»¶çš„é…ç½®æ–‡ä»¶
 vim /etc/sysconfig/kubelet
-Ìí¼ÓÈçÏÂĞÅÏ¢£º
+æ·»åŠ å¦‚ä¸‹ä¿¡æ¯ï¼š
 KUBELET_EXTRA_ARGS="--fail-swap-on=false"
-###À©Õ¹²ÎÊı
-KUBE_PROXY_MODE=ipvs    ##Ö¸¶¨kube-proxyÄ£Ê½Îªipvs
+###æ‰©å±•å‚æ•°
+KUBE_PROXY_MODE=ipvs    ##æŒ‡å®škube-proxyæ¨¡å¼ä¸ºipvs
 
-##½âÊÍËµÃ÷
---fail-swap-on=false£º±íÊ¾µ±swap¿ªÆôµÄÊ±ºò£¬²»ÈÃÆä±¨´í£¨»òÕßËµºöÂÔÆä±¨´í£©
+##è§£é‡Šè¯´æ˜
+--fail-swap-on=falseï¼šè¡¨ç¤ºå½“swapå¼€å¯çš„æ—¶å€™ï¼Œä¸è®©å…¶æŠ¥é”™ï¼ˆæˆ–è€…è¯´å¿½ç•¥å…¶æŠ¥é”™ï¼‰
 
-£¨7£©Ê¹ÓÃkubeadm³õÊ¼»¯¼¯Èº
-<1> ³õÊ¼»¯²Ù×÷ÔÚmasterÉÏ²Ù×÷
+ï¼ˆ7ï¼‰ä½¿ç”¨kubeadmåˆå§‹åŒ–é›†ç¾¤
+<1> åˆå§‹åŒ–æ“ä½œåœ¨masterä¸Šæ“ä½œ
 kubeadm init --help
-Ñ¡Ïî£º
-    --kubernetes-version£ºÖ¸¶¨kubernete°æ±¾£»
-    --pod-network-cidr£ºÖ¸¶¨podµÄÍøÂçµØÖ·¶Î£»
-    --service-cidr£ºÖ¸¶¨serviceÍøÂçµØÖ·¶Î£»
-    --apiserver-advertise-address£ºÖ¸¶¨apiserver¼àÌıµÄµØÖ·£¬±£³ÖÄ¬ÈÏ¼´¿É£»
-    --apiserver-bind-port£ºÖ¸¶¨apiserver¼àÌıµÄ¶Ë¿Ú£¬±£³ÖÄ¬ÈÏ¼´¿É£»
-    --ignore-preflight-errors£ººöÂÔÒ»Ğ©warning±¨¾¯ĞÅÏ¢£»
+é€‰é¡¹ï¼š
+    --kubernetes-versionï¼šæŒ‡å®škuberneteç‰ˆæœ¬ï¼›
+    --pod-network-cidrï¼šæŒ‡å®špodçš„ç½‘ç»œåœ°å€æ®µï¼›
+    --service-cidrï¼šæŒ‡å®šserviceç½‘ç»œåœ°å€æ®µï¼›
+    --apiserver-advertise-addressï¼šæŒ‡å®šapiserverç›‘å¬çš„åœ°å€ï¼Œä¿æŒé»˜è®¤å³å¯ï¼›
+    --apiserver-bind-portï¼šæŒ‡å®šapiserverç›‘å¬çš„ç«¯å£ï¼Œä¿æŒé»˜è®¤å³å¯ï¼›
+    --ignore-preflight-errorsï¼šå¿½ç•¥ä¸€äº›warningæŠ¥è­¦ä¿¡æ¯ï¼›
     
-Àı×Ó£ºkubeadm init --kubernetes-version=v1.15.3 --pod-network-cidr=172.17.0.0/16 --service-cidr=10.96.0.0/12 --ignore-preflight-errors=Swap
+ä¾‹å­ï¼škubeadm init --kubernetes-version=v1.15.3 --pod-network-cidr=172.17.0.0/16 --service-cidr=10.96.0.0/12 --ignore-preflight-errors=Swap
 
-×¢£º
---ignore-preflight-errors=Swap£º±íÊ¾ºöÂÔswapÏà¹ØµÄ±¨´íĞÅÏ¢£»
+æ³¨ï¼š
+--ignore-preflight-errors=Swapï¼šè¡¨ç¤ºå¿½ç•¥swapç›¸å…³çš„æŠ¥é”™ä¿¡æ¯ï¼›
 
-++³õÊ¼»¯ÎÊÌâ£º
-°²×°k8sµÄÊ±ºòĞèÒª´Ók8s.gcr.ioÀ­È¡¾µÏñ£¬³õÊ¼»¯Ê±¿ÉÄÜ»á±¨ÈçÏÂ´íÎó£º
+++åˆå§‹åŒ–é—®é¢˜ï¼š
+å®‰è£…k8sçš„æ—¶å€™éœ€è¦ä»k8s.gcr.ioæ‹‰å–é•œåƒï¼Œåˆå§‹åŒ–æ—¶å¯èƒ½ä¼šæŠ¥å¦‚ä¸‹é”™è¯¯ï¼š
 [init] Using Kubernetes version: v1.15.3
 [preflight] Running pre-flight checks
         [WARNING IsDockerSystemdCheck]: detected "cgroupfs" as the Docker cgroup driver. The recommended driver is "systemd". Please follow the guide at https://kubernetes.io/docs/setup/cri/
@@ -109,45 +109,45 @@ error execution phase preflight: [preflight] Some fatal errors occurred:
 , error: exit status 1
 [preflight] If you know what you are doing, you can make a check non-fatal with `--ignore-preflight-errors=...`
 
-½â¾ö·½°¸£ºĞŞ¸ÄÄ¬ÈÏµÄÀ­È¡¾µÏñµÄµØÖ·£¬¸Ä´Ó¹úÄÚ¾µÏñÕ¾À­È¡Ö¸¶¨¾µÏñ£¬kubeadm initºóĞèÌí¼Ó²ÎÊı£º--image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers£¬¼´ÍêÕûÃüÁîÈçÏÂ£º
+è§£å†³æ–¹æ¡ˆï¼šä¿®æ”¹é»˜è®¤çš„æ‹‰å–é•œåƒçš„åœ°å€ï¼Œæ”¹ä»å›½å†…é•œåƒç«™æ‹‰å–æŒ‡å®šé•œåƒï¼Œkubeadm initåéœ€æ·»åŠ å‚æ•°ï¼š--image-repository=registry.cn-hangzhou.aliyuncs.com/google_containersï¼Œå³å®Œæ•´å‘½ä»¤å¦‚ä¸‹ï¼š
 kubeadm init --kubernetes-version=v1.15.3 --apiserver-advertise-address=0.0.0.0  --apiserver-bind-port=6433 --pod-network-cidr=10.244.0.0/16  --service-cidr=10.96.0.0/12 --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers --ignore-preflight-errors=Swap
 
-##¼ì²âmaster³õÊ¼»¯ÊÇ·ñÍê³É£¬²¢°²×°ÍøÂç²å¼ş£¬±£ÕÏ½Úµã´Ó"NotReady"£¨Î´¾ÍĞ÷£©×´Ì¬×ª±äÎª"Ready"×´Ì¬
-###¼ì²âÇ°ĞëÖ´ĞĞÈçÏÂÁ½¸ö²½Öè£¬ÕâÑù²Å¿ÉÒÔÊ¹ÓÃkubectlÃüÁî²é¿´¼¯Èº×´Ì¬ĞÅÏ¢
+##æ£€æµ‹masteråˆå§‹åŒ–æ˜¯å¦å®Œæˆï¼Œå¹¶å®‰è£…ç½‘ç»œæ’ä»¶ï¼Œä¿éšœèŠ‚ç‚¹ä»"NotReady"ï¼ˆæœªå°±ç»ªï¼‰çŠ¶æ€è½¬å˜ä¸º"Ready"çŠ¶æ€
+###æ£€æµ‹å‰é¡»æ‰§è¡Œå¦‚ä¸‹ä¸¤ä¸ªæ­¥éª¤ï¼Œè¿™æ ·æ‰å¯ä»¥ä½¿ç”¨kubectlå‘½ä»¤æŸ¥çœ‹é›†ç¾¤çŠ¶æ€ä¿¡æ¯
 mkdir -p $HOME/.kube
 cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 
-###²é¿´¼¯Èº×é¼ş×´Ì¬ĞÅÏ¢
-kubectl get cs     ##µ±STATUS×Ö¶Î¶¼Îªhealthy£¬Ôò±íÊ¾×é¼ş¶¼´¦ÓÚ½¡¿µÔËĞĞ×´Ì¬
+###æŸ¥çœ‹é›†ç¾¤ç»„ä»¶çŠ¶æ€ä¿¡æ¯
+kubectl get cs     ##å½“STATUSå­—æ®µéƒ½ä¸ºhealthyï¼Œåˆ™è¡¨ç¤ºç»„ä»¶éƒ½å¤„äºå¥åº·è¿è¡ŒçŠ¶æ€
 
-###²é¿´¼¯Èº½ÚµãÏà¹Ø×´Ì¬ĞÅÏ¢
-kubectl get nodes  ##¼ì²éSTATUS×Ö¶ÎÊÇ·ñÎªReady×´Ì¬£¬Èç¹ûÎª"NotReady"£¨Î´¾ÍĞ÷£©£¬ÊÇÓÉÓÚ¼¯ÈºÖĞÉĞÎ´°²×°ÍøÂç²å¼şËùÖÂ¡£
+###æŸ¥çœ‹é›†ç¾¤èŠ‚ç‚¹ç›¸å…³çŠ¶æ€ä¿¡æ¯
+kubectl get nodes  ##æ£€æŸ¥STATUSå­—æ®µæ˜¯å¦ä¸ºReadyçŠ¶æ€ï¼Œå¦‚æœä¸º"NotReady"ï¼ˆæœªå°±ç»ªï¼‰ï¼Œæ˜¯ç”±äºé›†ç¾¤ä¸­å°šæœªå®‰è£…ç½‘ç»œæ’ä»¶æ‰€è‡´ã€‚
 
-###°²×°ÍøÂç²å¼şflannel
-Õë¶Ôk8s 1.7+£¬¿ÉÖ´ĞĞÈçÏÂÃüÁî°²×°flannelÍøÂç²å¼ş
+###å®‰è£…ç½‘ç»œæ’ä»¶flannel
+é’ˆå¯¹k8s 1.7+ï¼Œå¯æ‰§è¡Œå¦‚ä¸‹å‘½ä»¤å®‰è£…flannelç½‘ç»œæ’ä»¶
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
-Èç¹ûÉÏÊöymlÎÄ¼şÎŞ·¨ÏÂÔØ¾µÏñ£¬¿ÉÒÔÊ¹ÓÃÏÂÃæÕâ¸ö£¬Ç×²â¿ÉÒÔ
+å¦‚æœä¸Šè¿°ymlæ–‡ä»¶æ— æ³•ä¸‹è½½é•œåƒï¼Œå¯ä»¥ä½¿ç”¨ä¸‹é¢è¿™ä¸ªï¼Œäº²æµ‹å¯ä»¥
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/a70459be0084506e4ec919aa1c114638878db11b/Documentation/kube-flannel.yml
 
-¡¾×¢£º°²×°Íê±Ïºó£¬ÔÙÒ»´Î²é¿´¼¯Èº½ÚµãµÄ×´Ì¬ÊÇ·ñÕı³£¡£¡¿
+ã€æ³¨ï¼šå®‰è£…å®Œæ¯•åï¼Œå†ä¸€æ¬¡æŸ¥çœ‹é›†ç¾¤èŠ‚ç‚¹çš„çŠ¶æ€æ˜¯å¦æ­£å¸¸ã€‚ã€‘
 
 
-++corednsÈİÆ÷Ò»Ö±´¦ÓÚcrashloopbackoff×´Ì¬£¬¿ÉÒÔ²ÉÈ¡ÈçÏÂ²Ù×÷£º
-(a)¿ÉÄÜÔ­ÒòÊÇcentos7ÉÏµÄNetworkManagerµ¼ÖÂ£¬¹Ø±Õ·şÎñ£¬²¢ÇÒ²»ÒªÈÃÆä¿ª»ú×ÔÆô¶¯£º
+++corednså®¹å™¨ä¸€ç›´å¤„äºcrashloopbackoffçŠ¶æ€ï¼Œå¯ä»¥é‡‡å–å¦‚ä¸‹æ“ä½œï¼š
+(a)å¯èƒ½åŸå› æ˜¯centos7ä¸Šçš„NetworkManagerå¯¼è‡´ï¼Œå…³é—­æœåŠ¡ï¼Œå¹¶ä¸”ä¸è¦è®©å…¶å¼€æœºè‡ªå¯åŠ¨ï¼š
 systemctl stop NetworkManager
 systemctl disable NetworkManager
 
-(b)ÔÚÏßĞŞ¸ÄcorednsµÄdeployment¶¨ÒåÎÄ¼ş£¬ÏÈ½«replicasÉèÖÃÎª0£¬ÖÕÖ¹Ä¿Ç°´íÎó×´Ì¬µÄÈİÆ÷£¬´ıÈİÆ÷Í£Ö¹ÏûÊ§ºó£¬ÔÙ´Î±à¼­½«replicasÉèÖÃÎª2¼´¿É£»
-kubectl edit deployment coredns -n kube-system       ##½«replicasÉèÖÃÎª0£¬È»ºóµÈ´ıÄ¿Ç°´íÎó×´Ì¬µÄÈİÆ÷ÏûÊ§£¬ÔÙ´Î±à¼­½«replicasÉèÖÃÎª2¼´¿É
+(b)åœ¨çº¿ä¿®æ”¹corednsçš„deploymentå®šä¹‰æ–‡ä»¶ï¼Œå…ˆå°†replicasè®¾ç½®ä¸º0ï¼Œç»ˆæ­¢ç›®å‰é”™è¯¯çŠ¶æ€çš„å®¹å™¨ï¼Œå¾…å®¹å™¨åœæ­¢æ¶ˆå¤±åï¼Œå†æ¬¡ç¼–è¾‘å°†replicasè®¾ç½®ä¸º2å³å¯ï¼›
+kubectl edit deployment coredns -n kube-system       ##å°†replicasè®¾ç½®ä¸º0ï¼Œç„¶åç­‰å¾…ç›®å‰é”™è¯¯çŠ¶æ€çš„å®¹å™¨æ¶ˆå¤±ï¼Œå†æ¬¡ç¼–è¾‘å°†replicasè®¾ç½®ä¸º2å³å¯
 
-(c)ÔÙ´Î¹Û²ìcorednsÈİÆ÷µÄ×´Ì¬
+(c)å†æ¬¡è§‚å¯Ÿcorednså®¹å™¨çš„çŠ¶æ€
 
-<2> Ìí¼ÓNode½ÚµãÖÁ¼¯ÈºÖĞ
-ËùÓĞnode½ÚµãÉÏĞèÒªÖ´ĞĞÒÔÏÂ²Ù×÷£º
-    Æô¶¯docker£º            systemctl start docker
-    ÉèÖÃkubelet¿ª»ú×ÔÆô¶¯£º systemctl enable kubelet
+<2> æ·»åŠ NodeèŠ‚ç‚¹è‡³é›†ç¾¤ä¸­
+æ‰€æœ‰nodeèŠ‚ç‚¹ä¸Šéœ€è¦æ‰§è¡Œä»¥ä¸‹æ“ä½œï¼š
+    å¯åŠ¨dockerï¼š            systemctl start docker
+    è®¾ç½®kubeletå¼€æœºè‡ªå¯åŠ¨ï¼š systemctl enable kubelet
     kubeadm join 192.168.80.41:6433 --token 7np9y7.iesbpfj904ahg96m  --discovery-token-ca-cert-hash sha256:05d07e69addf60172508b85d0dec81f32d43dac0d2b664ee6ace1c8f5d4af472 --ignore-preflight-errors=Swap
     
-    ¡¾×¢£º½ÓÏÂÀ´µÈ´ı¼´¿É£¬Ã¿¸önode½ÚµãÉÏ¶¼»áÏÂÔØflannelÍøÂç²å¼ş£¬×îÖÕÃ¿¸ö½Úµã¶¼»á´¦ÓÚready×´Ì¬¡¿
+    ã€æ³¨ï¼šæ¥ä¸‹æ¥ç­‰å¾…å³å¯ï¼Œæ¯ä¸ªnodeèŠ‚ç‚¹ä¸Šéƒ½ä¼šä¸‹è½½flannelç½‘ç»œæ’ä»¶ï¼Œæœ€ç»ˆæ¯ä¸ªèŠ‚ç‚¹éƒ½ä¼šå¤„äºreadyçŠ¶æ€ã€‘
     
-<3> Ê¹ÓÃÃüÁîÑéÖ¤¼¯Èº×´Ì¬
+<3> ä½¿ç”¨å‘½ä»¤éªŒè¯é›†ç¾¤çŠ¶æ€
