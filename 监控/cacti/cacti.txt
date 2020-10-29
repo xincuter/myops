@@ -1,0 +1,102 @@
+54_03、企业级监控之三------cacti的原理和安装
+
+cacti：
+   rrdtool create
+   周期性执行能够取得数据的命令，并将取回的数据保存至rrd文件当中去；
+   利用rrdtool绘图并展示；
+   支持模板；
+
+
+
+cacti是一个php开发的网页程序
+
+所以安装运行cacti，需要环境：
+        	（1）LAMP,LNMP
+		（2）--enable-sockets
+
+
+支持插件机制：
+	能够通过插件实现报警；
+
+
+cacti模板：
+	图形模板
+	数据模板
+	主机模板
+
+
+
+cacti如何获取数据？
+	（1）脚本
+	（2）snmp
+	（3）ssh
+
+cacti如何保存数据？
+	利用数据模板定义如何保存数据到cacti主机上的方式的
+
+cacti如何展示数据？
+	利用图形模板来定义如何展示
+
+
+cacti自身不保存任何数据，只是一个管理平台，依赖的都是rrdtool；配置文件全部保存在mysql数据库中
+
+
+
+
+安装cacti
+
+（1）首先编译安装配置好LAMP
+（2）下载cacti源码包，解压至网页目录
+	tar xf cacti-0.8.8a.tar.gz -C /var/www/html
+ 	cd /var/www/html;ln -s cacti-0.8.8a cacti
+（3）为cacti创建mysql数据库
+	mysqladmin -u root -p passwd create cactidb
+（4）然后将cacti的数据表文件导入至cactidb中
+	mysql -u root -p passwd cactidb < cacti.sql
+（5）创建cacti用户及密码
+	mysql -e ”CRANT ALL ON cactidb.* TO cactiuser@localhost IDENTIFIED BY 'cactiuser'“
+（6）刷新
+	mysqladmin flush-privileges
+（7）测试cactiuser能否登录
+（8）配置cacti
+	编辑cacti配置文件config.php（在include目录下） 
+（9）cacti周期性执行脚本获取数据（利用cacti专有用户）
+	useradd cactiuser
+	chown -R cactiuser: rra log 【将rra和log目录的属主属组改为cactiuser】
+        echo '*/5 * * * * /usr/local/php/bin/php  /var/www/html/cacti/poller.php &>/dev/null' > /var/spool/cron/cactiuser
+（10）安装cacti
+	http://192.168.3.137/cacti 
+
+
+收集方法：数据收集方法
+	数据查询：xml格式数据收集方法
+	数据输入方法：命令或者脚本
+		脚本：
+	            只需要指定如何获取数据，并且获取到的数据经过处理后要按规定输出；
+	
+	
+
+
+定制模板
+
+后续很多用到的模板都可以在www.cacti.net网站中下载即可
+
+编写的脚本放在scripts目录中去
+
+引用脚本方式：
+/bin/bash <path_cacti>/scripts/tcpconn.sh <hostname> <snmp_community>
+
+
+定义数据输入方法
+定义data 模板
+定义data source
+定义图像模板
+然后画图
+
+
+
+导入插件，编辑config.php配置文件添加如下内容：
+$plugins = array();
+$plugins[]='ntop';
+$plugins[]='flowview';
+	
