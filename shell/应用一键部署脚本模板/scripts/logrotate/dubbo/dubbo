@@ -1,0 +1,11 @@
+/usr/local/dubbo/{{DUBBO_SERVICE}}/{{DUBBO_LOG_FILE}} {
+    copytruncate
+    daily
+    rotate 365
+    missingok
+    nocompress
+    dateext
+    notifempty
+    dateformat .%Y-%m-%d
+    olddir /var/log/dubbo/{{DUBBO_SERVICE}}
+}

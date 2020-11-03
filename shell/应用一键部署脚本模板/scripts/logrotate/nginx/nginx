@@ -1,0 +1,16 @@
+/usr/local/nginx/logs/*.log {
+    daily
+    missingok
+    rotate 365 
+    copytruncate
+    compress
+    dateext
+    dateformat .%Y-%m-%d
+    notifempty
+    sharedscripts
+    postrotate
+         [ ! -f /var/run/nginx/nginx.pid ] || kill -USR1 $(cat /var/run/nginx/nginx.pid)
+         chown -R myweb. /usr/local/nginx/logs/
+    endscript
+    olddir /var/log/nginx_logs
+}

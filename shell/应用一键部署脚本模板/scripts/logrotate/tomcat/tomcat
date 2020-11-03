@@ -1,0 +1,21 @@
+/usr/local/tomcat/logs/catalina.out {
+    copytruncate
+    daily
+    rotate 180
+    missingok
+    nocompress
+    dateext
+    notifempty
+    dateformat .%Y-%m-%d
+}
+
+/usr/local/tomcat/logs/*.log {
+    daily
+    missingok
+    rotate 180
+    copytruncate
+    compress
+    dateext
+    dateformat .%Y-%m-%d
+    notifempty
+}

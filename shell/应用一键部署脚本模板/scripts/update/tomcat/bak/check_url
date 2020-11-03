@@ -1,0 +1,22 @@
+#!/bin/bash
+#description: check tomcat url...
+
+TOMCAT_DIR=/usr/local/tomcat/webapps
+
+for APP in $(ls -1 ${TOMCAT_DIR}/*.war | sed -r "s#(.*/)(.*)#\2#g" | sed "s#.war##g")
+do
+    x=1
+    while((x<=10))
+    do
+        URL="http://127.0.0.1:8080/$(echo ${APP/\#/\/})/application.wadl"
+        RETURN_CODE=$(curl -I -m 5 --retry 3 --connect-timeout 5 -o /dev/null -s -w %{http_code} $URL)
+        if [ x"$RETURN_CODE" = x"200" ];then
+	    echo -e  "${APP} 第${x}次访问成功..."
+	    break
+        else
+	    echo -e  "${APP} 第${x}次访问失败..."
+        fi
+	let x++
+        sleep 3
+    done
+done

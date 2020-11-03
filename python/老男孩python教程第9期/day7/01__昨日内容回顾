@@ -1,0 +1,12 @@
+小数据池：
+    int: -5 ~ 256
+    str: 特殊字符，*数字20
+
+
+编码：
+    ascii
+    unicode
+    uft-8
+    gbk
+
+

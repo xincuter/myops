@@ -1,0 +1,12 @@
+文件操作：
+    r、w、wb、rb、r+、a
+
+
+修改文件：
+    文件不能修改；
+
+
+with open('a.txt',encoding='utf-8') as f:
+    for line in f:
+        if '星儿' in line:
+            line.replace('星儿','阿娇')
