@@ -1,0 +1,28 @@
+- hosts: all
+  remote_user: root
+  vars:
+     source_dir: /usr/local/weihu/software/centos7
+     pkg: trc-nginx-1.12.2-3.el7.centos.x86_64.rpm 
+  tasks:
+     - name: check trc-nginx install or not
+       shell: source /etc/profile;ls -ld /usr/local/nginx && ls -l /etc/init.d/nginx
+       register: result
+       ignore_errors: True 
+     - name: copy trc-nginx to remote and install
+       copy: src={{ source_dir }}/{{ pkg }} dest=/usr/local/weihu/
+       when: result is failed
+       notify:
+          - install trc-nginx
+          - start nginx
+          - check
+          - show check log
+  handlers:
+     - name: install trc-nginx
+       shell: yum install /usr/local/weihu/{{ pkg }} -y
+     - name: start nginx
+       shell: /etc/init.d/nginx start
+     - name: check
+       shell: source /etc/profile && [ $(curl -I -s -m 5 --retry 3 -o /dev/null -w '%{http_code}' 'http://127.0.0.1/') -eq 200 ] && echo "install nginx successful" && exit 0 || echo "install nginx failed" && exit 1
+       register: check_result
+     - name: show check log
+       debug: var=check_result.stdout verbosity=0

@@ -1,0 +1,94 @@
+now,start clean expired indices: 
+
+
+2018.04.03 indices list as follow: 
+
+passport-dubbo-invite-2018.04.03
+passport-nginx-error-2018.04.03
+passport-dubbo-trace-2018.04.03
+passport-security-proxy-2018.04.03
+passport-nginx-access-2018.04.03
+passport-rest-2018.04.03
+passport-dubbo-ocs-2018.04.03
+passport-tomcat-admin-2018.04.03
+passport-dubbo-beego-2018.04.03
+passport-admin-nginx-2018.04.03
+
+2018.04.02 indices list as follow: 
+
+passport-rest-2018.04.02
+passport-nginx-access-2018.04.02
+passport-admin-nginx-2018.04.02
+passport-dubbo-trace-2018.04.02
+passport-dubbo-invite-2018.04.02
+passport-tomcat-admin-2018.04.02
+passport-dubbo-ocs-2018.04.02
+passport-nginx-error-2018.04.02
+passport-security-proxy-2018.04.02
+passport-dubbo-beego-2018.04.02
+
+2018.04.01 indices list as follow: 
+
+passport-dubbo-trace-2018.04.01
+passport-nginx-access-2018.04.01
+passport-dubbo-invite-2018.04.01
+passport-admin-nginx-2018.04.01
+passport-tomcat-admin-2018.04.01
+passport-nginx-error-2018.04.01
+passport-dubbo-beego-2018.04.01
+passport-rest-2018.04.01
+passport-security-proxy-2018.04.01
+
+2018.03.31 indices list as follow: 
+
+passport-dubbo-beego-2018.03.31
+passport-security-proxy-2018.03.31
+passport-tomcat-admin-2018.03.31
+passport-dubbo-invite-2018.03.31
+passport-dubbo-trace-2018.03.31
+passport-admin-nginx-2018.03.31
+passport-nginx-access-2018.03.31
+passport-nginx-error-2018.03.31
+passport-dubbo-security-admin-2018.03.31
+passport-rest-2018.03.31
+
+2018.03.30 indices list as follow: 
+
+passport-admin-nginx-2018.03.30
+passport-nginx-error-2018.03.30
+passport-dubbo-trace-2018.03.30
+passport-security-proxy-2018.03.30
+passport-dubbo-invite-2018.03.30
+passport-dubbo-beego-2018.03.30
+passport-nginx-access-2018.03.30
+passport-rest-2018.03.30
+passport-tomcat-admin-2018.03.30
+
+2018.03.29 indices list as follow: 
+
+passport-dubbo-beego-2018.03.29
+passport-rest-2018.03.29
+passport-dubbo-trace-2018.03.29
+passport-nginx-error-2018.03.29
+passport-dubbo-account-2018.03.29
+passport-dubbo-security-admin-2018.03.29
+passport-nginx-access-2018.03.29
+passport-dubbo-invite-2018.03.29
+passport-tomcat-admin-2018.03.29
+passport-admin-nginx-2018.03.29
+passport-security-proxy-2018.03.29
+
+2018.03.28 indices list as follow: 
+
+passport-security-proxy-2018.03.28
+passport-nginx-access-2018.03.28
+passport-dubbo-beego-2018.03.28
+passport-nginx-error-2018.03.28
+passport-dubbo-invite-2018.03.28
+passport-dubbo-trace-2018.03.28
+passport-dubbo-ocs-2018.03.28
+passport-rest-2018.03.28
+passport-dubbo-account-2018.03.28
+passport-tomcat-admin-2018.03.28
+passport-admin-nginx-2018.03.28
+

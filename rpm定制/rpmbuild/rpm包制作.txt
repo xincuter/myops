@@ -1,0 +1,211 @@
+RPM包制作：
+
+核心：编写spec文件
+
+编写spec文件：
+	编写spec file；
+	定义包信息；
+	控制编译；
+	列出包中的文件；
+	定义宏；
+
+	
+定制rpm包步骤：
+（1）准备工作
+	a、最好使用官方源码包作为定制rpm包基础；
+	b、严格规划：
+		依赖关系：编译依赖、安装依赖
+		兼容老版本rpm包
+	
+（2）编写spec文件
+
+（3）制作rpm包
+
+（4）安装测试
+
+
+
+制作rpm包：
+1、要有一个制作车间，即目录结构； 【制作rpm包一定要使用普通账号，不能使用root用户】
+2、将原材料放置到规定的目录中；
+3、编写spec文件
+4、编译生成rpm包；
+
+
+
+制作rpm包详细步骤：
+（1）设置rpm包制作车间(车间目录结构)
+	BUILD: build制作rpm包的目录；
+	BUILD: 临时根，将编译的软件安装在该目录下的相应目录中去;
+	RPMS：制作好的rpm包目录；
+	SOURCES: 原材料存放目录；
+	SPECS: spec文件目录；
+	SRPMS：src格式的rpm包存放目录；
+	
+	rpmbuild --showrc | grep macrofiles     【查找宏定义文件路径】
+	rpmbuild --showrc | grep _topdir     【定义制作车间家相关目录】
+	
+	宏定义方式：%_macro_name        value
+	    例如:  vim .rpmmacros
+		         %_topdir   /home/test/rpmbuild   【定义制作车间目录】
+				 
+	车间目录结构：
+		顶层目录为：/home/test/rpmbuild
+	    子目录有：mkdir -pv /home/test/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+		
+（2）将原材料放到SOURCES目录下；
+
+（3）编写spec文件
+	<1>introduce section（介绍说明阶段）
+	    Source0：指定原材料；可以有多个；
+		BuildRoot: 可以自己定义；这个是临时根，将编译的软件安装在该目录下的相应目录中去；
+        BuildRequires: 定义依赖关系，明确定义制作rpm包过程所依赖的软件包；
+        %description： 描述信息；		
+	<2>prepare section（准备阶段）
+	    %prep: 表示准备阶段；以%prep作为开头；
+		%setup: 解压并cd、设定rpm工作环境、设定宏；
+	<3>build section（编译阶段）
+	    %build: 表示build阶段，以%build作为开头；
+		例子：
+		%build
+	     ./configure \
+		     --etcfir="%{_sysconfdir}" \
+			 --il8n="0" \
+			 --scrip="0"
+	    %{_make} %{?_smp_mflags}    【注：%{_make}这个是宏，可以直接使用make命令】
+	<4>install section（安装阶段）
+	    %install：表示install阶段，以%install作为开头；
+		例子：
+		%install
+		%{_rm} -rf %{buildroot}   【每次安装前都先清理下BUILDROOT】
+		%{_make} install DESTDIR="%{buildroot}" 【DESTDIR="%{buildroot}"，这表示明确安装根路径】
+		%find_lang %{name}
+	<5>clean section（清理阶段）
+	    %clean：表示清理阶段，以%clean作为开头；
+		例子：
+		%clean
+		%{_rm} -rf %{buildroot}   【rpm包制作完成后，都需要清理一次buildroot】
+		
+	<6>scripts section（脚本段）
+	    %pre： 安装前执行的脚本；
+		%post：安装后执行的脚本；
+		%preun：卸载前执行的脚本；  
+		%postun：卸载后执行的脚本；
+	<7>files section（文件段）
+	    %files: 整理并归档生成rpm包；以%files开头；
+		例子：
+		%files -f %{name}.lang
+		%defattr (-, root, root, 0755)   【定义默认权限】
+		%doc API CHANGES  COPYING CREDITS README axelrc.example  【将指定文件定义为文档】
+		%doc %{_mandir}/man1/axel.1*
+		%doc %{_mandir}/*/man1/axelrc
+		%config %{_configdir}/axelrc     【包含配置文件】
+		/usr/local/bin/axel      【包含指定文件，也可以将一个目录下的所有文件都包含进来】
+	<8>changelog section（改变日志段）
+        
+（4）制作rpm包
+    rpmbuild
+        -b：表示制作rpm包；
+        -ba：表示制作成二进制或者源码的rpm包；
+        -bb：表示制作成二进制的rpm包；
+        -bi：制作到install阶段；
+        -bc：制作到build阶段；
+        -bp：制作到pre阶段		
+
+
+
+		
+
+
+制作rpm包原理：
+（1）根据.spec文件，首先将SOURCES目录的原材料解压到BUILD目录下，然后进行编译；
+（2）编译完后，执行安装，安装在BUILDROOT临时目录，以BUILDROOT作为根；
+（3）整理并归档生成rpm包；
+（4）清理BUILDROOT
+
+
+查看src的rpm包中有哪些文件：
+rpm2cpio nginx-1.0.14-3.src.rpm | cpio -t
+
+展开src的rpm包：
+rpm2cpio nginx-1.0.14-3.src.rpm | cpio -id
+
+
+对于src的rpm包，使用rpmbuild --rebuild可以制作成rpm包；
+
+
+
+
+如何编写spec文件：
+
+spec文件的语法格式:
+
+自定义宏：%define macro_name value
+	如: %define  nginx_user  nginx
+	    %define  nginx_group  %{nginx_user}
+		
+#开头的行都是注释信息
+
+必须字段：
+软件包相关信息字段：
+    Name: 软件名称
+    Version: 版本号
+    Release: 自定义修订号
+    Group: /usr/share/doc/rpm-version/GROUPS 【该文件中定义了一系列组】
+  
+公司相关信息：
+	Vendor：公司或组织信息
+	URL：下载链接
+	Packager：作者 <邮箱>
+	License：版权
+	
+描述信息：
+    Summary：不能超过50个字符；   【必需】
+	%description：每一行的字符不要超过50个字符； 【必需】
+	
+软件包依赖关系：
+	安装时的依赖：
+		Requires：chkconfig
+		Providers：提供什么能力
+		
+	编译时依赖：
+		BuildRequires：gcc  curl-devel c++ pcre-devel
+		BuildRequires：zlib
+		
+
+BULIDROOT:
+	BuildRoot: %_topdir/BUILDROOT
+	
+指定源材料文件：【会去制作车间的SOURCES目录下寻找】
+	Source0: %{name}-%{version}.tar.gz
+    Source1: nginx.conf
+    Source2: nginx 
+	
+	
+补丁文件：【类似于Source的写法格式】
+	Patch1：httpd-2.2.2-pcre830.patch
+	
+
+准备阶段：
+	解压源码包到BUILD目录，并设置环境变量，cd到对应目录；
+	
+	直接使用%setup -q即可；
+	
+	
+脚本段：
+$1表示安装阶段，有0,1,2 3个值；
+	0: 表示卸载；
+	1: 表示安装；
+	2: 表示升级；
+	
+	
+files段：
+	定义文件如何打包进rpm包中；
+	
+	
+changelog段：
+
+
+
+
+定义子包

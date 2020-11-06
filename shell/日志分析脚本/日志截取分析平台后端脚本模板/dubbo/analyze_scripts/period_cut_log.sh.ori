@@ -1,0 +1,77 @@
+#!/bin/bash
+#decription: cut log of period time only for passport...
+#ver: v1.0
+#auth: by zhengxin20180604
+#email: hzzxin@tairanchina.com
+
+##define source dir
+SOURCE_DIR="/usr/local/weihu/passport_dubbo_log_analyze/dubbo-beego"
+
+##source vars file
+. ${SOURCE_DIR}/analyze_scripts/input_date.sh
+
+##define function cut_log
+CUT_LOG() {
+    ##input date
+    INPUT_DATE "$1"
+
+    ##input time [start_hour and end_hour]
+    START_HOUR="$2"
+    END_HOUR="$3"
+    
+    ##input time [start_min and end_min]
+    START_MIN="$4"
+    END_MIN="$5"
+    
+    ##check hour
+    for i in "${START_HOUR}" "${END_HOUR}";do
+        if ! echo {00..23} | grep -o "\<${i}\>" &>/dev/null;then
+            echo "please input correct hour timestamps..."
+            exit 1
+        fi
+    done
+
+    ##check minute
+    if [ x"${START_MIN}" != x"" -a x"${END_MIN}" != x"" ];then 
+        for i in "${START_MIN}" "${END_MIN}";do
+            if ! echo {00..59} | grep -o "\<${i}\>" &>/dev/null;then
+                echo "please input correct minute timestamps..."
+                exit 1
+            fi
+        done
+        START_TIME="${START_HOUR}:${START_MIN}"
+        END_TIME="${END_HOUR}:${END_MIN}"
+    else
+        if [ x"${START_HOUR}" = x"${END_HOUR}" ];then
+             START_TIME="${START_HOUR}:00"
+             END_TIME="${END_HOUR}:59"
+        else
+             START_TIME="${START_HOUR}:00"
+             END_TIME="${END_HOUR}:00"
+        fi 
+    fi
+
+    ##cut log and save to temp file
+    LOG_START_TIME="$(date -d "${DATE} ${START_TIME}" +%F' '%H:%M)"
+    LOG_END_TIME="$(date -d "${DATE} ${END_TIME}" +%F' '%H:%M)"
+    PERIOD_ACCESS_FILE="${ACCESS_FILE}_${START_TIME/:/_}-${END_TIME/:/_}"
+    if grep -o "${LOG_START_TIME}" ${ACCESS_FILE} &>/dev/null;then
+	if grep -o "${LOG_END_TIME}" ${ACCESS_FILE} &>/dev/null;then
+            :
+        else
+            echo "timestamps: ${LOG_END_TIME} is not exists..."
+            exit 1
+        fi
+    else
+        echo "timestamps: ${LOG_START_TIME} is not exists..."
+        exit 1
+    fi
+    
+    ##cutting log based on provider timestamps   
+    sed -n -r "/${LOG_START_TIME}:.+/,/${LOG_END_TIME}:.+/p" $ACCESS_FILE >$PERIOD_ACCESS_FILE      
+    ##print filename
+    echo $(basename $PERIOD_ACCESS_FILE)
+}
+
+##cut log
+CUT_LOG "$1" "$2" "$3" "$4" "$5"

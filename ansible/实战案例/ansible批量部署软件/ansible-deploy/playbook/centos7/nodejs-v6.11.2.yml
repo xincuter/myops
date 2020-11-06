@@ -1,0 +1,26 @@
+- hosts: all
+  remote_user: root
+  vars:
+     source_dir: /usr/local/weihu/software/centos7
+     pkg: trc-node-v6.11.2-1.el7.centos.x86_64.rpm 
+  tasks:
+     - name: check trc-node-v6.11.2 install or not
+       shell: source /etc/profile;source /etc/profile.d/nodejs.sh;node -v
+       register: result
+       ignore_errors: True 
+     - name: copy trc-node-v6.11.2 to remote and install
+       copy: src={{ source_dir }}/{{ pkg }} dest=/usr/local/weihu/
+       #when: result|failed
+       when: result is failed
+       notify:
+          - install trc-node-v6.11.2
+          - check
+          - show check log
+  handlers:
+     - name: install trc-node-v6.11.2
+       shell: rpm -ivh /usr/local/weihu/{{ pkg }}
+     - name: check
+       shell: source /etc/profile.d/nodejs.sh;echo "node version ---> $(node -v) ";echo "npm version ---> $(npm -v) ";echo "pm2 version ---> $(pm2 -v)"
+       register: check_result
+     - name: show check log
+       debug: var=check_result.stdout verbosity=0

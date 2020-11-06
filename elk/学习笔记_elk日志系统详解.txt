@@ -1,0 +1,895 @@
+1、搜索引擎及Lucene基础（01）
+
+日志系统
+
+通过记录日志来分析网站访问情况
+
+搜索引擎：
+	（1）能够实现全文搜索；【例如：百度】
+	（2）能够模糊匹配；
+	
+	
+搜索引擎组成：
+	（1）搜索组件
+		搜索组件：用户 ---> UI --> 构建查询 ---> 运行查询 ---> 生成索引链 ---> 展示给用户
+	（2）索引链
+		索引链：原始内容 ---> 获取 ---> 构建文档 ---> 文档分析（这个过程中最重要的是如何切词） ---> 创建索引
+
+		
+开源项目中最著名的搜索引擎：
+Lucene（隶属于apache基金会）：词感分析器，只是索引链，可以做文档分析，但是无前端展示页面；这是搜索引擎的核心；
+ElasticSearch：搜索引擎中的一部分，核心是Lucene；
+
+
+ELK stack：
+（1）Lucene：
+		文档：Document 【包含了大量的键值对，在lucene中叫域和值】
+			包含了一个或多个域的容器；
+				field:value     【真正搜索的是搜索的value，针对value进行搜索】
+		
+			域：
+				有很多选项：
+					索引选项、存储选项、域向量使用选项；
+					
+				索引选项：用于通过倒排索引来控制文本是否可被搜索；
+					Index:ANYLYZED ：  [这表示使用分析器将域内的值分解成各个独立的分词，分析（切词）并单独作为索引项]
+					Index.Not-ANYLYZED：  [不分析（即不切词），把整个内容当成一个索引项]
+					Index.ANYLYZED_NORMS： [类似于Index:ANYLYZED，但不存储值的Norms（加权基准）信息]
+					Index.NO: [不对此域的值进行索引，因此不能被搜索]
+
+				存储选项：是否需要存储域的真实值；
+					store.YES: 存储真实值；
+					store.NO: 不存储真实值（即不会保存原始值）
+				
+				域向量选项：用于在搜索期间该文档所有的唯一项都能完全从文档中检索时使用；
+				
+				
+			文档和域的加权操作
+				加权计算标准
+				
+			搜索：
+				查询Lucene索引时，它返回的是一个有序的scoreDOC对象；查询时，Lucene会为每个文档计算出其score；
+				
+				API:
+					IndexSearcher：搜索索引入口；
+					Query及其子类；
+					QueryParser
+					TopDocs
+					ScoreDoc：保存在TopDocs数组中；
+					
+			Lucene的多样化查询：
+				查询操作都是调用IndexSearcher中的search方法；
+					TermQuery：对索引中的特定项进行搜索；Term是索引中的最小索引片段，每个Term包含了一个域名和一个文本值；
+					
+					TermRangeQuery：在索引中的多个特定项中进行搜索，能搜索指定的多个域；
+					
+					NumericRangeQuery：做数值范围搜索；
+					
+					PrefixQuery：用于搜索以指定字符串开头的项；
+					
+					BooleanQuery：用于实现组合查询；组合逻辑有：AND,OR,NOT；
+					
+					PhraseQuery：词语搜索；
+					
+					WildcardQuery：通配符查询；
+					
+					FuzzyQuery：模糊查询；			
+	
+	
+		文档结构无需事先定义
+		
+		
+		
+		
+		
+		
+		
+		
+		
+
+2、elasticsearch使用基础
+
+	Lucene中的索引相当于关系型数据库中的表；文档相当于表中的行；【即是说，lucene中索引是由大量的文档组成的，但是文档的类型必须近似】
+	elasticsearch：简称ES,借助Lucene的API，是一个基于Lucene实现的开源、分布式、Resetful的全文本搜索引擎；此外，它还是一个分布式实时文档存储，其中每个文档的每个field均是被索引的数据，且可被搜索；也是一个带实时分析功能的分布式搜索引擎，能够扩展至数以百计的节点实时处理PB级别的数据。
+	
+	
+	ES的基本组件：
+		索引（index）：文档容器；换句话说，索引是具有类似属性的文档的集合，类似于表；索引名必须使用小写字母。
+		
+		类型（type）：类型是索引内部的逻辑分区，其意义完全取决于用户需求；一个索引内部可定义一个或多个类型。一般来说，类型就是拥有相同的域的文档的预定义。
+		
+		文档（document）：文档是Lucene索引和搜索的原子单位，它包含了一个或多个域，是域的容器；基于JSON格式表示。每个域的组成部分：一个名字，一个或多个值；拥有多个值得域，通常称为多值域；
+		
+		映射（mapping）：原始内容存储为文档之前需要事先进行分析，例如切词、过滤掉某些词等；映射用于定义此分析机制该如何实现，除此之外，ES还为映射提供了诸如将域中的内容排序功能
+		
+		
+	ES的集群组件：
+		cluster：ES的集群标识为集群名称；默认为“elasticsearch”，因为节点就是靠此名字来决定加入到哪个集群中，一个节点只能属于一个集群；
+		
+		Node：运行于单个ES实例的主机即为节点，用于存储数据，参与集群索引及搜索操作；节点标识靠节点名；
+		
+		Shard：将索引切割成为的物理存储组件，但每一个shard都是一个独立且完整的索引；创建索引时，ES默认将其分割成5个shard，用户也可以按需自定义；创建完成后不可修改；
+			shard有两种类型：primary shard和replica；Replica用于数据冗余及查询时的负载均衡；每个主shard的副本数量可自定义，且可动态修改；
+			
+			
+	ES集群工作过程：
+		启动时，ES集群的节点通过多播（默认）或者单播方式在tcp的9300端口查找同一集群中的其他节点，并与之建立通信。【判断是否是同一集群的标准是集群名称】
+		
+		集群中的所有节点会选举出一个主节点负责管理整个集群状态，以及在集群范围内决定个shards的分布方式，站在用户角度而言，每个均可接收并响应用户的各类请求。
+		
+		集群状态：【主节点会检查所有集群节点的主shard和shard是否正常】
+			green：正常
+			red：故障
+			yellow：修复中
+			
+		主节点周期性的监测各个节点是否可用；
+		
+		
+	
+	安装elasticsearch：【视屏版本选择elasticsearch1.7.2】
+		官方网站：www.elastic.co
+		Elasticsearch收购了logstash
+		
+		elasticsearch使用jruby语言开发，所以elasticsearch需要运行在jvm上，需要安装jdk；
+		
+		ES端口：
+			参与集群的事务：9300/tcp
+				transport.tcp.port
+			接收请求的：	9200/tcp
+				http.port
+		
+		安装步骤：
+			安装jdk1.8
+			rpm安装elasticsearch：yum install elasticsearch
+				配置文件为：/etc/elasticsearch/elasticsearch.yml
+				
+			配置修改：
+				编辑配置文件/etc/elasticsearch/elasticsearch.yml，修改以下内容：
+					cluster.name： myes      【修改es集群名称】
+					node.name：elk-node1	【修改当前节点名称】
+					index.number_of_shard: 5   【修改每个索引默认shard的数量】
+					index.number_of_replica: 1   【修改每个shard的副本有几个】
+					transport.tcp.port：9300     【参与集群事务的】
+					http.port: 9200              【接收请求的】
+					
+			启动elasticsearch：systemctl start elasticsearch
+			
+			
+		es的访问接口API：【检验通过curl命令即可】
+			Restful API：
+				四类API：
+					（1）检查集群、节点、索引等健康与否，以及获取其相应状态；
+					（2）管理集群、节点、索引及元数据；
+					（3）执行CRUD操作；
+					（4）执行高级操作，例如paping，filtering等；
+					
+				ES访问接口：9200/tcp
+				
+				请求格式：curl -X<VERB> '<PROTOCOL>://HOST:PORT/<PATH>?<QUERY_STRING>' -d '<BODY>'     【注：这里的BODY是json格式的】
+					说明：
+						VERB：表示请求方法；GET,PUT,DELETE等；
+						PROTOCOL：http，https
+						QUERY_STRING：查询参数，例如?pretty表示用易读的JSON格式输出；
+						BODY：请求的主体；
+						
+					例如：curl -X GET 'http://172.16.100.67:9200/?preey'    【这是用来检测搭建的es集群是否正常】
+						  curl -X GET 'http://172.16.100.67:9200/_cat/nodes?v'   【_cat是es的一个api，es的api前都需要加上_，v表示显示详细信息；这表示查看es集群节点】
+						  curl -X GET 'http://172.16.100.67:9200/_cat/nodes?h=name,ip,port,uptime,heap'     【h后面可以自己定义】
+		
+		
+
+
+
+
+3、ES使用详情
+
+	搜索引擎：
+		索引组件、搜索组件
+		
+		索引：倒排索引
+		
+		索引组件：Lucene
+		搜索组件：ES
+		
+		数据获取组件：solr，Nutch（网络爬虫），Grub，Apeture
+		
+		
+		
+	ES：
+		索引（Index）：类型（type），文件（document），映射（mapping）
+		
+		集群（cluster），节点（node），shard（primary，replica）
+		
+			9300/tcp
+			
+			每个索引的分片数量：5
+			每个分片也应该有副本：1
+			
+		jvm：jdk
+		
+		用户访问接口：9200/tcp
+		
+		Restful:
+			api
+				
+		访问格式：curl -X<VERB> '<PROTOCOL>://HOST:PORT/<PATH>?<QUERY_STRING>' -d '<BODY>'
+		
+		ES的输出格式都是JSON格式的；
+		
+		_cat API能够非常直观显示JSON格式的数据
+		
+	
+	
+	
+	API：
+	cluster API【集群API，包含很多的子命令】
+
+		（1）health
+			curl -X GET 'http://172.16.100.67:9200/_cluster/health?level=indicies&pretty' 【查看集群健康状态】
+		（2）state  【查看集群状态信息】
+			curl -X GET 'http://172.16.100.67:9200/_cluster/state/version   【显示集群版本】
+			curl -X GET 'http://172.16.100.67:9200/_cluster/state/nodes?pretty 【显示集群节点】
+		（3）stats  【查看集群统计数据】
+			curl -X GET 'http://172.16.100.67:9200/_cluster/stats?pretty  【查看集群统计数据】
+			
+			节点状态：
+			curl -X GET 'http://172.16.100.67:9200/_nodes/stats
+			
+	cat API		
+	
+	
+	
+	
+	plugins：
+		插件扩展ES的功能：
+			添加自定义的映射类型、自定义分析器、本地脚本、自定义发现方式；
+			
+		安装插件：【两种方式】
+			（1）直接将插件放置于plugins目录中即可；
+			（2）使用plugin脚本进行安装；
+			
+				/usr/share/elasticsearch/bin/plugin -h
+					-l
+					-i, --install
+					-r, --remove
+				
+              head(集群几乎所有信息，还能进行简单的搜索查询，观察自动恢复的情况等)
+              bigdesk(该插件可以查看集群的jvm信息，磁盘IO，索引创建删除信息等)
+              kopf(提供了一个简单的方法，一个elasticsearch集群上执行常见的任务)
+              #/usr/share/elasticsearch/bin/plugin -install mobz/elasticsearch-head
+              #/usr/share/elasticsearch/bin/plugin -install lukas-vlcek/bigdesk
+              #/usr/share/elasticsearch/bin/plugin -install lmenezes/elasticsearch-kopf/1.6
+
+				
+				站点插件：
+					http://HOST:9200/_plugin/plugin_name
+					
+					
+			
+	
+	
+	CRUD操作相关的API：
+			
+		创建文档：
+			例子：
+			curl -XPUT 'localhost:9200/students/class1/1?pretty' -d '     【1表示id编号】
+			{
+				"first_name": "Xin",
+				"last_name": "Zheng",
+				"gender":	"male",
+				"age":	25
+			}'                                   【这样就创建一个索引】
+			
+	    注意：
+		elasticsearch6.0版本创建索引时需要指定header，-H 'Content-Type: application/json'；否则会报错；
+			
+			
+		获取文档：
+			curl -XGET 'localhost:9200/students/class1/1?pretty‘        【获取刚才创建的编号为1的文档】
+			
+			
+		更新文档：
+			PUT方法会覆盖原有文档；
+			
+			如果只更新部分内容，得使用_update API
+			
+			curl -XPOST 'localhost:9200/students/class1/1/_update?pretty' -d '
+			{
+				"doc": { "age":27 }
+			}' 
+
+
+		删除文档：
+			DELETE
+			
+			curl -XDELETE 'localhost:9200/students/class1/1?pretty' 
+
+			
+		删除索引：
+			curl -XDELETE 'localhost:9200/students
+	
+	
+		查看索引：
+			curl -XGET 'localhost:9200/_cat/indices?v'
+			
+		
+
+	
+	
+	如何查询数据？
+		需要使用Query API；
+		
+			Query DSL：JSON based language for building complex queries
+				【这是域类型的查询语言，是基于JSON格式的】
+				用户实现诸多类型的查询操作，比如：simple term query，phrase，range boolean，fuzzy等；
+				
+		ES的查询操作执行分为两个阶段：
+			分散阶段
+			合并查询
+				
+			
+		查询方式：
+			向ES发起查询请求的方式有两种：
+				1、通过Restful request API查询，也称为query string；
+				2、通过REST request body进行
+				
+				例如：query string查询格式
+					curl -XGET 'localhost:9200/students/_search?pretty'
+					
+				例如：REST request body查询格式：
+					curl -XGET 'localhost:9200/students/_search?pretty' -d 
+					'{
+						"query": { "match_all": {} }
+					}'
+					
+					
+		多索引、多类型查询：
+			/_search: 所有索引；
+			/INDEX_NAME/_search: 单索引查询；
+			/INDEX1,INDEX2,.../_search: 多索引；
+			/s*,t*/_search: 通配符匹配索引查询；
+			/students/class1/_search：单类型搜索；
+			/students/class1,class2/_search：多类型搜索；
+			
+			
+		Mapping和Analysis：
+			ES：对每一个文档，会取得其所有域的所有值，生成一个名为"_all"的域；执行查询时，如果query_string未指定查询的域，则在_all域上执行查询操作；
+			
+				GET /_search?q='Xianglong'
+				GET /_search?q='Xianglong%20Shiba%20Zhang'
+				GET /_search?q=courses:'Xianglong%20Shiba%20Zhang'
+				GET /_search?q=courses:'Xianglong'
+				
+				前两个：表示在_all域搜索；
+				后两个：表示在指定域上搜索；
+				
+				数据类型：string、number、boolean、dates
+				
+				查看指定类型的mapping示例：
+					curl 'localhost:9200/students/_mapping/class1?pretty'
+					
+					
+					
+				ES中搜索的数据广义上可被理解为两类：
+					types：exact
+					full-text
+					
+					精确值：指未经加工的原始值；在搜索时进行精确匹配；
+					full-text：用于引用文本中的数据；判断文档在多大程度上匹配查询请求；即评估文档与用户请求查询的相关度；
+					
+					为了完成full-text搜索，ES必须首先分析文件，并创建出倒排索引，倒排索引中的数据还需进行“正规化”为标准格式；
+						分词
+						正规化
+
+					分词+正规化的操作即分析，分析需要分析器进行：analyzer
+					
+					
+					
+		分析器由3个组件构成：
+			字符过滤器
+			分词器
+			分词过滤器
+			
+		ES内置的分析器：
+			standard analyzer
+			simple analyzer
+			whitespace analyzer
+			language analyzer
+			
+		分析器不仅在创建索引时用到，在构建查询时也会用到；
+
+
+		
+
+
+4、ES查询及logstash入门
+
+Query DSL：
+	request body：
+	
+		分成两类：
+			query dsl：执行full-text查询时，基于相关度来评判其匹配结果；查询执行过程复杂，且不会被缓存；
+			filter dsl：执行exact查询时，基于其结果为"yes"或"no"进行评断，速度快，且结果缓存；
+			
+		查询语句结构：
+			{
+				QUERY_NAME: {
+					ARGUMENT: VALUE,
+					ARGUMRNT: VALUE,...
+				}
+			}
+			
+			或者
+			
+			{
+				QUERY_NAME: {
+					FIELD_NAME: 
+					{
+						ARGUMRNT: VALUE,...
+					}
+				}
+			}
+			
+			
+	
+		1、filter dsl：
+			（1）term filter：精确匹配包含指定term的文档；
+				例如：{ "term": {"name": "Guo"} }
+				查询语句写法：
+				curl -XGET "localhost:9200/students/_search?pretty" -d {
+					"query": {
+						"term": {
+							"name": "Guo"
+						}
+					}
+				}
+				
+			（2）terms filter：用于实现多值精确匹配；
+				例如：{ "terms": {"name": ["Guo", "Rong"]} }
+				查询语句写法：
+				curl -XGET "localhost:9200/students/_search?pretty" -d {
+					"query": {
+						"terms": {
+							"name": {
+								["Guo","Rong"]
+							}
+						}
+					}
+				}
+				
+			（3）range filters：用于在指定范围内查找数值或时间；
+				例如：
+				{ "range":
+					"age": {
+						"gte": 15,
+						"lte": 25           
+					}
+				}                        【这表示查询age 大于等于15且小于等于25的内容】
+				
+				【数值运算符：gt（大于），lt（小于），gte（大于等于），lte（小于等于）】
+				
+				
+			（4）exists and missing filters：用于判断值是否存在；
+				例如：
+				{
+					"exists": {
+						"age": 25
+					}
+				}                  【查找是否存在有age等于25的】
+				
+				
+			（5）boolean filter：基于布尔的逻辑来合并多个filter子句；
+				用法如下：
+					must：其内部所有的子句条件必须同时匹配，即and；
+						例如：
+							must: {
+								"term": { "age": 25 }
+								"term": { "gender": "Female" }
+							}       【查找年龄25，且性别为女】
+							
+					must not：其所有子句必须不匹配，即not；
+						例如：
+							must: {
+								"term": { "age": 25 }
+							}         【查找年龄不是25的】
+							
+					should：至少有一个子句匹配，即or；
+						例如：
+							should: {
+								"term": { "age": 25 }
+								"term": { "gender": "Female" }
+							}			【查找年龄是25，或者性别为女性的】
+				
+		
+		2、query dsl：
+			（1）match_all Query：用于匹配所有文档，没有指定任何query，默认即为match_all query；
+				例如：{ "match_all": {} }
+				
+			（2）match Query：在几乎任何域上执行full-text或exact-value查询；
+				如果执行full-text查询；首先对查询时的语句做分析；
+					例如：{ "match": { "students": "Guo" } }    【这表示在students这张表上所有Guo这个字符串，任何地方出现都可以匹配】  
+				如果执行exact-value查询；搜索精确值；此时，建议使用过滤，而非查询；
+					例如：{ "match": { "name": "Guo" } }    【这表示精确查询，只搜索name字段为Guo的】
+					
+			（3）multi_match Query：用于在多个域上执行相同的查询；
+				语法机构如下：
+					{
+						"multi_match":
+							"query": full-text search
+							"field": { "field1", "field2" }
+					}
+					
+				例子：
+					{
+						"multi_match":
+							"query": {
+								"students": "Guo"
+							}
+							"field": 
+								{ 
+									"name",
+									"description"
+								}
+					}             【这表示在students上的name字段和description字段上查找"Guo"；即多域查询】
+				
+			（4）bool query：基于布尔逻辑合并多个查询语句；与boolean filter不同的是，查询子句不会返回"yes"或"no"，而是其计算出的匹配度分值，因此，boolean query会为各子句合并其score；
+				用法如下：
+					must：
+					must_not：
+					should：
+					
+	
+
+	
+	3、filterd：合并filter和query：【即组合查询】
+		例如：
+		{
+			"filterd": {
+				query: { "match": {"gender": "Female"} }
+				filter: { "term": {"age": 25} }
+			}
+		}               【查询性别为女，过滤掉年龄25的内容】
+		
+
+
+	查询语句语法检查：
+		GET /INDEX/_validate/query?pretty
+		{
+			...
+		}
+		
+		GET /INDEX/_validate/query?explain&pretty
+		{
+			...          【这里写查询语句】
+		}
+		
+		例子：
+		curl -XGET 'localhost:9200/_validate/query?explain&pretty' -d '
+		{
+			"query": {
+				"filterd": {
+					"filter": { "term": { "name": "Guo"} }
+				}
+			}
+		}'       【可以检测该查询语句是否正确】
+		
+
+
+
+ELK stack的另外两个组件：
+	L：logstash   
+	K：kibina
+	
+logstash：
+	server/agent结构   【所有web服务器上都需要安装logstash-agent，监控日志，统一传送给logstash服务端，logstash在将收集到的日志传送给elasticsearch】
+	重量级
+	能够实现日志收集、分析、过滤
+	
+kibina：
+	nodejs开发；提供用户接口
+	图形界面展示
+	
+	
+日志系统：elasticsearch + logstash + kibina
+
+
+
+如何使用logstash？
+
+logstash：
+	支持多种数据获取机制，通过tcp/udp协议、文件、syslog、windows EventLogs即STDIN等；获取到数据后，它支持对数据进行过滤、修改等操作；
+	
+	Jruby语言，需要运行在jvm虚拟机上；
+	
+	server/agent结构
+	
+	所有功能都是依赖于插件完成
+
+	logstash: 数据收集，日志数据；
+	
+logstash插件
+	input plugin：
+	filter plugin
+	output plugin
+	codec plugin
+
+	
+安装logstash：
+	jdk安装
+	rpm安装logstash
+	
+	yum安装后，配置文件目录是/etc/logstash/conf.d  【配置文件定义都是对插件的定义】
+	
+
+定义logstash配置文件：
+	vim /etc/logstash/conf.d/sample.conf
+		例子如下：
+			input {
+				stdin {}
+			}
+		
+			output {
+				stdout {
+					codec => rubydebug
+				}
+			}
+			
+	定义好后，使用logstash -f /etc/logstash/conf.d/sample.conf --configtest命令检测配置文件语法是否正确；
+	
+启动logstash： logstash -f /etc/logstash/conf.d/sample.conf
+
+
+Logstash配置框架：
+	input {
+		...
+	}
+	
+	filter {
+		...
+	}
+	
+	output {
+		...
+	}
+	
+	支持四种类型的插件：input、codec、filter、output   【每种插件都需要定义配置】
+	
+	
+logstash数据类型：
+	（1）array：数组；
+		定义格式：[item1,item2,...]
+	（2）Boolean：布尔类型
+		只有true 和 false
+	（3）bytes：简单数据
+	（4）codec：编码器
+	（5）hash：key-value键值对的组合
+		定义格式：key => value
+	（6）Number
+	（7）Password
+	（8）Path：文件系统路径；
+	（10）string：字符串
+	
+logstash字段引用：[]
+
+条件判断：
+	==,!=,<,<=,>,>=     【运算符】
+	=~,!=    【正则表达式，匹配与不匹配】
+	in,not in
+	and,or,xor  【xor表示异或】
+	()     【用于复合表达式】
+	
+
+
+消息队列：
+	rabbitmq
+	activemq
+	qpid
+	zeromq
+	kafka
+
+logstash常用的input插件：
+	
+logstash的工作流程：input插件 ---> filter ---> output插件，如无需对数据进行额外处理，filter可省略；
+
+简单logstash配置案例：
+	input {
+		stdin {}
+	}
+		
+	output {
+		stdout {
+			codec => rubydebug
+		}
+	}
+
+	
+logstash的常用插件:
+	（1）input插件：
+		<a> File：从指定的文件中读取事件流；使用FileWatch（Ruby Gem库）监控文件是否发生变化；
+			  .sincedb会记录每个被监听的文件的inode，major number，minor number，pos；并且能够识别日志滚动操作；
+			  
+			 例子：通过file插件读取日志；
+				input {
+					file {
+						path => ["/var/log/messages"]     【如果有多个文件使用数组】
+						type => "system"
+						start_position => "begining"
+					}
+				}
+				
+				output {
+					stdout {
+						codec => rubydebug
+					}
+				}
+				
+		
+		<b>udp：logstash通过udp协议从网络连接来读取message，其必备参数为port，用于指明自己监听的端口，host则用来指明自己监听的地址；
+			collectd：主机性能监控程序，C语言开发，以守护进程模式运行，通过network插件将自己在本机收集到的数据发送给其他主机；
+			
+			在客户机上配置collectd，主要编辑network插件，指定server端，并启动collectd进程即可；
+			
+			客户端主机安装collectd：
+				centos 7：epel源
+					yum install collectd
+					
+					配置文件为/etc/collectd.conf
+						主要配置项：
+						
+						LoadPlugin network     【这一项前面的注释一定要去掉，否则不会加载network插件，也就不会定期收集数据了】
+						LoadPlugin cpu
+						
+						<Plugin network>                  【这里是定义插件的属性信息】
+							<Server "172.16.100.70" "25826">
+							# 172.16.100.70是logstash主机的地址，25826是其监听的udp端口；
+							</Server>
+						</Plugin>
+						Include "/etc/collectd.d"
+						
+					systemctl start collectd.service
+					
+					
+			logstash服务端主机配置：
+				创建收集日志配置文件/etc/lostash/conf.d/udp-collectd.conf:
+			
+				input {
+					udp {
+						port => 25826
+						codec => collectd {}
+						type => "collectd"
+					}
+				}
+
+				output {
+					stdout {
+						codec => rubydebug
+					}   
+				}
+				
+				启动logstash：logstash -f /etc/lostash/conf.d/udp-collectd.conf &
+					
+		
+		<c>redis插件：
+			从redis读取数据，支持redis channel和lists两种方式；
+			
+			配置案例：【从redis作为输入插件】
+				vim server_redis.conf
+				
+				input {
+					redis {
+						port => "6379"
+						host => "172.16.100.70"
+						data_type => "list"
+						type => "nginxlog"
+						key => "logstash-nginx"
+					}
+				}
+				
+				output {
+					stdout {
+						codec => rubydebug
+					}
+				}
+			
+			
+			
+	
+	
+	
+	（2）filter插件：
+		用于在将event通过output发出之前对其实现某些功能；常用的有：grok，
+		<a>grok：主要用于分析并结构化文本数据的，目前是logstash中将非结构化日志数据转化为结构化的可查询数据的不二之选，是logstash最重要的插件之一；可以处理syslog、apache、nginx；
+		
+			定义符合的模式来拆分日志来结构化数据；
+			
+			logstash已经提供好的模式定义位置：/usr/share/logstash/vendor/bundle/jruby/2.3.0/gems/logstash-patterns-core-4.1.2/patterns/grok-patterns
+			
+			grok的语法格式：
+				%{SYNTAX:SEMANTIC}
+					SYNTAX：表示预定义模式名称；
+					SEMANTIC: 匹配到的文本的自定义标识符；
+					
+				如：1.1.1.1 GET /index.html 30 0.23
+				针对上面文本，定义的模式如下：
+					%{IP:clientip} %{WORD:method} %{URIPATHPARAM:request} %{NUMBER:bytes} %{NUMBER:responsetime}
+					
+					
+				案例：定义日志logstash配置文件，分析并结构化日志数据；
+					vim /etc/logstash/conf.d/httpd-log.conf
+						input {
+							stdin {}
+						}
+
+						filter {
+							grok {
+								match => { "message" => "%{IP:clientip} %{WORD:method} %{URIPATHPARAM:request} %{NUMBER:bytes} %{NUMBER:responsetime}" }
+							}
+						}
+						
+						output {
+							stdout {
+								codec => rubydebug
+							}   
+						}
+						
+			自定义的grok的模式：
+				grok的模式是基于正则表达式编写的，其元字符与其他用到正则表达式的工具awk/grep/pcre差别不大；
+				
+				
+		
+				
+				
+	（3）output插件				
+		即存储；
+			
+		<a>stdout: 标准输出
+		
+		<b>elasticsearch: 输出到elasticsearch中去；
+			输出配置案例：
+			output {
+				elasticsearh {
+					cluster => "loges"
+					index => "logstash-%{+YYYY.MM.dd}"
+				}
+			}
+			
+			
+		<3>redis：redis作为output插件；
+			redis作为输出插件配置案例：
+			
+			input {
+				file => ["/var/log/nginx/access.log"]
+				type => "nginxlog"
+				start_position => "beginning"
+			}
+			
+			filter {
+				grok {
+					match => { "message" => "%{NGINXACCESS}" }
+				}
+			}
+			
+			output {
+				redis {
+					port => "6379"
+					host => ["127.0.0.1"]
+					data_type  => "list"            #【这表示存入redis的数据类型是list】
+					key   =>  "logstash-%{type}"    #【指明该list数据类型的key】
+				}
+			}
+
+
+			
+			
+			
+消息队列：
+producer ---> exchanger ---> coonsumer
+
+
+常用elk架构：
+
+WEB-SERVER ---> 消息队列【redis or kafka】---> logstash  --> es集群
+
+
+前端展示工具：
+	kibana

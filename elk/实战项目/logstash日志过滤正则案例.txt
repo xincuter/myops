@@ -1,0 +1,81 @@
+##nginx日志格式
+log_format  main  '$time_local $hostname $remote_addr $request_time $upstream_response_time $upstream_connect_time '
+                  '$status $upstream_status $bytes_sent $remote_user $request $http_user_agent $http_referer '
+                  '$scheme $request_method $request_length $connection_requests $upstream_addr $http_x_forwarded_for $http_accept $cookie_uid $http_cookie';
+
+
+##logstash配置
+input {
+	beats {
+    		port => 5044
+  	}
+}
+
+filter {
+  	grok {
+    		match => { "message" => "%{HAPROXYDATE} %{NOTSPACE:hostname} %{IP:client_ip} %{JAVACLASS:request_time} %{JAVACLASS:upstream_response_time} %{JAVACLASS:upstream_connect_time} %{INT:http_status} %{INT:upstream_status} %{INT:datasize} %{NOTSPACE:username} %{NOTSPACE:method} %{URIPATHPARAM:url} HTTP%{URIPATHPARAM:http_protocol} %{DATA:client_tool} %{NOTSPACE:http_referer} %{NOTSPACE:http} %{NOTSPACE:method2} %{INT:data_length} %{INT:connection_requests} %{NOTSPACE:backend_ip} %{NOTSPACE:source_ip} %{NOTSPACE:http_accept} %{NOTSPACE:cookie_uid} %{NOTSPACE:http_cookie}" }
+  	}
+	if "OS/android" in [client_tool] {
+		mutate {
+                	split => ["client_tool"," "]
+                	add_field => ["OS","%{client_tool[0]}"]
+                	add_field => ["OSVersion","%{client_tool[1]}"]
+                	add_field => ["product","%{client_tool[2]}"]
+                	add_field => ["IMEI","%{client_tool[3]}"]
+                	add_field => ["phoneBrand","%{client_tool[4]}"]
+                	add_field => ["phoneModel","%{client_tool[5]}"]
+        	}
+	}
+	if "curl" in [client_tool] {
+		mutate {
+			add_field => ["OS","Linux TK"]
+			add_field => ["phoneBrand","%{client_tool}"]
+		}
+	}
+	if "Windows" in [client_tool] and "Gecko" in [client_tool] {
+		mutate {
+			gsub => ["client_tool","[\();]",""]	
+			split => ["client_tool"," "]			
+			add_field => ["OS","%{client_tool[1]}"]
+			add_field => ["OSVersion","%{client_tool[3]}"]
+			add_field => ["phoneBrand","%{client_tool[7]}"]
+		}
+	}
+	if "Windows" in [client_tool] and "AppleWebKit" in [client_tool] {
+		mutate {
+			gsub => ["client_tool","[\();]",""]	
+			split => ["client_tool"," "]			
+			add_field => ["OS","%{client_tool[1]}"]
+            add_field => ["OSVersion","%{client_tool[3]}"]
+            add_field => ["phoneBrand","%{client_tool[9]}"]
+		}
+	}
+	if "Dalvik" in [client_tool] {
+		mutate {
+			gsub => ["client_tool","[\();]",""]
+			split => ["client_tool"," "]
+			add_field => ["OS","%{client_tool[3]}"]
+			add_field => ["OSVersion","%{client_tool[4]}"]
+			add_field => ["phoneBrand","%{client_tool[6]}"]
+		}
+	}
+	if "Macintosh" in [client_tool] {
+		mutate {
+			gsub => ["client_tool","[\();]",""]
+			split => ["client_tool"," "]
+			add_field => ["OS","%{client_tool[3]}"]
+			add_field => ["OSVersion","%{client_tool[6]}"]
+			add_field => ["phoneBrand","%{client_tool[7]}"]
+		}
+	}
+  	date {
+    		match => [ "timestamp" , "dd/MMM/yyyy:HH:mm:ss Z" ]
+  	}
+}
+
+output {
+  	elasticsearch {
+    		hosts => ["es1","es2","es3"]
+    		index => "test-nginx-%{+YYYY.MM.dd}"
+  	}
+}

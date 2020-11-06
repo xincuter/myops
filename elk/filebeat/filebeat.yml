@@ -1,0 +1,55 @@
+filebeat.prospectors:
+- type: log
+  paths:
+    - /usr/local/dubbo/dubbo-account/md-account.log
+  tail_files: true
+  document_type: dubbo-account
+  fields: 
+    log_topic: passport-dubbo-account
+    address_id: "dubbo-account[192.168.60.19]"
+
+  exclude_lines: ['DEBUG']
+  
+  multiline.pattern: '^[[:space:]]'
+  multiline.negate: false
+  multiline.match: after
+
+- type: log
+  paths:
+    - /usr/local/dubbo/dubbo-invite/invite.log
+  tail_files: true
+  document_type: dubbo-invite
+  fields: 
+    log_topic: passport-dubbo-invite
+    address_id: "dubbo-invite[192.168.60.19]"
+
+  exclude_lines: ['DEBUG']
+
+  multiline.pattern: '^[[:space:]]'
+  multiline.negate: false
+  multiline.match: after
+
+- type: log
+  paths:
+    - /usr/local/dubbo/dubbo-ocs/ocs.log 
+  tail_files: true
+  document_type: dubbo-ocs
+  fields: 
+    log_topic: passport-dubbo-ocs
+    address_id: "dubbo-ocs[192.168.60.19]"
+
+  exclude_lines: ['DEBUG']  
+
+  multiline.pattern: '^[[:space:]]'
+  multiline.negate: false
+  multiline.match: after
+
+output.kafka:
+  enabled: true
+  hosts: ["10.203.209.14:19092","10.203.209.15:19092","10.203.209.16:19092"] 
+  topic: '%{[fields.log_topic]}' 
+  worker: 3
+  max_retries: 3
+  timeout: 30s
+  compression: gzip
+  max_message_bytes: 5000000

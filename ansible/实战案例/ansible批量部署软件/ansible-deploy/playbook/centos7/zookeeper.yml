@@ -1,0 +1,33 @@
+- hosts: all
+  remote_user: root
+  vars:
+     source_dir: /usr/local/weihu/software/centos7
+  tasks:
+     - name: check trc-zookeeper install or not
+       shell: ls -1d /usr/local/zookeeper;ls -l /etc/init.d/zookeeper
+       register: result
+       ignore_errors: True
+     - name: copy trc-zookeeper and install
+       copy: src={{ source_dir }}/{{ item }} dest=/usr/local/weihu/
+       with_items:
+          - trc-jdk-1.8.0_77-1.el7.centos.x86_64.rpm 
+          - trc-zookeeper-3.4.6-1.el7.centos.x86_64.rpm 
+       when: result is failed
+       notify:
+          - deploy trc-zookeeper
+          - source env
+          - start zookeeper
+          - check
+          - show check log
+  handlers:
+     - name: deploy trc-zookeeper
+       shell: cd /usr/local/weihu && yum install trc-jdk-1.8.0_77-1.el6.x86_64.rpm trc-zookeeper-3.4.6-1.el7.centos.x86_64.rpm -y
+     - name: source env
+       shell: source /etc/profile.d/{java.sh,zookeeper.sh}
+     - name: start zookeeper
+       shell: /etc/init.d/zookeeper start 
+     - name: check
+       shell: sleep 5;ss -lntup | grep ":2181" &>/dev/null && echo "install zookeeper successfully..." && exit 0 || echo "install zookeeper failure..." && exit 1
+       register: check_result
+     - name: show check log
+       debug: var=check_result.stdout verbosity=0

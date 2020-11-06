@@ -1,0 +1,37 @@
+#!/bin/bash
+##截取指定时间段日志并保存到临时文件中
+SOURCE_DIR="/usr/local/weihu/passport_nginx-log-analyze"
+
+##引用脚本
+. $SOURCE_DIR/analyze_scripts/input_date.sh
+
+##定义切割日志函数
+CUT_LOG() {
+    ##输入日期
+    INPUT_DATE "$1"
+
+    ##输入日志起始时间
+   # read -p "please input start time: [example: 09]: " START_TIME
+   # read -p "please input end time: [example: 18]: " END_TIME
+    START_TIME="$2"
+    END_TIME="$3"
+    
+    ##判断输入时间是否正确
+    for i in "${START_TIME}" "${END_TIME}";do
+        if ! echo {00..23} | grep -o "\<${i}\>" &>/dev/null;then
+            echo "please input correct timestamps..."
+            exit 1
+        fi
+    done
+
+    ##截取日志并保存到临时文件
+    LOG_START_TIME=$(date -d "${DATE} ${START_TIME}" +%d/%b/%Y:%H:%M:%S)
+    LOG_END_TIME=$(date -d "${DATE} ${END_TIME}:59:59" +%d/%b/%Y:%H:%M:%S)
+    PERIOD_ACCESS_FILE=${ACCESS_FILE}_${START_TIME}-${END_TIME}
+    awk -F '[' '$2>="'"${LOG_START_TIME}"'" && $2<="'"${LOG_END_TIME}"'"' $ACCESS_FILE >$PERIOD_ACCESS_FILE      
+    ##打印切割日志文件名
+    echo $(basename $PERIOD_ACCESS_FILE)
+}
+
+##切割日志
+CUT_LOG "$1" "$2" "$3"

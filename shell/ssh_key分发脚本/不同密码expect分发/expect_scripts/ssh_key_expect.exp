@@ -1,0 +1,20 @@
+#!/usr/bin/expect 
+
+if { $argc != 4 } {
+	send_user "usage:please check parameters number...\n"
+	exit
+}
+
+set timeout 30
+set file [lindex $argv 0]
+set user [lindex $argv 1]
+set host [lindex $argv 2]
+set password [lindex $argv 3]
+
+spawn ssh-copy-id -i $file "-p22 $user@$host"
+expect {
+   "yes/no"	{send "yes\r";exp_continue}
+   "*password" 	{send "$password\r"}
+}
+expect eof
+exit
