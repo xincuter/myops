@@ -1,5 +1,0 @@
-[TRC]
-name=TRC-repo
-baseurl=http://repos.in.trc.com/trc_software/centos/$releasever/$basearch
-enabled=1
-gpgcheck=0
