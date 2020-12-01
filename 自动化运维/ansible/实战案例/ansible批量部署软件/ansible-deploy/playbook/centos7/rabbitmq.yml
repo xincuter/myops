@@ -1,0 +1,26 @@
+- hosts: all
+  remote_user: root
+  vars:
+     source_dir: /usr/local/weihu/software/centos7
+     pkg: rabbitmq.tar.gz
+  tasks:
+     - name: check rabbitmq install or not
+       shell: source /etc/profile;which rabbitmqctl
+       register: result
+       ignore_errors: True 
+     - name: copy rabbitmq.tar.gz
+       copy: src={{ source_dir }}/{{ pkg }} dest=/usr/local/weihu/
+       #when: result|failed
+       when: result is failed
+       notify:
+          - install rabbitmq
+          - show script log
+          - check
+  handlers:
+     - name: install rabbitmq
+       shell: tar xf /usr/local/weihu/{{ pkg }} -C /usr/local/weihu/ && ls -ld /usr/local/weihu/rabbitmq && sh /usr/local/weihu/rabbitmq/rabbitmq_install.sh
+       register: script_output
+     - name: show script log
+       debug: var=script_output.stdout verbosity=0
+     - name: check
+       shell: source /etc/profile;which rabbitmqctl && exit 0 || exit 1

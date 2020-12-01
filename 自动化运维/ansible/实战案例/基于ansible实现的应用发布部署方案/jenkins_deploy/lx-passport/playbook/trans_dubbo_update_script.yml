@@ -1,0 +1,16 @@
+- hosts: prd-lx-passport_dubbo
+  remote_user: root
+  vars:
+    script_template: /usr/local/weihu/scripts/update/dubbo/new/dubbo-update.sh.template
+  tasks:
+    - name: copy script template to remote
+      template: src={{ script_template }} dest=/usr/local/weihu/lx-passport-update_{{ DUBBO_SERVICE }}.sh
+      notify:
+        - check script context
+        - show log
+  handlers:
+    - name: check script context
+      shell: ls -l /usr/local/weihu/lx-passport-update_{{ DUBBO_SERVICE }}.sh && cat /usr/local/weihu/lx-passport-update_{{ DUBBO_SERVICE }}.sh | grep -E "DUBBO_SERVICE=|DUBBO_SCRIPT="
+      register: check_result
+    - name: show log
+      debug: var=check_result.stdout verbosity=0

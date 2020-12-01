@@ -1,0 +1,1183 @@
+第一部分：puppet基础
+
+运维工具:
+OS Privisioning(PXE,Cobbbler)
+OS Configuration(ansible、puppet、salt、chef)
+	puppet很成熟，工业级
+	ansible轻量级，功能强大
+Command and Control（func、ansible、fabric）
+
+
+puppet：IT基础设施自动化管理工具；基于ruby语言研发；
+	管理整个生命周期：
+		provisioning 【系统自动化安装】
+		configuration  【配置管理】
+		orchestration  【编排】
+		reporting
+		
+官方站点：www.puppetlabs.com
+作者：Luke Kanies，puppetlabs
+	2005,0.2 ---> 0.24.x ---> 0.25.x ---> 0.26.x(2.6.x) ---> 2.7.x ---> 3.0.x --> ...
+	
+	
+puppet: agent
+	master/agent 【agent周期性接收master指令，在本地执行完毕后，将执行结果发送给master】
+		master: puppet server
+		agent: 
+			真正执行相应管理操作的核心部件，周期性地去master请求与自己相关的配置；
+			
+puppet的工作模式：
+	声明性、基于模型配置语言：
+		定义: 使用puppet的配置语言定义基础配置信息；
+		模拟：模拟测试运行；
+		强制（执行）：强制当前与定义的目标状态保持一致;
+		报告：通过puppet api将执行结果发送给接受者；
+
+		
+puppet有三个层次：
+	configuration language 【配置语言】
+	transactional layer 【事务层】
+	resource abstraction layer【资源抽象层】
+		资源类型：例如用户、组、文件、服务、cron任务等等；
+		属性及状态 与 其实现方式分离；[只需要定义属性及状态，实现由agent自动实现]
+        期望状态：	
+
+puppet的核心组件：资源    【相当于ansible中的模块】
+	资源清单：manifests 【类似于ansible中的playbook】
+	资源清单及清单中的资源定义的所依赖文件、模板等数据按特定结构组织起即为模块；【类似于ansible中的角色roles】
+	
+一个主机上可能有多个资源清单。
+
+单机模式puppet执行过程：【资源清单都是定义在master端的】
+资源清单 ---> 编译 ---> 伪代码（catalog） ---> 应用（apply）【状态查询、执行目标状态】
+	
+
+puppet master/agent架构执行过程：
+（1）agent端周期性的到master端请求跟自己相关的catalog，并发送自己的主机名与facts；
+（2）master端收到请求，会查询请求者的站点清单（一个站点相当于一个主机），并在master将请求者相关的所有的清单（manifest）编译；
+（3）master端将编译好的catalog代码发送给请求者（agent）；
+（4）agent端将收到的catalog应用，并将执行结果返回给master端
+
+注：master与agent通过https验证通信，双向认证。【hostname至关重要】
+
+puppet中的模块是清单的组合。
+puppet严重依赖主机名。
+puppet的agent是周期性去master拉取配置。
+
+
+安装puppet：
+（1）yum安装
+（2）官方网站下载最新版
+
+agent端安装：
+	puppet
+	facter
+	
+master端安装：
+	puppet-server
+	
+	
+puppet命令使用：
+Usage: puppet <subcommand> [options] <action> [options]
+##获取所支持的资源类型的帮助信息：
+	puppet describe -l
+
+##获取指定资源类型的帮助信息：
+	puppet describe RESOURCE_TYPE
+
+
+	
+	
+
+第二部分：puppet资源详解
+
+puppet资源抽象：
+puppet从以下三个维度来对资源完成抽象：
+	（1）相似的资源被抽象成同一种资源"类型"，如程序包资源、用户资源及服务资源等；
+	（2）将资源属性或状态的描述与其实现方式剥离出来，如仅说明安装一个程序包而不用关心其具体是通过yum、pkgadd、ports或是其他方式实现；
+	（3）仅描述资源的目标状态，也即期望实现的结果，而不是其具体过程，如"确定nginx运行起来"而不是具体描述为"运行nginx命令将其启动起来"。
+	
+	这三个也被称作puppet的资源抽象层（PAL）
+		PAL由type（类型）和provider（提供者，即不同OS上的特定实现）组成。
+		
+		
+资源定义：
+语法：
+每个资源拥有type、title以及一系列属性设置；
+type {'title':
+	attribute1 => value1,
+	attribute2 => value2,
+	...
+}
+	
+puppet有许多内置的资源类型，而通过安装插件还可以继续新增额外的类型；
+	http://docs.puppetlabs.com/references/latest/type.html
+	puppet describe命令来获取puppet当前所支持的类型列表及每种类型的详细信息。
+	
+示例：
+user { 'magedu':                   ##这是title头部
+	ensure	=>	present,           ##属性：目标状态
+	uid		=>	'601',
+	gid		=>	'601',
+	shell	=>	'/bin/bash',
+	home	=>	'/home/magedu',
+	managehome	=>	true,
+}
+注：
+（1）在定义时，资源类型必须使用小写字符；
+（2）资源名称仅是一个字符串，但要求在同一个类型中其必须唯一；
+	例如：可以同时有名为nginx的"service"资源和"package"资源，但在"package"类型的资源中只能有一个名为"nginx";
+（3）"puppet resource"命令可用于交互式查找及修改puppet资源；
+
+
+	
+puppet资源清单文件（及manifest）通常以.pp后缀结尾。
+
+3类特殊属性：
+	Name/Namevar：名称变量，用于标识资源，如果没有定义，则默认使用title作为name的值；
+	Ensure：目标状态；可见于大多数资源中，用于控制资源的存在性：
+		ensure => file：存在且为一个普通文件；
+		ensure => directory：存在且为一个目录；
+		ensure => present：存在，可通用于描述上述三种；
+		ensure => absent：不存在
+	Metaparameters：元属性；
+	
+	
+
+puppet单机模式案例：	
+（1）编写资源清单：
+vim test.pp
+
+group {'distro':
+	gid		=>	2000,
+	ensure	=>	present, 
+}
+
+user {'centos':
+	uid		=>	2000,
+	gid		=>	2000,
+	shell	=>	'/bin/bash',
+	home	=>	'/home/centos',
+	ensure	=>	present,
+}
+
+（2）应用资源清单
+puppet apply -v test.pp   
+puppet默认执行的环境变量是production，其可以实现不同环境的配置。
+
+
+常用资源类型：
+（1）user：管理用户资源；
+	常用属性：
+		name：用户名，Namevar，默认使用title的值；
+		comment：注释信息；
+		ensure：{present|absent};
+		expiry：账号过期期限；
+		gid：基本组id；
+		groups：附加组；
+		home：家目录；
+		shell：默认shell；
+		system：是否为系统用户，{true|false}
+		uid：UID；
+		password：密码；
+		
+（2）group：管理组资源；
+	常用属性：
+		name：组名，Namevar，默认使用title的值；
+		gid
+		system：是否为系统组，值为{true|false};
+		ensure：{present|absent}，表示目标状态，创建还是删除；
+		member：组内成员；
+		
+（3）file：管理文件及其内容、从属关系以及权限；内容可以通过content属性直接给出，也可通过source属性根据远程服务器路径下载生成【相当于ansible中copy+file模块的功能】；
+	##指明文件内容来源
+		content：直接给出文件内容，支持\n,\t
+		source：从指定位置下载文件；
+		ensure：指定文件资源类型或状态，可以是{file|directory|link|present|absent}}，当ensure为directory才能使用recuse选项；
+	常用属性：
+		force：强制运行，可用值yes,no,true,false;
+		group：属组
+		owner：属主
+		mode：权限，支持八进制格式、以及u,g,o的赋权模式；
+		path：目标路径，且建议使用绝对路径，NameVar；【非常重要】
+		source：源文件路径；可以是本地文件路径（单机模型），也可以使用puppet:///modules/module_name/file_name【master/agent模型】;
+		target：当ensure为"link"时，target表示path指定的文件是一个符号链接文件，其目标为此target属性所指向的路径【即符号链接文件的源文件】，此时content及source属性自动失效；		
+	
+例子如下：
+file {'xin':
+    ensure  =>  'link',
+    path    =>  '/tmp/xin',
+    target  =>  '/root/anaconda-ks.cfg',
+}
+
+file {'/tmp/1.txt':
+    ensure  =>  file,
+    source  =>  '/etc/fstab',
+    owner   =>  'centos',
+    group   =>  'distro',
+    mode    =>  777,
+}
+
+
+file {'/tmp/2':
+    ensure  =>  directory,
+}
+	
+（4）package：管理程序包，安装、卸载、升级；
+	常用属性：
+        ensure：目标状态，可选值为：{lastest|installed|present|absent|VERSION（如：2.3.1-2.el7）}
+		install_options
+		name：程序包名称；
+		source：程序包来源，可以是本地文件路径，也可以是url路径；
+		provider:指明程序包的提供者，指明采用什么方式安装；
+		
+例如：
+##安装zsh【默认采用yum安装，会自动识别】
+package {'zsh':        
+	ensure => latest,
+}
+
+##本地文件安装
+package {'jdk':
+	ensure => installed,
+	source => '/usr/local/src/jdk-8u25-linux-x64.rpm',
+	provider => rpm,                       ##[指明使用rpm命令安装]
+}
+
+一般情况可以直接使用exec源，直接使用yum命令安装，解决依赖问题；
+		
+（5）service：管理服务；
+	常用属性：
+		enable：是否开机自启动，true|false；
+		ensure：启动（running），停止（stopped）；
+		hasrestart：是否支持restart参数；
+		hasstatus：是否支持status参数；
+		name：服务名称，namevar；
+		path：脚本查找路径，不指定默/etc/rc.d/init.d目录下查找；
+		pattern：用于搜索此服务相关的进程的模式，当脚本不支持restart/status时，用于确定服务是否处于运行状态；
+		restart：用于执行"服务重启"的命令，自定义；
+		start：用于执行"服务启动"的命令，自定义；
+		stop：用于执行"服务停止"的命令，自定义；
+		status：用于执行"检查服务状态"的命令，自定义；
+		
+例如：
+package {'httpd':
+    ensure => latest,
+}
+
+service {'httpd':
+    ensure => running,
+    enable => true,
+    hasrestart => true,
+    hasstatus => true,
+    restart => 'systemctl reload httpd.service',
+}
+		
+（6）exec：运行外部命令，命令应该具有"幂等性"；
+	幂等性：
+		1、命令本身具有幂等性；
+		2、资源有onlyif，unless等属性以实现命令的条件式运行；
+		3、资源有refreshonly属性，以实现只有订阅的资源发生变化才执行；
+	常用属性：
+		command：运行的命令；NameVar
+		creates：此属性指定的文件不存在时才执行命令；
+		cwd：切换至指定路径执行命令；
+		user：以指定的用户身份运行命令；
+		group：以指定的组身份运行命令；
+		onlyif：给定一个测试命令，仅在此命令执行成功（即返回状态码为0）时运行command指定的命令；
+		unless：与onlyif相反；给定一个测试命令，仅在此命令执行失败（即返回状态码不为0）时才运行command指定的命令；
+		refresh：接收到其他资源发来的refresh通知时，默认是重新执行exec定义的command命令，refresh属性可改变这种行为，即可指定仅在refresh时运行的命令；
+		refreshonly：仅在收到refresh通知时，才运行此资源；布尔类型，值为{true|false};
+		path：指定环境变量，指定从哪些路径下寻找命令；
+		return：期望的状态返回值，返回非此值时表示命令执行失败；
+		timeout：超时时长；
+		tries：尝试执行的次数；
+
+例子如下：
+exec {'modprobe ext4':
+    command     =>  'modprobe ext4',
+    user        =>  root,
+    group       =>  root,
+    path        =>  ["/sbin","/bin","/usr/bin","/usr/sbin"],
+    refresh     =>  'modprobe -r ext4 && modprobe ext4',
+    timeout     =>  3,
+    tries       =>  2,
+}
+
+exec {'echo hello >> /tmp/hello.txt':
+    path        =>  ["/sbin","/bin","/usr/bin","/usr/sbin"],
+    command     =>  'echo hello >> /tmp/hello.txt',
+    user        =>  root,
+    group       =>  root,
+    creates     =>  '/tmp/hello.txt',
+}
+
+
+exec {'echo xin>> /tmp/xin.txt':
+    path        =>  ["/sbin","/bin","/usr/bin","/usr/sbin"],
+    command     =>  'echo xin >> /tmp/xin.txt',
+    user        =>  root,
+    group       =>  root,
+    unless      =>  '[ -f /tmp/xin.txt ]',
+}		
+		
+（7）cron：管理cron任务；
+	常用属性：
+		ensure：present，absent；
+		command：要运行的job；
+		hour：
+		minute：
+		month：
+		monthday：每月的第几天；
+		weekday：星期几；
+		name：
+		user：
+		environment：运行时的环境变量；
+		
+例子如下：
+cron {'sync message':
+	command		=>	'echo $(date +%F_%T) >>/tmp/time.txt &>/dev/null',
+	minute		=>	'*/10',
+	ensure		=>	present
+}
+		
+（8）notify：通知信息
+	常用属性：
+		name
+		message：要发送的消息的内容，默认会将title当成message；
+		
+	例子：
+	notify {'hello':
+	}
+	
+	
+	
+	
+
+第三部分、puppet配置语言
+
+puppet模式：
+	单agent：
+		manifests ---> catalog
+	master/agent：
+		modules
+		site manifest【站点清单】：用来定义哪个node运行哪个清单；
+			node "node1" {
+				a,...
+			}
+
+		
+puppet核心概念：资源
+
+资源三大特殊属性：
+	namevar
+	ensure
+	Metaparameters
+	
+
+特殊属性Metaparameters：
+puppet提供了before、require、notify和subscribe四个元参数来定义资源间的相关性；
+这四个元参数都以另外的其他资源或资源数组作为其值，这也称作资源引用；
+资源引用要通过"type['title']"的方式进行，如User['magedu']
+【注：资源引用时，其类型名的首字母要大写】
+
+分为如下两类：
+（1）依赖关系（relationship Metaparameters）：资源间的次序；
+定义方法：
+被依赖的资源中使用：before
+依赖其他资源的资源：require
+
+如果是链式资源，可以直接使用->表示资源依赖关系；
+	
+例子1：
+##资源依赖关系定义
+第一种方式：
+group {'linux':
+    gid     =>  3000,
+    ensure  =>  present,
+	before	=>	User['sure'],          ##【这定义了资源依赖关系，表示该资源一定要先于user['sure']执行或被创建】
+}
+
+user {'sure':
+    uid     =>  3000,
+    gid     =>  3000,
+    shell   =>  '/bin/bash',
+    home    =>  '/home/suse',
+    ensure  =>  present,
+	require => Group['linux']     ##【定义资源依赖关系，表示group['linux']必须事先存在】
+}
+
+
+第二种方式：
+group {'linux':
+    gid     =>  3000,
+    ensure  =>  present,
+} ->                                        #【这样也可以定义资源依赖关系表示第一个先执行，第二个后执行】               
+
+user {'sure':
+    uid     =>  3000,
+    gid     =>  3000,
+    shell   =>  '/bin/bash',
+    home    =>  '/home/suse',
+    ensure  =>  present,
+}
+	
+
+例子2：
+vim test8.pp
+package {'nginx':
+	ensure	=> latest,
+}
+
+file {'/etc/nginx/nginx.conf':
+	ensure	=>	file,
+	source	=>	'/root/modules/nginx/files/nginx.conf',
+	require	=>	Package['nginx'],
+}
+
+service {'nginx':
+	ensure	=>	running,
+	enable	=>	true,
+	hasrestart	=>	true,
+	hasstatus	=>	true,
+	restart	=>	'systemctl restart nginx.service',
+	require =>	[ Package['nginx'], File['/etc/nginx/nginx.conf'] ], ##【依赖两个资源，采用数组或者列表的格式引用】
+}
+
+【注：但是该资源清单定义无法在nginx配置发生改变时，自动触发reload nginx进程】	
+
+（2）通知关系
+对于诸如service、exec和mount等类型资源，他们还支持"refreshed"--在应用改变后执行一个后续的操作；
+	例如：对于service类型的资源，其配置文件改变后通常还需要一个重启操作，对于exec类型的资源，在任何相关外部条件改变后还需要执行重新执行指定的外部脚本。
+	
+notify和subscribe元参数除了具有相应于before和require元参数的依赖性定义功能之外，还具备额外的通知功能。
+
+定义方法：
+被依赖的资源中使用：notify
+监听其他资源的资源：subscribe
+
+如果是链式通知，使用符号: ~>
+
+notify：在前资源中定义，当前资源状态改变时，通知后面相关的资源做refresh操作；
+subscribe：在后资源中定义，订阅前资源，前资源状态发生改变，则执行refresh操作；
+
+例子1：
+vim test9.pp
+package {'nginx':
+    ensure  => latest,
+}
+
+file {'/etc/nginx/nginx.conf':
+    ensure  =>  file,
+    source  =>  '/root/nginx.conf',
+    require =>  Package['nginx'],
+    notify  =>  Service['nginx'],      ##当该资源发生改变时，通知后资源做refresh操作
+}
+
+service {'nginx':
+    ensure  =>  running,
+    enable  =>  true,
+    hasrestart  =>  true,
+    hasstatus   =>  true,
+    restart =>  'systemctl reload nginx.service',
+    require =>  [ Package['nginx'], File['/etc/nginx/nginx.conf'] ],
+}
+
+应用执行结果如下：
+Info: Applying configuration version '1550542783'
+Info: /Stage[main]/Main/File[/etc/nginx/nginx.conf]: Filebucketed /etc/nginx/nginx.conf to puppet with sum 6898a0a6599b17d0fc2a6f510613ba20
+Notice: /Stage[main]/Main/File[/etc/nginx/nginx.conf]/content: content changed '{md5}6898a0a6599b17d0fc2a6f510613ba20' to '{md5}7b882ba8d9cdb04af57043471568e1f1'
+Info: /Stage[main]/Main/File[/etc/nginx/nginx.conf]: Scheduling refresh of Service[nginx]   
+【因为nginx配置文件发生改变，前资源通知后资源执行refresh操作，所以nginx进程reload】
+
+
+
+puppet变量（puppet variable）及其作用域
+（1）puppet的变量名称必须以"$"开头，赋值操作符为"="；任何非正则表达式类型的数据均可赋值给变量；
+（2）任何正常数据类型（非正则）的值都可以赋予puppet中的变量，如字符串、数值、布尔值、数组、hash以及特殊的undef值（即变量未被赋值）；
+（3）puppet的每个变量都有两个名字，简短名称和长格式完全限定名称（FQN），完全限定名称的格式为"$scope::variable"
+
+作用域：定义代码生效范围，以实现代码间隔离。
+	仅能隔离：变量，资源的默认属性；
+	不能隔离：资源的名称，及引用；
+	
+每个变量两种引用路径：
+	相对路径
+	绝对路径：$::scope::scope::variable
+
+变量的赋值符号：
+	=
+	+=：追加赋值
+	
+数据类型：
+	布尔型：true，false
+	undef：未声明
+	字符型：可以不用引号，支持单引号（强引用），双引号（弱引用）
+	数值型：整数和浮点数；
+	数组：[item1,item2,...]，元素可为任意可用数据类型，包括数组和hash；索引从0开始，还可以使用负数；
+	hash：{key => value,key => value,...}，键为字符串，而值可以是任意数据类型；
+	正则表达式：
+		非标准数据类型，不能复制给变量；
+		
+		语法结构：
+		(?<ENABLE OPTION>:<SUBPATTERN>)
+		(?-<DISABLED OPTION>:<SUBPATTERN>)
+		
+		OPTIONS:
+			i:忽略字符大小写
+			m:把.当做换行符
+			x:忽略模式中的空白字符和注释
+	
+	
+puppet数据类型
+puppet语言支持多种数据类型用于变量和属性的值，以及函数的参数；
+字符型：
+	非结构化的文本字符串，可以使用引号，也可以不用；
+	单引号中的变量不会替换，而双引号中的能够进行变量替换；
+	字符型值也支持使用转义符；
+数值型：
+	可为整数或浮点数，不过，puppet只有在数值上下文才把数值当数值型对待（即默认都当做字符串处理，只有参与计算时才把数值当做数值对待），其他情况下一律以字符型处理；
+数组：
+	数组值为中括号"[]"的以逗号分隔的项目列表，最后一个项目后面可以有逗号；
+	数组中的元素可以为任意可用数据类型，包括hash或其它数组；
+	数组索引为从0开始的整数，也可以使用负数索引；
+布尔型：
+	true和false，不能加引号；
+	if语句的测试条件和比较表达式都会返回布尔型值；
+	另外，其他数据类型也可自动转换为布尔型，如空字符串为false等；
+undef：
+	从未被声明的变量的值类型即为undef；
+	也可手动为某变量赋予undef值，即直接使用不加引号的undef字符串；
+hash：
+	即为键值数据类型，键和值之间使用"=>"分隔，键值对儿定义在"{}"中，彼此间以逗号分隔；
+	其键为字符型数据，而值可以为puppet支持的任意数据类型；
+	访问hash类型的数据元素要使用"键"当做索引进行；
+	
+	如：{'1' => 'red', '2' => 'yellow'}
+	
+【集合相当于shell中的关联数组】
+
+正则表达式：
+	属于puppet的非标准数据类型，不能赋值给变量，仅能用于有限几个接受正则表达式的地方，即接受使用"=~"即"!~"匹配操作符的位置，通常包括case语句中的selector，以及节点名称匹配的位置；
+	它们不能传递给函数或用于资源属性的定义；
+	puppet中的正则表达式支持使用(?<ENABLE OPTION>:<SUBPATTERN>)和(?-<DISABLED OPTION>:<SUBPATTERN>)两个特殊的符号；
+	
+	正则表达式书写格式必须放在//内部；
+	
+	例如下面的示例表示做正则表达式匹配时启用选项"i"（忽略字符大小写），但不支持使用"m"（把.当做换行符）和"x"（忽略模式中的空白字符和注释）
+	
+	$packages = $operatingsystem ? {
+		/(?i-mx:ubuntu|debian)/			=>	'apache2',
+		/(?i-mx:centos|fedora|redhat)/	=>	'httpd',
+	}
+	
+
+表达式：
+	比较操作符：==，!=，<，<=，>，>=，=~，!~，in
+	逻辑操作符：and，or，!
+	算术操作符：+，-，*，/，%，>>（右移），<<（左移）
+	
+例子1：
+$pkg_name="zlib"
+
+package {"$pkg_name":
+    ensure  => latest,
+}
+
+
+puppet变量种类：
+	自定义变量
+	facter变量：可直接引用；
+		查看puppet支持的各facter：
+			facter -p
+	内置变量：
+		客户端变量：
+			$clientcert
+			$clientversion
+		服务端变量：
+			$servername
+			$serverip
+			$serverversion
+			$module_name
+			
+			
+			
+puppet条件语句：
+puppet2.7支持的条件语句：if语句、case语句、selectors语句；
+puppet3中新引入了unless
+
+条件判断可以让puppet代码基于不同场景采用不同的行为，尤其是在通过fact或外部资源获取数据时最为有用。
+
+
+（1）if条件语句
+语法结构如下：
+单分支：
+if CONDITION {
+	statement
+	...
+}
+
+双分支：
+if CONDITION {
+	statement
+	...
+}
+else {
+	statement
+	...
+}
+
+多分支：
+if CONDITION {
+	statement
+	...
+}
+elsif CONDITION {
+	statement
+	...
+}
+else CONDITION {
+	statement
+	...
+}
+
+
+CONDITION的用法：
+	可以是变量引用
+	可以是比较表达式
+	可以是函数返回值
+
+
+示例1：
+if $processorcount > 1 {      ##processorcount是内置变量
+    notice("SMP host.")       ##notice是内置函数，打印用
+}
+else {
+    notice("Pool gay.")
+}
+
+
+示例2: 【正则表达式用法】
+if $operatingsystem =~ /^(?i-mx:(centos|redhat))/ {
+	notice("welcome to $1 linux server")          ##$1表示第一个括号匹配的内容
+}
+
+
+
+（2）case语句
+类似if语句，case语句会从多个代码块中选择一个分支执行，这个其他编程语言的case语句功能一样；
+case语句会接收一个控制表达式和一组case代码块，并执行第一个匹配到控制表达式的块；
+
+语法结构如下：
+case CONTROL_EXPRESS {
+	case1,...: { statement... }
+	case2,...: { statement... }
+	case3,case4,case5,...: { statement... }
+	...
+	default: { statement... }
+}
+
+CONTROL_EXPRESS的用法:
+	可以是变量引用
+	可以是比较表达式
+	可以是函数返回值
+	
+case1，case2，...的用法：
+	字符串
+	可以是变量
+	可以是只有一个返回值的函数
+	可以是正则表达式
+	default
+
+
+示例1：
+case $operatingsystem {
+	'Solaris':	{ notice('welcome to Solaris.') }
+	'Redhat','Centos': { notice('welcome to Redhat OSFamily.') }
+	/^(Debian|Ubuntu)$/: { notice('welcome to $1 linux server.') }
+	default:	{ notice('welcome, alien *_*') }
+}
+
+
+（3）selectors语句
+类似于case，
+
+selector只能用于期望出现直接值（plain value）的地方，这包括变量赋值、资源属性、函数参数、资源标题、其它selector的值及表达式；
+selector不能用于一个已经嵌套于selector的case中，也不能用于一个已经嵌套于case的case语句中。
+
+语法结构如下：
+CONTROL_VARIABLE {
+	case1 => value1
+	case2 => value2
+	...
+	default => valueN
+}
+
+CONTROL_EXPRESS的用法：
+	可以是变量
+	可以是有返回值的函数
+	
+case：
+	直接值（需要带引号）
+	变量
+	有返回值的函数
+	正则表达式的模式
+	default
+
+示例1：
+$webserver = $operatingsystem ? {
+	/(?i-mx:ubuntu|debian)/	=>	'apache2',
+	/(?i-mx:centos|fedora|redhat)/	=>	'httpd',
+}
+
+selectors使用要点：
+<1>整个selector语句会被当做一个单独的值，puppet会将控制变量按列出的次序与每个case进行比较，并在遇到一个匹配的case后，将其值作为整个语句的值并返回，并忽略后面的其他case；
+<2>控制变量与各case比较的方式与case语句相同，但如果没有任何一个case与控制变量相匹配，puppet在编译时将会返回一个错误，因此，实践中，其必须提供default case；
+<3>selector的控制变量只能是变量或有返回值的函数，切记不能使用表达式；
+<4>其各case可以是直接值（需要加引号）、变量、能调用返回值的函数、正则表达式模式或default；
+<5>但与case语句所不同的是，selector的各case不能使用列表；
+<6>selector的各case的值可以是一个除了hash以外的直接值、变量、能调用返回值的函数或其他selector。
+
+
+
+
+
+
+
+第四部分、puppet类、模板及模块
+
+类：class
+	用于公共目的的一组资源，是命名的代码块；创建后可在puppet全局进行调用；类可以被继承。
+	
+<1> 类语法格式：
+class CLASS_NAME {
+	...puppet code...         ##puppet代码段
+}
+
+类定义原则：
+（1）类的名称只能以小写字母开头，可以包含小写字母、数字和下划线；
+（2）每个类都会引入一个新的变量scope，这意味着在任何时候访问类中的变量时，都得使用其完全限定名称；
+	不过，在本地scope可以重新为top scope中的变量赋予一个新值。
+（3）定义好类后，必须声明后，类才能被执行。
+
+
+类声明方式：【即如何调用执行类】
+（1）include CLASS_NAME1,CLASS_NAME2,...
+（2）require CLASS_NAME1,CLASS_NAME2,...
+（3）class {'apache':
+	attribute,
+	...
+}      【类可以定义属性，比如接收参数等等】
+
+示例1：【定义类】
+##定义一个apache类
+class apache {
+	package {'httpd':
+		ensure	=>	installed,
+	}
+	file {'httpd.conf':
+		path	=>	'/etc/httpd/conf/httpd.conf',
+		ensure	=>	file,
+		require	=>	Package['httpd'],
+	}
+	service {'httpd':
+		ensure	=>	running,
+		require	=>	Package['httpd'],
+		subscribe	=>	File['httpd.conf'],
+	}
+}
+
+##声明类（调用类）
+include apache
+
+
+<2> 定义能接受参数的类：
+class CLASS_NAME($arg1='value1',$arrg2='value2',...) {        ##如果没有给形参，为了执行不报错，可以直接给定参数默认值；
+	...puppet code...
+}
+
+类声明方式2：
+class {'class_name':
+	arg1	=>	value1,
+	arg2	=>	value2,
+}
+
+
+示例1：
+##定义一个接受参数的类
+class install_pkg($pkg_name) {
+    package {"$pkg_name":
+        ensure  => latest,
+    }
+
+    file {'/etc/nginx/nginx.conf':
+        ensure  =>  file,
+        source  =>  '/root/nginx.conf',
+        require =>  Package['nginx'],
+        notify  =>  Service['nginx'],
+    }
+
+    service {'nginx':
+        ensure  =>  running,
+        enable  =>  true,
+        hasrestart  =>  true,
+        hasstatus   =>  true,
+        restart =>  'systemctl reload nginx.service',
+        require =>  [ Package['nginx'], File['/etc/nginx/nginx.conf'] ],
+    }
+}
+
+##声明类（即调用执行类）
+class {'install_pkg':
+    pkg_name    =>  'nginx',
+}
+
+
+
+<3> 类继承
+类继承定义方式：
+##定义基类
+class base_class {
+	...puppet code...
+}
+
+##定义子类
+class base_class::class_name inherits base_class {    ##base_class是基类名，class_name是子类，inherits base_class表示子类继承于父类；
+	...puppet code...
+}
+
+##类声明方式
+include base_class::class_name
+
+作用：继承一个已有的类，并实现覆盖资源属性，或向资源属性追加额外值；
+	覆盖属性符号：=>
+	新增属性符号：+>
+	
+类继承时：
+	（1）声明子类时，其基类会被自动首先声明；
+	（2）基类成为了子类的父作用域，基类中的变量和属性默认值会被子类复制一份；
+	（3）子类可以覆盖父类中同一资源的相同属性的值；
+
+示例1：
+class nginx {
+    package {"nginx":
+        ensure  => latest,
+		name	=>	nginx,
+    } ->
+	
+    service {'nginx':
+        ensure  =>  running,
+        enable  =>  true,
+        hasrestart  =>  true,
+        hasstatus   =>  true,
+        restart =>  'service nginx reload',
+    }
+}
+
+class nginx::webserver inherits nginx {
+	Package['nginx'] {                   ##【引用父类中的资源，并复写它；而不能直接声明定义资源来复写】
+		name	=>	'tengine',
+	}
+
+	file {'/etc/nginx/nginx.conf':
+		source	=>	/root/nginx_webserver.conf,
+		ensure	=>	file,
+		notify	=>	Service['nginx'],
+	}
+}
+
+class nginx::proxy inherits nginx {
+	file {'/etc/nginx/nginx.conf':
+		source	=>	/root/nginx_proxy.conf,
+		ensure	=>	file,
+		notify	=>	Service['nginx'],
+	}
+} 
+
+include nginx::webserver
+
+
+
+
+
+
+puppet模板：
+模板：基于ERB模板语言，在静态文件中使用变量等编程元素生成适用于多种不同的环境的文本文件（配置文件）：Embedded Ruby，用于实现在文本文件中嵌入ruby代码，原来的文本信息不会被改变，但ruby代码会被执行；执行结果将直接替换原来代码。
+
+ERB模板语言语法：
+<%= Ruby Expression %>：替换为表达式的值；
+<% Ruby Expression %>：仅执行代码，而不替换；
+<%# comment %>：文本注释；
+<%%：输出为<%,第一个%为转义符；
+%%>：输出为%>；
+<%- Ruby code %>：忽略空白字符；
+<% Ruby code -%>：忽略空白行；
+
+在模板中可以使用变量，包括puppet中的任意可用变量，但变量名以@字符开头；
+
+条件判断：
+单分支：
+	<% if CONDITION -%>
+		some text
+	<% end %>
+	
+双分支：
+	<% if CONDITION -%>
+		some text
+	<% else %>
+		some other test
+	<% end %>
+	
+多分支：
+......
+	
+
+迭代：
+	<% @ArrayName.echo do | Variable_name | -%>  ##表示将数组中元素依次赋值给Variable_name变量
+		some text with <%= Variable_name %>
+	<% end %>		
+
+	
+定义模板文件例子：
+vim nginx_proxy.conf
+	worker_processes	<%= @processorcount %>;
+
+puppet调用模板文件：
+file {'/etc/nginx/nginx.conf':
+	content	=>	template('/root/nginx_proxy.conf'),  ##template内置函数调用模板生成配置文件
+	ensure	=>	file,
+	notify	=>	Service['nginx'],
+} 
+
+
+
+
+
+
+
+puppet模块：【类似于ansible的roles】
+
+modules概述：
+（1）到目前为止，资源申报，定义类、声明类等所有功能都只能在一个manifest文件中实现，但这却非最有效的基于puppet管理IT基础架构的方式；
+（2）实践中一般需要把manifest文件分解成易于理解的结构，例如将类文件、配置文件甚至包括后面将提到的模块文件等分类存放，并且通过某种机制在必要时将它们整合起来，这种机制即“模块”，它有助于以结构化、层次化的方式使用puppet，而puppet则基于"模块自动装载器"完成模块装载；
+（3）从另一个角度来说，模块实际上就是一个按约定的、预定义的结构存放了多个文件或子目录的目录，目录里的这些文件或子目录必须遵循其命名规范；
+（4）puppet会按此种规范在特定位置查找所需的模块文件，不过，这些特定目录也可以通过puppet的配置参数modulepath定义。
+
+
+puppet配置文件：/etc/puppet/puppet.conf
+默认模块目录：/etc/puppet/modules
+
+模块目录规划：
+	module_name/                     ##模块主目录
+		manifests：资源清单目录；
+			init.pp：至少应该包含一个与当前模块名称同名类；
+		files：静态文件存放目录；访问格式为：puppet:///modules/module_name/file_name
+		templates：模板文件目录；访问格式为：template('module_name/template_name') 【自动会去master的templates目录下载所需模板文件】
+		libs：插件目录；
+		tests：当前模块的使用帮助文件及示例文件；
+		spec：类似于tests目录，存储lib目录下定义的插件的使用帮助及示例文件；
+		
+		
+模块管理命令：【查找、安装和管理模块】
+	puppet module              【默认会从puppet forge仓库中的模块示例】
+	命令格式：puppet module <action> [--environment production] [--modulepath $basemodulepath]
+	
+	ACTIONS:
+	build        Build a module release package.
+	changes      Show modified files of an installed module.
+	generate     Generate boilerplate for a new module.
+	install      Install a module from the Puppet Forge or a release archive.
+	list         List installed modules
+	search       Search the Puppet Forge for a module.
+	uninstall    Uninstall a puppet module.
+	upgrade      Upgrade a puppet module.
+	
+	
+自己编写模块示例：【如编写一个nginx模块】
+（1）创建模块所需目录
+mkdir -pv /etc/puppet/module/nginx/{manifests,files,templates,tests,lib,spec}
+（2）创建所需资源清单或文件
+cp test16.pp /etc/puppet/modules/nginx/manifest/init.pp
+cp /root/modules/nginx/files/nginx_web.conf /etc/puppet/modules/nginx/files
+cp /root/modules/nginx/files/nginx_proxy.conf /etc/puppet/modules/nginx/temlates/nginx_proxy.conf.erb
+（3）修改init.pp中的文件访问路径
+source => 'puppet:///modules/nginx/nginx_web.conf'
+模板引用（master-agent架构中）：
+template('module_name/template_file_name')
+（4）应用模块
+puppet apply --modulepath=/etc/puppet/modules -e "include nginx::proxy"	【执行模块中的指定类】
+
+
+
+
+
+
+
+
+第五部分、puppet master-agent模型
+
+agent/master:
+	agent：每隔30分钟向master端发送node_name和facters，并请求catalog；
+	master：验证客户端身份，查找与其相关的site manifest，编译生成catalog，并发送给客户端；
+	
+	基于ssl xmlrpc，https通信
+	
+	master服务端监听端口：8140/tcp
+	
+	安装软件包：
+		master：puppet，puppet-server，facter
+		agent：puppet，facter
+	
+安装puppet-master：
+yum install puppet puppet-server facter -y
+
+puppet配置文件：
+主配置文件：/etc/puppet/puppet.conf
+			分两段：
+				[main]
+				[agent]
+				
+显示或设置配置参数：
+	显示puppet配置参数：puppet config print
+	设置puppet配置参数：puppet config set
+
+手动生成完整配置文件：【基于默认配置文件puppet.conf生成，事先记得备份】
+	生成master完整配置参数信息：puppet master --genconfig  >/etc/puppet/puppet_default.conf  【可以根据需求修改】
+	生成agent完整配置参数信息：puppet agent --genconfig	>>/etc/puppet/puppet_default.conf	【可以根据需求修改】
+	
+	注意:
+	（1）生成新的配置之前不能删除或移动原有的puppet.conf；
+	（2）生成的配置中，有的参数已经废弃，与现有puppet版本可能不兼容；
+	（3）有的参数默认值与现有版本所支持值可能不兼容；
+	
+生成puppet帮助文档：
+puppet doc：
+	分段，称为reference
+	列出所有的reference：
+		puppet doc --list
+	查看某一reference：
+		puppet doc -r + reference_name
+		如：查看每个配置选项的含义
+			puppet doc -r configuration
+			
+			
+签署agent证书：
+puppet cert <action> [-h|--help] [-V|--version] [-d|--debug] [-v|--version] [--digest <digest>] [<host>]
+
+常用ACTIONS:
+list：查看待签署请求
+sign：签署证书
+	--all：签署所有客户端请求；
+clean：清理证书
+revoke：回收证书
+
+
+配置文件的组成部分：
+	[main]
+	[master]
+	[agent]
+
+
+启动master：【会生成自签CA证书】
+	前台模式：puppet master -v --no-daemonize
+	后台守护进程模式：puppet master {-D|--daemonize}
+	
+	
+启动agent：【自动生成ssl私钥，并生成证书签署请求发送给master端，等待master签署】
+	前台模式：puppet agent --server puppet.domain.com --no-daemonize --noop --verbose --test      【--noop表示不应用；--test表示仅用于测试】
+	
+	
+	
+配置agent/master模型总结：
+（1）配置master：
+	#puppet master --no-daemonize -v
+	#systemctl start puppetmaster.service
+	#systemctl enable puppetmaster.service
+	
+	确定8140/tcp已监听
+	
+（2）配置agent：
+	# puppet agent --server=MASTER_HOST_NAME --no-daemonize -noop --test -v
+	发送证书签署请求给master
+	
+（3）在master端为客户端签署证书
+	# puppet cert list    【列出所有证书签署请求】
+	# puppet cert sign NODE_NAME 【签署指定客户端】
+	# puppet cert sign --all   【签署所有】
+	
+	master移除客户端节点：
+	puppet cert clean + NODE_NAME
+	
+	agent重新生成ssl私钥和证书请求：
+	mv /var/lib/puppet/ssl/* /tmp/bak          【备份原来的私钥文件】
+	重新请求即可
+	
+（4）在master端所做额外操作如下：
+	<1> 安装所有要用到的模块
+		puppet module install
+		或者
+		自己开发
+		
+	<2> 定义site manifest；
+		在/etc/puppet/manifest目录下定义site.pp文件
+		
+		site.pp文件定义格式：
+			node 'NODE_NAME' {
+				... puppet code ...
+			}
+		
+		例如：
+			node 'node3.magedu.com' {
+				include nginx::proxy,         ##【引用类，自动会到模块目录中查找指定模块】
+			}
+	
+（5）启动master
+	systemctl start puppetmaster.service
+	
+（6）启动agent
+	systemctl start puppetagent.service
+	
+	手动执行查看执行过程
+	puppet agent --server puppet.domain.com --no-daemonize --noop --verbose   【--noop表示不应用执行，不加会真正应用并执行】
+	
+	
+	
+节点管理：
+site.pp定义节点的方式：
+（1）以主机名直接给出其相关定义：
+	node 'NODE_NAME' {
+		... puppet code ...
+	}
+	
+（2）把功能相近的主机事先按统一格式命名，按统一格式调用：
+	node /^web\d+\.magedu\.com/ {           ##使用正则表达式定义一类主机
+		... puppet code ...
+	}
+
+	
+主机命名规范: 【根据实际情况来定义】
+	角色-运营商-机房名-IP.Domain
+		如：web-unicom-jxq-1.1.1.1.magedu.com
+		
+（3）定义基节点,其他节点继承基节点；
+node basenode {
+	include ntp
+}
+
+node web.magedu.com inherits basenode {
+	include nginx::proxy
+}
+
+
+对节点配置分段管理：
+	/etc/puppet/manifests/
+		site.pp
+			import "webservers/*.pp"      ##【导入额外的站点清单配置，实现分段管理】
+ 		
+		
+		webservices/
+			unicom.pp
+			telecom.pp
+			
+		cacheservers/
+		appservers/

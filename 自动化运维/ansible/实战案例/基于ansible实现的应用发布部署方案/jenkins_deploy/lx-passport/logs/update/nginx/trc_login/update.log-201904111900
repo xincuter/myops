@@ -1,0 +1,12 @@
+应用更新开始: 
+10.206.188.23 | SUCCESS | rc=0 >>
+now,trc_login update is starting: 
+Archive:  /data/deploy/trc_login/201904111539/trc_login.zip-201904111539
+   creating: ./trc_login/
+  inflating: ./trc_login/index.html  
+   creating: ./trc_login/dist/
+  inflating: ./trc_login/dist/app.min.js  
+  inflating: ./trc_login/dist/favicon.ico  
+  inflating: ./trc_login/dist/styles.min.css  
+解压成功...
+`/usr/local/nginx/html-passport/trc_login' -> `/data/deploy/trc_login/201904111539/trc_login'ls: cannot access /data/deploy/trc_login: No such file or directory

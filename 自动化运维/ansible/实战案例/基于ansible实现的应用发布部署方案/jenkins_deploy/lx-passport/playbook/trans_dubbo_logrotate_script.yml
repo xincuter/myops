@@ -1,0 +1,42 @@
+- hosts: prd-lx-passport_dubbo
+  remote_user: root
+  vars:
+      source_dir: /usr/local/weihu/scripts/logrotate/dubbo
+      logrotate_template: dubbo
+      compress_script: gzip_dubbo_logs.sh
+  tasks:
+      - name: create history logs directory
+        shell: ls -ld /var/log/dubbo/{{ DUBBO_SERVICE }} || mkdir -p /var/log/dubbo/{{ DUBBO_SERVICE }}
+      - name: create remote logrotate dir
+        shell: ls -ld /usr/local/weihu/logrotate/dubbo || mkdir -p /usr/local/weihu/logrotate/dubbo
+      - name: copy logrotate script template to remote
+        template: src={{ source_dir }}/{{ logrotate_template }} dest=/usr/local/weihu/logrotate/dubbo/{{ DUBBO_SERVICE }}
+      - name: copy compress script to remote
+        copy: src={{ source_dir }}/{{ compress_script }} dest=/usr/local/weihu/logrotate/dubbo/
+      - name: add crontab[logrotate dubbo log]
+        cron: name="logrotate {{ DUBBO_SERVICE }} log" minute="59" hour="23" job="/usr/sbin/logrotate -f /usr/local/weihu/logrotate/dubbo/{{ DUBBO_SERVICE }} &>/dev/null"
+      - name: add crontab[compress dubbo log]
+        cron: name="compress dubbo log" minute="00" hour="03" job="sh /usr/local/weihu/logrotate/dubbo/gzip_dubbo_logs.sh >/tmp/gzip_dubbo_logs.cron.log 2>/tmp/gzip_dubbo_logs.cron.err"
+        notify:
+            - check file exist or not
+            - check logrotate script
+            - check crontab
+            - show check file log
+            - show check script log
+            - show check crontab log
+  handlers:
+      - name: check file exist or not
+        shell: ls -1 /usr/local/weihu/logrotate/dubbo
+        register: check_file_result
+      - name: check logrotate script
+        shell: cat /usr/local/weihu/logrotate/dubbo/{{ DUBBO_SERVICE }}
+        register: check_script_result
+      - name: check crontab
+        shell: crontab -l
+        register: check_cron_result
+      - name: show check file log
+        debug: var=check_file_result.stdout verbosity=0
+      - name: show check script log
+        debug: var=check_script_result.stdout verbosity=0
+      - name: show check crontab log
+        debug: var=check_cron_result.stdout verbosity=0

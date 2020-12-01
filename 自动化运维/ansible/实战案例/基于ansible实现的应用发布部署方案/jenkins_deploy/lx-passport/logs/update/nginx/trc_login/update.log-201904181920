@@ -1,0 +1,12 @@
+应用更新开始: 
+10.206.188.23 | SUCCESS | rc=0 >>
+now,trc_login update is starting: 
+Archive:  /data/deploy/trc_login/201904181551/trc_login.zip-201904181551
+   creating: ./trc_login/
+  inflating: ./trc_login/index.html  
+   creating: ./trc_login/dist/
+  inflating: ./trc_login/dist/app.min.js  
+  inflating: ./trc_login/dist/favicon.ico  
+  inflating: ./trc_login/dist/styles.min.css  
+解压成功...
+`/usr/local/nginx/html-passport/trc_login' -> `/data/deploy/trc_login/201904181551/trc_login'

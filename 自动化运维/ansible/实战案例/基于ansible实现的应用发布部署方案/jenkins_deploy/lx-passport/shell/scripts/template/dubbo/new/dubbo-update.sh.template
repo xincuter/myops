@@ -1,0 +1,317 @@
+#!/bin/bash
+##description: 金融生产环境dubbo更新脚本模板...
+#version: V1.1
+#auth: by zhengxin20180210
+#email: hzzxin@tairanchina.com
+
+SOURCE="/data"
+DUBBO_SERVICE="{{DUBBO_SERVICE}}"
+DUBBO_SCRIPT="{{DUBBO_SCRIPT}}"
+PKG_SOURCE="${SOURCE}/deploy"
+BACKUP_SOURCE="${SOURCE}/backup"
+UPDATE_TEMP_SOURCE="${SOURCE}/update"
+DUBBO_SOURCE="/usr/local/dubbo"
+DUBBO_LOG_FILE="${DUBBO_SOURCE}/${DUBBO_SERVICE}/{{DUBBO_LOG_FILE}}"
+TEMP_DIR="${UPDATE_TEMP_SOURCE}/pkg/dubbo_tmp"
+LOG_DIR="/var/log/deploy/${DUBBO_SERVICE}"
+PKG_PATH_FILE="${TEMP_DIR}/${DUBBO_SERVICE}.txt"
+LOCK_FILE="/tmp/${DUBBO_SERVICE}.lock"
+
+##创建deploy,backup,update目录
+mkdir -p ${PKG_SOURCE}/$DUBBO_SERVICE ${BACKUP_SOURCE}/$DUBBO_SERVICE ${UPDATE_TEMP_SOURCE}/$DUBBO_SERVICE 
+mkdir -p $TEMP_DIR
+mkdir -p $LOG_DIR
+>$PKG_PATH_FILE
+
+##创建dubbo应用运行主目录（若无）
+[ -d $DUBBO_SOURCE ] || mkdir $DUBBO_SOURCE
+
+##加锁
+LOCK_SCRIPT() {
+    if [ -e $LOCK_FILE ];then
+        echo "lock has been exists,can't operate this script on multiuser-mode..."
+        exit 1
+    else
+        touch $LOCK_FILE
+        echo $$ >$LOCK_FILE
+    fi
+}
+
+##解锁
+UNLOCK_SCRIPT() {
+    rm -f $LOCK_FILE
+}
+
+##记录包名到文件
+RECORD_PKG_PATH() {
+    ls -1 ${TEMP_DIR} | grep -v ".*\.txt" | grep "\<${DUBBO_SERVICE}\>" | sort -rn | head -1 >$PKG_PATH_FILE
+}
+
+##检测上传的更新包
+CHECK_FILE() {
+    if [ x"$1" = x"" ];then
+        echo "包名不能为空..."
+        UNLOCK_SCRIPT
+        exit 1
+    fi
+
+    if ! echo "$1" | grep "\<$DUBBO_SERVICE\>" &>/dev/null;then
+        echo "更新包与项目名不匹配..."
+        UNLOCK_SCRIPT
+        exit 1
+    fi
+
+    if [ -f ${TEMP_DIR}/$1 ];then
+        if [ ! -s ${TEMP_DIR}/$1 ];then
+            echo "包大小错误，请检查..."
+            UNLOCK_SCRIPT
+            exit 1
+        fi
+    else
+        echo "包不存在..."
+        UNLOCK_SCRIPT
+        exit 1
+    fi
+
+    if echo $1 | grep "\.zip" &>/dev/null;then
+        if file ${TEMP_DIR}/$1 | grep -io "Zip archive data" &>/dev/null;then
+            :
+        else
+            echo "包文件格式不是zip格式..."
+            UNLOCK_SCRIPT
+            exit 1
+        fi
+    else
+        echo "不是zip包..."
+        UNLOCK_SCRIPT
+        exit 1
+    fi 
+    
+    TAG_VERSION=$(echo $1 | sed -r "s#(.*.zip-)(.*)#\2#g")
+    if [ x"$TAG_VERSION" = x"" ];then
+        echo "tag标记不能为空..."
+        UNLOCK_SCRIPT
+        exit 1
+    else
+        if ! echo $TAG_VERSION | grep -E "^[[:digit:]]+$" &>/dev/null;then
+            echo "tag标记格式不对..."
+            UNLOCK_SCRIPT
+            exit 1
+        fi
+    fi
+
+    if ls -1 ${PKG_SOURCE}/${DUBBO_SERVICE} | grep "^${TAG_VERSION}$" &>/dev/null;then
+        echo "该版本已更新，不能重复更新..."
+        UNLOCK_SCRIPT
+        exit 1
+    fi    
+
+    unzip ${TEMP_DIR}/$1 -d ${TEMP_DIR}/ &>/dev/null
+    cd ${TEMP_DIR}
+    if [ $(ls -1 . | grep -vE "$1|*.txt|*.zip" | wc -l) -gt 1 ];then
+        echo "更新包没有顶层目录，程序退出..."
+        UNLOCK_SCRIPT
+        exit 1
+    else
+        echo "包检测正常..."
+        sleep 1
+    fi
+}
+
+#检测更新包及dubbo目录
+CHECK_DUBBO_DIR() {
+    if [ -e ${DUBBO_SOURCE}/$DUBBO_SERVICE ];then
+        CHECK_CODE=0
+    else
+        CHECK_CODE=1
+    fi
+    return $CHECK_CODE
+}
+
+#备份更新包
+BACKUP_PKG() {
+    if [ ! -d ${PKG_SOURCE}/${DUBBO_SERVICE}/$TAG_VERSION ];then
+        mkdir -p ${PKG_SOURCE}/${DUBBO_SERVICE}/$TAG_VERSION
+    fi
+    mv ${TEMP_DIR}/$1 ${PKG_SOURCE}/${DUBBO_SERVICE}/$TAG_VERSION
+}
+
+#更新前备份当天线上应用包目录
+BACKUP() {
+    if [ ! -d ${BACKUP_SOURCE}/${DUBBO_SERVICE}/$TAG_VERSION ];then
+        mkdir -p ${BACKUP_SOURCE}/${DUBBO_SERVICE}/$TAG_VERSION
+    fi
+
+    if ! ls -l ${BACKUP_SOURCE}/${DUBBO_SERVICE}/$TAG_VERSION/* &>/dev/null;then
+        cd $DUBBO_SOURCE
+        find . -maxdepth 1 -not -name "." -name "$DUBBO_SERVICE" -not -type l && cp -a ./${DUBBO_SERVICE} ${BACKUP_SOURCE}/${DUBBO_SERVICE}/$TAG_VERSION/
+    fi
+}
+
+
+#kill掉dubbo进程
+KILL_DUBBO_PROCESS() {
+    sh ${DUBBO_SOURCE}/${DUBBO_SERVICE}/sbin/${DUBBO_SCRIPT} stop &>/dev/null
+    SERVICE_STOP_TIME=$(date +%F" "%H:%M)
+    sleep 2
+    PID=$(ps -ef | grep \[j]ava | grep "\<${DUBBO_SERVICE}\>" | awk '{print $2}') 
+    if [ -n "$PID" ];then
+        kill -9 $PID
+    fi
+}
+
+
+#更新dubbo应用
+UPDATE() {
+    echo "now,${DUBBO_SERVICE} update is starting: "
+    sleep 1
+    cd ${PKG_SOURCE}/${DUBBO_SERVICE}/$TAG_VERSION
+    if ! which unzip &>/dev/null;then
+        yum install unzip -y &>/dev/null
+    fi
+    unzip  ${PKG_SOURCE}/${DUBBO_SERVICE}/$TAG_VERSION/$1 -d . &>/dev/null
+    if [ $? -eq 0 ];then
+        echo "unzip pkg successful..."
+    else
+        echo "unzip pkg failed,please check pkg immediately..."
+        UNLOCK_SCRIPT
+        exit 1
+    fi
+    rm -rf ${DUBBO_SOURCE}/$DUBBO_SERVICE
+    ln -svf ${PKG_SOURCE}/${DUBBO_SERVICE}/$TAG_VERSION/$DUBBO_SERVICE ${DUBBO_SOURCE}/$DUBBO_SERVICE
+    bash ${DUBBO_SOURCE}/${DUBBO_SERVICE}/sbin/${DUBBO_SCRIPT} start 4g &>/dev/null 
+
+    ##清除过期版本(默认每个项目工程最多保留6个历史版本)
+    CURRENT_TAG=$(ls -l ${DUBBO_SOURCE}/${DUBBO_SERVICE} | awk '{print $NF}' | sed -nr "s#(.*[0-9]+)(/.*)#\1#gp")
+    if [ x"$CURRENT_TAG" != x"" ];then
+        EXPIRED_TAG=$(ls -1rd ${PKG_SOURCE}/${DUBBO_SERVICE}/[1-9]* | grep -v "${CURRENT_TAG}" | sed -n "6,\$p")
+        rm -rf $EXPIRED_TAG
+    fi
+}
+
+
+#检测dubbo服务是否启动正常
+CHECK_DUBBO_SERVICE() {
+    ##启动日志
+    LOG_FILE="$LOG_DIR/start_up.log"
+
+    for i in {1..5};do
+        ##截取启动日志并保存至文件
+        sed -n "/${SERVICE_STOP_TIME}.*/,\$ p" $DUBBO_LOG_FILE >$LOG_FILE
+
+        ##检测服务是否启动正常
+        PID=$(ps -ef | grep \[j]ava | grep "\<${DUBBO_SERVICE}\>" | awk '{print $2}') 
+        if [  -z "$PID" ];then
+            echo -e "第${i}次检测: ${DUBBO_SERVICE}进程ID为空..."
+            continue
+        fi
+        if grep -i "started" $LOG_FILE &>/dev/null;then
+            echo -e "第${i}次检测: ${DUBBO_SERVICE}部署成功..."
+            break
+        else
+            echo -e "第${i}次检测: ${DUBBO_SERVICE}部署失败..."
+        fi
+        sleep 10
+    done
+}
+
+#主程序
+DEPLOY() {
+    RECORD_PKG_PATH
+
+    PKG_PATH=$(cat $PKG_PATH_FILE 2>/dev/null)
+
+    CHECK_FILE ${PKG_PATH}
+    CHECK_DUBBO_DIR
+    if [ $CHECK_CODE -eq 0 ];then
+        BACKUP_PKG ${PKG_PATH}
+        KILL_DUBBO_PROCESS
+        BACKUP
+        UPDATE ${PKG_PATH}
+    else
+        BACKUP_PKG ${PKG_PATH}
+        BACKUP
+        UPDATE ${PKG_PATH}
+    fi
+
+    ##检测服务正常性
+    CHECK_DUBBO_SERVICE
+}
+
+#列出最近的几个版本
+LIST_VER() {
+   ##列出当前应用版本
+   if [ -h ${DUBBO_SOURCE}/${DUBBO_SERVICE} ];then
+       CURRENT_VER=$(ls -l ${DUBBO_SOURCE}/${DUBBO_SERVICE} | awk '{print $NF}')
+   else
+       CURRENT_VER=$(ls -1d ${DUBBO_SOURCE}/${DUBBO_SERVICE})
+   fi
+   echo -e "当前版本如下:  "
+   echo -e "${CURRENT_VER}\n"
+
+   if ! ls -1 ${PKG_SOURCE}/${DUBBO_SERVICE} &>/dev/null;then
+       echo "该应用没有最近版本..."
+       UNLOCK_SCRIPT
+       exit 1
+   else
+       LAST_VER=$(ls -1rd ${PKG_SOURCE}/${DUBBO_SERVICE}/[1-9]*/${DUBBO_SERVICE} | grep -v "$CURRENT_VER")
+       echo -e "最近的版本如下: "
+       echo -e "${LAST_VER}\n"
+   fi            
+}
+
+##回滚到指定版本
+ROLLBACK() {
+   #read -p "请指定回滚到哪个版本: "  ROLLBACK_POINT
+   LIST_VER &>/dev/null
+   ROLLBACK_POINT="$1"
+   if [ -z $ROLLBACK_POINT ];then
+       echo "回滚点输入不能为空..."
+       UNLOCK_SCRIPT
+       exit 1
+   fi
+
+   if ! echo "$LAST_VER" | grep "$ROLLBACK_POINT" &>/dev/null;then
+       echo "对不起，您所指定的版本不存在..."
+       UNLOCK_SCRIPT
+       exit 1
+   else
+       echo "开始回滚[$DUBBO_SERVICE] to [$ROLLBACK_POINT]..."
+       KILL_DUBBO_PROCESS
+       sleep 5
+       rm -rf ${DUBBO_SOURCE}/${DUBBO_SERVICE}
+       ln -svf $ROLLBACK_POINT ${DUBBO_SOURCE}/${DUBBO_SERVICE}
+       bash ${DUBBO_SOURCE}/${DUBBO_SERVICE}/sbin/${DUBBO_SCRIPT} start 4g &>/dev/null
+   fi
+
+   ##检测服务正常性
+   CHECK_DUBBO_SERVICE       
+}
+
+
+##主程序
+LOCK_SCRIPT
+
+case $1 in
+deploy)
+    DEPLOY
+    ;;
+list)
+    LIST_VER
+    ;;
+rollback)
+    ROLLBACK $2
+    ;;
+*)
+    echo "Usage: $0  {deploy | list | rollback <rollback_point>}..."
+    UNLOCK_SCRIPT
+    exit 1
+    ;;
+esac
+
+#清除临时目录
+cd ${TEMP_DIR}
+rm -rf $(ls -1 ${TEMP_DIR}/ | grep "\<${DUBBO_SERVICE}\>.*")
+
+#清除锁文件
+UNLOCK_SCRIPT

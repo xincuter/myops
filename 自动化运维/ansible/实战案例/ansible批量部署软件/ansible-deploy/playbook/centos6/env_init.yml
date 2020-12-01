@@ -1,0 +1,13 @@
+- hosts: all
+  remote_user: root
+  vars:
+     source_dir: /usr/local/weihu/software/centos6
+     pkg: env_init.tar.gz
+  tasks:
+     - name: copy env_init.tar.gz and initial remote
+       copy: src={{ source_dir }}/{{ pkg }} dest=/usr/local/weihu/
+       notify:
+          - deploy env_init
+  handlers:
+     - name: deploy env_init
+       shell: tar xf /usr/local/weihu/{{ pkg }} -C /usr/local/weihu/ && ls -ld /usr/local/weihu/env_init && sh /usr/local/weihu/env_init/env_init.sh

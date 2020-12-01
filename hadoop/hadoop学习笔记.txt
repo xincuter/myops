@@ -1,0 +1,873 @@
+hadoop学习笔记
+
+第一部分、hadoop基础
+
+Bigdata：
+    结构化数据：有元数据，且元数据对数据本身有严格约束
+    半结构化数据：有元数据，但是元数据并不对数据本身有严格约束；
+    非结构化数据：没有元数据；
+        如：业务日志
+        
+    搜索引擎：
+        搜索组件
+            如：爬虫、蜘蛛程序
+        索引组件
+        
+        
+    如何对海量非结构化的数据进行获取及分析？
+        存储系统：
+        分析处理系统：
+        
+            2003年   The Google File System（GFS）
+            2004年   MapReduce：Simplified Data Processing On Large Cluster
+            2006年   BigTable：A Distributed Storage System for Structure Data
+            【以上三篇论文，是hadoop诞生的基础】
+            
+            Hadoop是以上三篇论文实现的山寨版，java语言开发
+            
+            HDFS + MapReduce = Hadoop
+            HBase
+         
+Hadoop1.0缺陷：
+    MapReduce（api + 框架 + 运行时环境）是批处理程序结构，受限于存储和工作机制，所以使得工作速度和处理性能非常差；
+    
+针对hadoop1.0 mapreduce设计过于重量级，hadoop2.0将原来mapreduce的功能进行切割，更加灵活，性能更优。
+
+存储：
+（1）共享式存储：【传统存储方案】
+    NAS
+    SAN
+    
+（2）分布式存储：【解决海量数据问题】
+    有中心节点：
+        GFS
+        HDFS：
+            NN：Name Node   【名称节点（专门负责保存元数据的），会周期性的将内存中的元数据保存到本地存储中，即fsimage文件】   
+                HDFS2.0解决了高可用问题，使用zookeeper注册同步
+            SNN：secondary Name Node 【辅助名称节点，保存checkpoint文件的】
+            DN：Data Node   【数据节点，真正存放数据文件的地方】
+                chunk是基本存储单元；
+                存储一份数据，默认3数据副本，基于链式复制机制；
+                数据节点周期性的不断地向元数据端报告自己的状态（包括：是否在线、持有数据块列表）
+                【注：链式复制机制（即由hdfs随机找两个节点存储数据副本，第二个副本由第一个副本决定，第三个副本由第二个副本决定）】
+        Ceph: 是一个高可用、易于管理、开源的分布式存储系统，可以在一套系统中同时提供对象存储、块存储以及文件存储服务。其主要由Ceph存储系统的核心RADOS以及块存取接口、对象存取接口和文件系统接口组成。
+        
+        【注：大多数分布式存储系统都是运行在用户空间，最终数据是落在本地存储系统上；ceph分布式存储系统是运行在内核空间】
+                
+
+分析处理：
+mapreduce：
+    api + 框架 + 运行时环境
+    总控节点
+        jobtracker 【可以和name node在一个机器上，也可以独立运行】
+    Tasktracker    【运行在data node上】
+    
+    
+【hadoop集群想当于存储集群 + mapreduce集群的结合】
+
+函数式编程：
+    lisp，ML函数式编程语言；高阶函数；
+        map，fold
+            map：
+                map(f())
+                map: 接收一个函数为参数，并将其应用于列表中的所有元素，从而生成一个结果列表；
+            fold：
+                接收两个参数，第一个参数是函数，第二个参数是初始值
+                fold(g(),init)
+                
+    mapreduce：
+        mapper，reducer
+        
+            mapper生成的是一个中间结果，reducer处理生成的是最终结果
+        
+            统计一本书每个单词出现的次数；
+                mapper：每100页一个单位，5 mappers
+                    用于拆分成为单词，
+                    
+                    例如：this 1，is 1，this 1，how 1 
+                    同一个键只能发往同一个reducer，该过程称为shuffle and sort
+                reducer：用于统计
+                    reducer1，reducer2
+                    
+hadoop可以实现并行任务处理；【但是具体实现根据实际应用场景由程序员依据mapreduce运行开发框架来开发实现，即partitioner需要程序员研发】  
+
+需要程序员研发的：
+    combiner：mapper处理后，如果是同一个键，对这些结果汇总，再统一发送给partitioner
+    partitioner：将同一个键发往同一个reducer；    
+
+
+hadoop1.0中，hadoop mapreduce master（jobtracker）实现节点监控，任务调度等等，容易成为瓶颈，到hadoop2.0，拆分了原mapreduce功能；
+
+
+hadoop1.0与hadoop2.0比较：
+    Hadoop v1:
+        MapReduce v1：负责集群资源管理，任务调度等等
+    
+    Hadoop v2：           
+        YARN：集群资源管理（众多知名程序跑在YARN上，如：batch（MR）、Tez、Spark、Hbase等等）
+           【原mapreduce v1太重量级被拆分成如下各个组件】
+            MapReduce v2：
+            Tez：执行引擎（execution engine）
+            
+            RM：resource manager  【负责全局资源管控】
+            NM：node manager      【周期性汇报节点资源状态信息给RM】
+            AM：APP master
+            container: 真正运行任务的
+            
+hadoop1.0内部处理作业流程：
+（1）客户端发起请求，即发起一个job
+（2）hadoop mapreduce master（也就是jobtracker），接收job请求；
+（3）jobtracker将job任务分成mapper和reducer两个作业部分处理；
+（4）mappers任务分成多个map进程启动，从input data中读取数据并生成键值数据；
+（5）reducers任务分成多个reduce进程启动，从各个map进程处接收数据，进行折叠处理， 生成output data，并存回HDFS。
+
+
+hadoop2.0内部处理作业流程： 
+（1）Node manager周期性地向resource manager报告节点状态信息；
+（2）客户端发起请求，即发起一个作业；resource manager不再单独管理各作业，而是作业开始运行时，根据节点汇报的状态信息，在指定节点上为其启动一个APP master，APP master决定启动几个mapper，启动几个reducer（hadoop2.0中统一将mapper和reducer成为container），在资源不足时，APP master会向resource manager申请资源；
+（3）各个container周期性地报告状态信息给自己的APP master，如果某个container出故障了，由APP master管理各个container状态；
+（4）各APP master周期性的报告状态信息给resource manager，一旦所有container运行结束，由APP master通知resource manager运行结束并报告结果，然后resource manager关闭该APP master。
+        
+
+
+Hadoop官方站点：http://hadoop.apache.org/
+
+Hadoop生态系统（常用插件工具）：
+    Hive：负责将用户HQL语句（接近sql语句）转换成调用mapreduce作业的工具；
+    pig：脚本编程语言接口；
+    HBase：属于nosql，列式存储；
+        多个列属于一个列组
+        基于分布式模式运行，需集群模式（运行在HDFS之上），可实现数据的增删改查
+        HBase集群强依赖于zookeeper
+        
+    Oozie：workflow（工作流）
+    R connectors：统计学语言
+    Spark：hadoop的快速通用实时计算引擎（在内存中）
+
+
+Hadoop Distribution：【hadoop分发版】
+    Cloudera：CDH       【一套hadoop完全组件或镜像】
+    Hortonworks：HDP    【一套hadoop完全组件或镜像】
+    Inter：IDH
+    
+Hadoop三种工作模式：
+    单机模式
+    伪分布式模式
+    分布式模式
+    
+    
+
+
+
+
+第二部分、hadoop伪分布式模型
+
+hadoop：存储和分析处理平台
+    hdfs：分布式存储集群
+        NN,SNN,DN
+    mapreduce：分析处理集群
+        jobtracker，tasktracker
+        任务：map，reduce
+        
+    hadoop v2，mapreduce功能被拆分独立：
+        YRAN：
+            RM,NM,AM
+            container
+            
+目前流行的版本是：hadoop v2
+
+
+hadoop安装：
+    单机模型：测试使用；
+    伪分布式模型：运行于单机，所有集群组件运行于单台主机上；
+    分布式模型：集群模型；
+    
+    Hadoop，基于java语言；
+        jdk：1.6, 1.7, 1.8
+            hadoop-2.6.2  jdk 1.6+
+            hadoop-2.7+   jdk 1.7+
+    
+
+hadoop伪分布模型部署（以hadoop-2.6.2为例）：
+（1）安装jdk或者openjdk，版本要求jdk1.6或以上版本即可；
+（2）下载hadoop安装包并解压；
+（3）配置Hadoop；【以伪分布式模型为例】
+a. Hadoop守护进程的配置环境变量；【主要是各个参数的意义】
+    管理员可使用etc/hadoop/hadoop-env.sh脚本定制Hadoop守护进程的站点特有环境变量；另外可选用的脚本还有etc/hadoop/mapred-env.sh和etc/hadoop/yarn-env.sh两个。通常用于配置各守护进程jvm配置参数的环境变量有如下几个：
+    HADOOP_NAMENODE_OPTS: 配置NameNode；
+    HADOOP_DATANODE_OPTS: 配置DataNode；
+    HADOOP_SECONDARYNAMENODE_OPTS: 配置Secondary NameNode；
+    YARN_RESOURCEMANAGER_OPTS: 配置ResourceManager；
+    YARN_NODEMANAGER_OPTS: 配置NodeManager；
+    YARN_PROXYSERVER_OPTS: 配置webAppProxy；
+    HADOOP_JOB_HISTORYSERVER_OPTS: 配置Map Reduce Job History Server；
+    HADOOP_PID_DIR: 守护进程PID文件的存储目录；
+    HADOOP_LOG_DIR: 守护进程日志文件的存储目录；
+    HADOOP_HEAPSIZE/YARN_HEAPSIZE: 堆内存可使用的内存空间上限，默认为1000MB；
+    HADOOP_COMMON_HOME: hadoop common公共组件的家目录（hdfs和yarn都会用到）；
+    
+    例如：如果需要为NameNode使用parallelGC，可在hadoop-env.sh文件中使用如下语句：
+        export HADOOP_NAMENODE_OPTS="-XX:+UseParallelGC"
+    
+    
+b. 配置单节点的hadoop2（伪分布式模型）
+##第一步：安装hadoop并设置其所需要的环境变量；
+
+设置好JAVA_HOME变量后，解压hadoop安装包至指定目录下
+    mkdir -pv /bdapps/
+    tar xf hadoop-2.6.2.tar.gz -C /bdapps/
+    ln -sf /bdapps/hadoop-2.6.2 /bdapps/hadoop
+    
+编辑环境配置文件/etc/profile.d/hadoop.sh，定义类似如下环境变量，设定hadoop的运行环境。
+export HADOOP_PREFIX="/bdapps/hadoop"                     
+export PATH=$PATH:$HADOOP_PREFIX/bin:$HADOOP_PREFIX/sbin
+export HADOOP_COMMON_HOME=${HADOOP_PREFIX}
+export HADOOP_HDFS_HOME=${HADOOP_PREFIX}
+export HADOOP_MAPRED_HOME=${HADOOP_PREFIX}
+export HADOOP_YARN_HOME=${HADOOP_PREFIX}
+【注：以上环境变量，前两者必须配置，后面四个可选，如果只有前两者，一般hadoop家目录环境变量设置为HADOOP_HOME】
+
+
+##第二步：创建运行Hadoop进程的用户和相关目录
+创建用户和组：
+
+出于安全等目的，通常需要使用特定的用户来运行hadoop不同的守护进程，例如，以hadoop为组，分别用三个用户yarn、hdfs和mapred来运行相应的进程。
+groupadd hadoop
+useradd -g hadoop yarn
+useradd -g hadoop hdfs
+useradd -g hadoop mapred
+
+
+创建数据和日志目录：
+
+Hadoop需要不同权限的数据和日志目录，这里以/data/hadoop/hdfs作为hdfs数据存储目录；
+
+mkdir -pv /data/hadoop/hdfs/{nn,snn,dn}        ##【创建三种角色的数据目录】
+chown -R hdfs:hadoop /data/hadoop/hdfs/
+mkdir -p /var/log/hadoop/yarn                  ##【创建yarn日志，可省略】
+chown yarn:hadoop /var/log/hadoop/yarn
+
+而后，在hadoop的安装目录中创建logs目录，并修改hadoop所有文件的属主和属组；
+cd /bdapps/hadoop/
+mkdir logs
+chmod g+w logs
+chown -R yarn:hadoop /bdapps/hadoop/*
+
+
+
+##第三步：配置hadoop
+（1）全局配置文件：etc/hadoop/core-site.xml  【hadoop安装目录下】
+core-site.yml文件包含了NameNode主机地址以及其监听的RPC端口等信息，对于伪分布式模型的安装来说，其主机地址为localhost。NameNode默认使用的RPC端口是8020。
+
+core-site.xml文件简要配置内容如下所示：
+
+<configuration>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://localhost:8020</value>
+        <final>true</final>
+    </property>
+</configuration>
+
+
+（2）hdfs配置文件：etc/hadoop/hdfs-site.xml
+hdfs-site.xml文件主要用于配置HDFS相关的属性，例如复制因子（即数据块的副本数）、NN和DN用于存储数据的目录等。数据块的副本数对于伪分布式的Hadoop应该为1，而NN和DN用于存储的数据的目录为前面的步骤中专门为其创建的路径。另外，前面的步骤中也为SNN创建了相关的目录，这里也一并配置其为启用状态。
+
+hdfs-site.xml文件简要配置内容如下所示：
+
+<configuration>
+    <property>
+        <name>dfs.replication</name>
+        <value>1</value>
+    </property>
+    
+    <property>
+        <name>dfs.namenode.name.dir</name>
+        <value>file:///data/hadoop/hdfs/nn</value>
+    </property>
+    
+    <property>
+        <name>dfs.datanode.data.dir</name>
+        <value>file:///data/hadoop/hdfs/dn</value>
+    </property>
+    
+    <property>
+        <name>fs.checkpoint.dir</name>
+        <value>file:///data/hadoop/hdfs/snn</value>
+    </property>
+    
+    <property>
+        <name>fs.checkpoint.edits.dir</name>
+        <value>file:///data/hadoop/hdfs/snn</value>
+    </property>
+</configuration>
+
+注意：如果需要其他用户对hdfs有写入权限，还需要在hdfs-site.xml中添加一项属性定义。【这是因为，默认在hdfs创建目录及文件，属主属组为：hdfs:supergroup】
+    <property>
+        <name>dfs.permissions</name>
+        <value>false</value>
+    </property>
+    
+    
+（3）mapred配置文件：etc/hadoop/mapred-site.xml
+mapred进程主要是用来运行集群中的mapreduce任务的；
+
+mapred-site.xml文件用于配置集群的MapReduce framework，此处应该指定使用yarn，另外的可用值还有local和classic。mapred-site.xml默认不存在，但有模块文件mapred-site.yml.template，只需要将其复制一份即可。
+
+cp etc/hadoop/mapred-site.xml.template etc/hadoop/mapred-site.xml
+
+mapred-site.xml文件配置示例如下：
+
+<configuration>
+    <property>
+        <name>mapreduce.framework.name</name>
+        <value>yarn</value>
+    </property>
+</configuration>
+
+
+（4）yarn配置文件：etc/hadoop/yarn-site.xml
+yarn进程是用来实现全局资源管控的，yarn是核心框架；
+
+yarn-site.xml是用于配置YARN进程即YARN的相关属性。首先需要指定ResourceManager守护进程的主机和监听的端口，对于伪分布式模型来讲，其主机为localhost，默认的端口是8032；其次需要指定ResourceManager使用的scheduler，以及NodeManager的辅助服务。
+
+yarn-site.xml文件简要配置示例如下：
+
+<configuration>
+    <property>
+        <name>yarn.resourcemanager.address</name>
+        <value>localhost:8032</value>
+    </property>
+    
+    <property>
+        <name>yarn.resourcemanager.scheduler.address</name>
+        <value>localhost:8030</value>
+    </property>
+    
+    <property>
+        <name>yarn.resourcemanager.resource-tracker.address</name>
+        <value>localhost:8031</value>
+    </property>
+    
+    <property>
+        <name>yarn.resourcemanager.admin.address</name>
+        <value>localhost:8033</value>
+    </property>
+    
+    <property>
+        <name>yarn.resourcemanager.webapp.address</name>
+        <value>localhost:8088</value>
+    </property>
+    
+    <property>
+        <name>yarn.nodemanager.aux-services</name>
+        <value>mapreduce_shuffle</value>
+    </property>
+    
+    <property>
+        <name>yarn.resourcemanager.auxservices.mapreduce_shuffle.class</name>
+        <value>org.apache.hadoop.mapred.ShuffleHandler</value>
+    </property>
+    
+    <property>
+        <name>yarn.resourcemanager.scheduler.class</name>
+        <value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler</value>
+    </property>
+</configuration>
+
+
+（5）环境变量配置文件：etc/hadoop/hadoop-env.sh 和 etc/hadoop/yarn-env.sh
+Hadoop的各守护进程依赖于JAVA_HOME环境变量，如果有类似于前面步骤中通过/etc/profile.d/java.sh全局配置定义的JAVA_HOME变量即可正常使用。不过，如果想为Hadoop定义依赖到的特定JAVA环境，也可以编辑这两个脚本文件，为其JAVA_HOME取消注释并配置合适的值即可。此外，Hadoop的大多数守护进程默认使用的堆大小为1GB，但现实应用中，可能需要对其各类进程的堆内存大小做出调整，这只需要编辑此两者文件中的相关环境变量值即可，例如HADOOP_HEAPSIZE、HADOOP_JOB_HISTORY_HEAPSIZE、JAVA_HEAP_SIZE和YARN_HEAP_SIZE等。
+
+
+（6）slaves文件 
+slaves文件存储了当前集群的所有slave节点（即：nodemanager节点）的列表，对于伪分布式模型，其文件内容仅应该为localhost，这也的确是这个文件的默认值。因此，伪分布式模型中，此文件的内容保持默认即可。
+
+
+
+
+##第四步：格式化HDFS
+在HDFS的NN启动之前需要先初始化其用于存储数据的目录。如果hdfs-site.xml中dfs.namenode.name.dir属性指定的目录不存在，格式化命令会自动化创建之；如果事先存在，请确保其权限设置正确，此时格式操作会清除其内部所有数据并重新建立一个新的文件系统。需要以hdfs用户的身份执行如下命令：
+
+su - hdfs
+hdfs namenode -format
+
+注：其输出结果会有大量信息输出，如果显示出类似"INFO common.Storage: Storage directory /data/hadoop/hdfs/nn has been successfully formatted."的结果表示格式化操作已经正确完成。
+
+
+
+##第五步：启动hadoop
+Hadoop2的启动等操作可以通过其位于sbin路径下的专用脚本进行：
+    NameNode：hadoop-daemon.sh {start|stop} namenode
+    DataNode：hadoop-daemon.sh {start|stop} datanode
+    Secondary NameNode：hadoop-daemon.sh {start|stop} secondarynamenode
+    ResourceManager：yarn-daemon.sh {start|stop} resourcemanager
+    NodeManager：yarn-daemon.sh {start|stop} nodemanager
+    
+    启动HDFS服务：
+        HDFS有三个守护进程：namenode、datanode和secondarynamenode，它们都可以通过hadoop-daemon.sh脚本启动或停止。以hdfs用户执行相关的命令即可，如下所示：
+        ###首先切换到hdfs用户
+        su - hdfs
+        ###分别启动namenode、datanode和secondarynamenode
+        hadoop-daemon.sh start namenode
+        hadoop-daemon.sh start secondarynamenode
+        hadoop-daemon.sh start datanode
+        
+        【注：以上三个命令均在执行完成后给出了一个日志信息，但是，实际用于保存日志的文件是以".log"为后缀的文件，而非以".out"结尾的文件。可通过日志文件中的信息来判断进程启动是否正常完成。如果所有进程都正常启动，可通过jdk提供的jps命令来查看相关的java进程状态。】
+        
+    
+    启动YARN服务：
+        YARN有两个守护进程：resourcemanager和nodemanager，它们可以通过yarn-daemon.sh脚本启动或停止。以yarn用户执行相关的命令即可，如下所示：
+        
+        ###首先切换到yarn用户
+        su - yarn
+        ###分别启动resourcemanager和nodemanager
+        yarn-daemon.sh start resourcemanager
+        yarn-daemon.sh start nodemanager
+        
+        
+
+##第六步：Web UI概览
+HDFS和YARN ResourceManager各自提供了一个web接口，通过这些接口可检查HDFS集群以及YARN集群的相关状态信息。它们的访问接口分别为如下所求，具体使用中，需要将NameNodeHost和ResourceManagerHost分别改为其相应的主机地址。
+    HDFS-NameNode：   http://<NameNodeHost>:50070/
+    YARN-ResourceManager：http://<ResourceManagerHost>:8088/
+    
+注意：yarn-site.xml文件中yarn.resourcemanager.webapp.address属性的值如果定义为"localhost:8088"，则其WebUI仅监听在127.0.0.1地址上的8088端口。
+
+        
+（4）测试hadoop集群功能
+##测试hdfs：
+    su - hdfs
+    hdfs dfs -mkdir /test                   ##创建/test目录
+    hdfs dfs -put /etc/fstab /test/fstab    ##上传本地的/etc/fastab文件到hdfs集群上的/test目录
+    hdfs dfs -cat /test/fstab               ##查看文件
+    
+    可以通过访问如下url地址查看hdfs集群状态信息：
+        HDFS-NameNode：   http://<NameNodeHost>:50070/
+    
+##测试YARN：
+首先测试下YARN集群状态是否正常，通过访问如下url地址：
+    YARN-ResourceManager：http://<ResourceManagerHost>:8088/
+
+如何向hadoop提交作业？
+    Hadoop-YARN自带了许多样例程序，他们位于hadoop安装路径下的share/hadoop/mapreduce/目录里，其中的hadoop-mapreduce-example可用作mapreduce程序测试。
+    
+    可以运行如下命令测试：
+    su - hdfs      ##需切换到hdfs用户运行测试程序（因为运行mapreduce过程中，会去读写hdfs）
+    yarn jar /bdapps/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-example-2.6.2.jar [program_name] ...
+    
+    ###例如：运行统计文件单词数目的作业
+    su - hdfs
+    yarn jar /bdapps/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-example-2.6.2.jar wordcount /test/fstab /test/fstab.out 
+    
+    
+    
+    
+    
+    
+    
+    
+第三部分、hadoop分布式集群
+
+Hadoop Cluster中的Daemon：
+    HDFS：
+        NameNode：简称NN；
+        SecondaryNameNode：简称SNN；
+        DataNode：简称DN；
+        
+        每个进程都对应着其数据目录；示例如下：
+            /data/hadoop/hdfs/{nn,snn,dn}
+                nn：namenode，名称节点；
+                    主要保存数据：fsimage（文件系统映像文件）、editlog（编辑日志）；
+                    元数据存放于内存中，不断地根据客户端的请求及本地状态的改变，更新元数据信息，周期性的将数据保存在本地存储系统上，即fsimage文件；
+                    任何元数据的变化，都会被写到editlog中，最终被合并到fsimage映像文件中，这样断电重启后，可以根据fsimage文件做数据恢复；
+                snn：secondary namenode，辅助名称节点；
+                    主要保存数据：checkpoint文件；
+                    不断地从nn节点上，获取fsimage文件和editlog，并将二者进行合并；当nn节点故障，snn根据checkpoint文件计算合并的合理位置，便于恢复；
+                dn：datanode，数据节点（从节点）；
+                    从节点，生产环境中，需要在slaves文件中定义，nn节点会读取到从节点列表；
+                    
+        启动脚本：hadoop-daemon.sh    start|stop
+        
+    YARN：
+        ResourceManager
+            全局资源管理进程；
+        NodeManager
+            管理YARN集群中各自从节点的作业调度；
+            
+        启动脚本：yarn-daemon.sh   start|stop
+                    
+                    
+生产hadoop集群规模：
+    小规模：30-40台；
+    大规模：上百台规模以上；
+    
+    
+hadoop分布式集群服务器规划：
+    HDFS集群：
+        NN：独立一台
+        SNN：独立一台
+        DN: 多台
+    YARN集群：
+        ResourceManager：独立一台
+        NodeManager：和DN部署在一起（本地化管理）
+
+    
+    
+hadoop分布式集群部署案例（以hadoop2.6.2为例）：
+
+环境准备：
+接下来的示例配置一个有一个主几点和三个从节点的Hadoop-YARN集群。集群中所用到的节点必须有一个唯一的主机名和ip地址，并能够基于主机互相通信。如果没有配置内部dns服务，也可以通过/etc/hosts文件进行主机解析，本示例中所用到的hosts文件内容如下，其中node1位主节点，其有一个别名为master，node2、node3、node4都为从节点。
+
+    192.168.80.41  node1 master
+    192.168.80.42  node2
+    192.168.80.43  node3
+    192.168.80.44  node4
+    
+另外，如果需要通过master节点启动或停止整个集群，还需要在master节点上配置用于运行服务的用户（如hdfs和yarn）能以密钥认证的的方式通过ssh免密远程连接至各从节点。
+
+【注：由于机器限制，master上部署：namenode、secondarynamenode和resourcemanager三个进程，而3个从节点分别安装datanode和nodemanager两个进程】
+
+详细部署步骤如下：
+（1）各节点安装jdk或者openjdk，版本要求jdk1.6或以上版本即可，并设置JAVA_HOME环境变量；
+（2）各节点配置hosts信息，创建用户；master节点配置用于运行服务的用户（如hdfs和yarn）能免密连接至各从节点；【简单点可以只使用统一的用户hadoop】
+    /etc/hosts文件内容如下：
+        192.168.80.41  node1 master
+        192.168.80.42  node2
+        192.168.80.43  node3
+        192.168.80.44  node4
+（3）下载hadoop安装包并上传到各节点上，解压；
+（4）配置hadoop分布式集群；
+##第一步：配置master节点
+配置master节点，同前述单节点配置过程的前三步，但需要修改core-site.xml和yarn-site.xml配置文件中的"localhost"主机名称或IP地址为master节点的主机名称或ip地址，以及hdfs-site.xml中的副本数量，并在slave文件中指明各从节点的主机名称或ip地址即可。
+
+其各自配置的示例如下：
+
+修改core-site.xml文件：
+
+<configuration>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://master:8020</value>    ##该地址需要修改成master的地址
+        <final>true</final>
+    </property>
+</configuration>
+
+
+修改yarn-site.xml文件：
+
+<configuration>
+    <property>
+        <name>yarn.resourcemanager.address</name>
+        <value>master:8032</value>
+    </property>
+    
+    <property>
+        <name>yarn.resourcemanager.scheduler.address</name>
+        <value>master:8030</value>
+    </property>
+    
+    <property>
+        <name>yarn.resourcemanager.resource-tracker.address</name>
+        <value>master:8031</value>
+    </property>
+    
+    <property>
+        <name>yarn.resourcemanager.admin.address</name>
+        <value>master:8033</value>
+    </property>
+    
+    <property>
+        <name>yarn.resourcemanager.webapp.address</name>
+        <value>master:8088</value>
+    </property>
+    
+    <property>
+        <name>yarn.nodemanager.aux-services</name>
+        <value>mapreduce_shuffle</value>
+    </property>
+    
+    <property>
+        <name>yarn.resourcemanager.auxservices.mapreduce_shuffle.class</name>
+        <value>org.apache.hadoop.mapred.ShuffleHandler</value>
+    </property>
+    
+    <property>
+        <name>yarn.resourcemanager.scheduler.class</name>
+        <value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler</value>
+    </property>
+</configuration>
+
+
+修改hdfs-site.xml文件：【只需要副本数量即可，其他配置不动】
+
+<configuration>
+    <property>
+        <name>dfs.replication</name>
+        <value>3</value>                      ##将副本数量修改成3个
+    </property>
+    
+    <property>
+        <name>dfs.namenode.name.dir</name>
+        <value>file:///data/hadoop/hdfs/nn</value>
+    </property>
+    
+    <property>
+        <name>dfs.datanode.data.dir</name>
+        <value>file:///data/hadoop/hdfs/dn</value>
+    </property>
+    
+    <property>
+        <name>fs.checkpoint.dir</name>
+        <value>file:///data/hadoop/hdfs/snn</value>
+    </property>
+    
+    <property>
+        <name>fs.checkpoint.edits.dir</name>
+        <value>file:///data/hadoop/hdfs/snn</value>
+    </property>
+
+    <property>
+        <name>dfs.permissions</name>
+        <value>false</value>
+    </property>
+</configuration>
+
+
+修改slaves文件：
+
+node2
+node3
+node4
+
+
+##第二步：配置各slave节点（即各DN节点）
+slave节点的配置与master节点相同，只是启动的服务不同，因此，在各slave节点创建所需的用户、组和目录、设置好权限并安装hadoop之后，将master节点的各配置文件直接复制到各slave节点hadoop配置文件目录，再为其设置好各环境变量即可。所有slave节点的安装配置过程均相同。
+
+详细配置过程如下：【以下步骤在各slave节点操作】
+
+<a> 设置好JAVA_HOME变量，而后解压安装包至指定目录下
+    mkdir -pv /bdapps/
+    tar xf hadoop-2.6.2.tar.gz -C /bdapps/
+    ln -sf /bdapps/hadoop-2.6.2 /bdapps/hadoop
+    
+编辑环境配置文件/etc/profile.d/hadoop.sh，定义类似如下环境变量，设定hadoop的运行环境。
+export HADOOP_PREFIX="/bdapps/hadoop"                     
+export PATH=$PATH:$HADOOP_PREFIX/bin:$HADOOP_PREFIX/sbin
+export HADOOP_COMMON_HOME=${HADOOP_PREFIX}
+export HADOOP_HDFS_HOME=${HADOOP_PREFIX}
+export HADOOP_MAPRED_HOME=${HADOOP_PREFIX}
+export HADOOP_YARN_HOME=${HADOOP_PREFIX}
+【注：以上环境变量，前两者必须配置，后面四个可选，如果只有前两者，一般hadoop家目录环境变量设置为HADOOP_HOME】
+
+
+<b> 创建用户和组、数据和日志目录
+hadoop需要不同权限的数据目录和日志目录，这里以/data/hadoop/hdfs为hdfs的数据存储目录，一般来说，从节点只用得到dn子目录。【为了简单与统一，可以只创建用户hadoop】
+
+groupadd hadoop
+for user in hdfs yarn mapred;do useradd -g hadoop $user && echo 'YOUR_PASSWD' | passwd --stdin $user;done
+
+
+###创建数据目录：
+mkdir -pv /data/hadoop/hdfs/{nn,snn,dn}
+chown -R hdfs:hadoop /data/hadoop/hdfs/
+mkdir -p /var/log/hadoop/yarn
+chown yarn:hadoop /var/log/hadoop/yarn
+
+而后，在hadoop的安装目录中创建logs目录，并修改hadoop所有文件的属主和属组。
+cd /bdapps/hadoop/
+mkdir logs
+chmod g+w logs
+chown -R yarn:hadoop /bdapps/hadoop/*
+
+
+<c> 从master上拷贝配置文件到所有slave节点；
+该步骤在master节点操作；
+
+###复制配置文件至各slave节点
+for slave in node2 node3 node4;do scp /bdapps/hadoop/etc/hadoop/{core-site.xml,hdfs-site.xml,yarn-site.xml,mapred-site.xml} ${slave}:/bdapps/hadoop/etc/hadoop/;done
+
+【注：提前做免密登录，并且拷贝完成后，检查各slave节点上配置文件的权限是否正确。】
+
+
+##第三步：格式化HDFS
+与伪分布式模式相同，在HDFS集群的NN启动之前需要先初始化其用于存储数据的目录。如果hdfs-site.xml中dfs.namenode.name.dir属性指定的目录不存在，格式化命令会自动创建之；如果事先存在，请确保其权限设置正确，此时格式操作会清除其内部所有数据并重新建立一个新的文件系统。需要以hdfs用户身份在master节点执行如下命令：
+
+su - hdfs
+hdfs namenode -format
+
+注：其输出结果会有大量信息输出，如果显示出类似"INFO common.Storage: Storage directory /data/hadoop/hdfs/nn has been successfully formatted."的结果表示格式化操作已经正确完成。
+
+
+##第四步：启动Hadoop进程
+启动Hadoop-YARN集群的方法有两种：一是在各节点分别启动需要启动的服务，二是在master节点启动整个集群。
+
+（1）分别启动 【适用于规模较小的集群】
+master节点需要启动HDFS的NameNode服务，以及YARN的ResourceManager服务。根据我们前述的配置，启动hdfs的相关服务需要以hdfs用户的身份进行，而启动yarn相关的服务需要yarn用户的身份进行。
+
+su - hdfs -c "hadoop-daemon.sh start namenode"
+su - yarn -c "yarn-daemon.sh start resourcemanager"
+
+
+各slave节点需要启动HDFS的DataNode服务，以及YARN的NodeManager服务。
+su - hdfs -c "hadoop-daemon.sh start datanode"
+su - yarn -c "yarn-daemon.sh start nodemanager"
+
+（2）在master节点控制整个集群
+集群规模较大时，分别启动各节点的各服务过于繁琐和低效，为此，hadoop专门提供start-dfs.sh和stop-dfs.sh来启动及停止整个hdfs集群（包括namenode、secondarynamenode以及所有datanode），以及start-yarn.sh和stop-yarn.sh来启动及停止整个yarn集群。【这种方式强依赖slaves文件配置，以及提前做好master节点到各slave节点的免密登录】
+
+su - hdfs -c "start-dfs.sh"
+su - yarn -c "start-yarn.sh"
+
+较早版本的hadoop会提供start-all.sh和stop-all.sh脚本来统一控制hdfs和mapreduce，但hadoop2.0及之后的版本不建议再使用此种方式。
+
+
+
+##第五步 测试验证
+集群启动完成后，可在各节点上以jps命令等验证各个进程是否正常运行，也可以通过Web UI来检查集群的运行状态。
+
+HDFS-NameNode：http://master:50070/
+YARN-ResourceManager：http://master:8088/
+
+
+
+
+第四部分、YARN集群管理命令：
+
+yarn命令有很多子命令，大体可分为用户命令和管理命令两类。直接运行yarn命令，可显示其简单使用语法及各子命令的简单介绍。
+
+Usage: yarn [--config confdir] [COMMAND | CLASSNAME]
+  CLASSNAME                             run the class named CLASSNAME
+ or
+  where COMMAND is one of:
+  resourcemanager                       run the ResourceManager
+                                        Use -format-state-store for deleting the RMStateStore.
+                                        Use -remove-application-from-state-store <appId> for 
+                                            removing application from RMStateStore.
+  nodemanager                           run a nodemanager on each slave
+  timelinereader                        run the timeline reader server
+  timelineserver                        run the timeline server  【主要做任务编排的】
+  rmadmin                               admin tools     【强大的管理工具】
+  router                                run the Router daemon
+  sharedcachemanager                    run the SharedCacheManager daemon
+  scmadmin                              SharedCacheManager admin tools
+  version                               print the version
+  jar <jar>                             run a jar file
+  application                           prints application(s)
+                                        report/kill application
+  applicationattempt                    prints applicationattempt(s)
+                                        report
+  container                             prints container(s) report
+  node                                  prints node report(s)
+  queue                                 prints queue information
+  logs                                  dump container logs
+  schedulerconf                         updates scheduler configuration
+  classpath                             prints the class path needed to
+                                        get the Hadoop jar and the
+                                        required libraries
+  cluster                               prints cluster information
+  daemonlog                             get/set the log level for each
+                                        daemon
+  top                                   run cluster usage tool
+
+Most commands print help when invoked w/o parameters.
+
+这些命令中，jar、application、node、logs、classpath和version是常用的用户命令，而resourcemanager、nodemanager、proxyserver、rmadmin和daemonlog是较为常用的管理类命令。
+
+1、用户命令
+用户命令为Hadoop-YARN客户端命令。这些客户端命令根据yarn-site.xml中配置的参数连接至YARN服务，并按需运行指定的命令。
+
+（1）jar
+jar命令通过YARN代码运行jar文件，即向RM提交YARN应用程序。运行时，其会启动RunJar类的主方法，检查参数列表并校验jar文件，而后展开jar文件并运行之。例如，前 秒章节中演示的运行mapreduce示例程序pi，用Monte Carlo方法估算pi（π）值。
+
+yarn jar /bdapps/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-example-2.6.2.jar pi 16 1000
+
+（2）application
+管理yarn中的各application，其--help选项可获取命令的使用帮助信息。其简要使用格式：
+    yarn application <options>
+    
+    常用选项有：
+        -status ApplicationID：获取指定application的状态信息，输出格式为application report格式。给定有效的ApplicationID，其输出通过org.apache.hadoop.yarn.api.records对象输出的数据，而无效的ApplicationID将获得一个异常。
+        
+        -list [-appTypes=] [-appStates]：列出yarn上的application列表，有两个可选的子选项-appTypes和-appStates。
+            appTypes：MAPREDUCE,YARN
+            appStates：ALL,NEW,NEW_SAVING,SUBMITTED,ACCEPTED,RUNNING,FINISHED,FAILED,KILLED
+            
+        -kill ApplicationID：kill运行中的或提交的application。如果指定的application已经完成，其状态或为FINISHED,FAILED,KILLED，此信息就直接输出，否则，将向RM提供kill次application的请求。            
+        
+    例如：yarn application -status application_1446967893446_0005
+     
+ （3）node
+YARN集群由运行NodeManager进程的slave节点及运行ResourceManager的master组成。ResourceManager会记录各节点的相关信息，node子命令则通过class org.apache.hadoop.yarn.api.records.NodeReport类的对象来格式化输出这些信息，简要使用格式为：
+
+    yarn node <options>
+    
+    常用选项有：
+        -list：yarn集群内的node列表，可结合-states子选项过滤节点，而-all子选项用于控制显示所有节点。常用的状态有NEW,RUNNING,UNHEALTHY,DECOMMISSIONED,LOST和REBOOTED。
+        
+        -status NodeId：以节点报告格式打印指定节点的信息。其中，NodeId参数是一个字符串；是org.apache.hadoop.yarn.api.records.NodeId类的一个对象，通常由节点的主机名和端口号组成。
+        
+        例如：
+        yarn node -list
+
+（4）logs
+用于从已经完成的YARN应用程序（即状态为FAILED、KILLED或FINISHED）上获取日志信息。不过，如果需要通过命令行查看日志，需要为YARN集群启用log-aggregation属性，在yarn-site.xml配置文件中定义yarn.log-aggregation-enable属性的值为true即可。命令的简要用法格式如下：
+
+    yarn logs -applicationId <application ID> <options>
+    
+    常用选项：
+        -applicationId applicationID：必备选项，用于从ResourceManager获取其详细信息；
+        -appOwner AppOwner：可选选项，默认为当前用户；
+        -nodeAddress NodeAddress -containerId containerID：用于获取指定节点上指定容器的相关信息，其中NodeAddress的格式同NodeId。
+        
+（5）classpath
+classpath命令用于显示YARN集群CLASSPATH的值。
+
+（6）version
+显示YARN版本。
+
+
+2、管理命令
+
+（1）resourcemanager/nodemanager/timelineserver
+这几个管理命令主要用于在节点上启动相应的服务；
+    
+    resourcemanager：用于启动节点上的ResourceManager服务；
+    nodemanager：用于启动节点上的NodeManager服务；
+    timelineserver：用于启动节点上的timeline服务器；
+    
+（2）rmadmin
+rmadmin是ResourceManager的客户端程序，可用于刷新访问控制策略、调度器队列及注册到RM上的节点等。刷新之后结果无需重启集群服务即可生效。命令的简要使用格式为"yarn rmadmin <options>".
+
+    常用选项：
+    -help：获取帮助信息；
+    -refreshQueues：重载队列的acl、状态及调用器队列；它会根据配置文件中的配置信息重新初始化调用器；
+    -refreshNodes：为RM刷新主机信息，它通过读取RM节点的include和exclude文件来更新集群需要包含或排除的节点列表；
+    -refreshUserToGroupsMappings：根据配置的Hadoop安全组映射，通过刷新组缓存中的信息来更新用户和组之间的映射关系；
+    -refreshSuperUserGroupsConfiguration：刷新超级用户代理组映射，以及更新代理主机和core-site.xml配置文件中hadoop.proxyuser属性定义的代理组；
+    -refreshAdminAcls：根据yarn站点配置文件或默认配置文件中的yarn.admin.acl属性刷新RM的管理ACL；
+    -refreshServiceAcl：重载服务级别授权策略文件，而后RM将重载授权策略文件；它会检查Hadoop安全授权是否启用并为IPC server、ApplicationMaster、client和Resource tracker刷新ACL;
+    
+    
+（3）daemonlog
+用于查看或更新RM及NM守护进程的日志级别，它会检验管理权限通过后在内部直接连接至"http://host:port/logLevel?log=name service".命令简要使用格式为"yarn daemonlog <options> args".
+
+    常用选项：
+    -getLevel host:port name：显示指定守护进程的日志级别；
+    -setLevel host:port name level：设置守护进程的日志级别；
+    
+    
+
+第五部分：如何运行YARN Application
+
+YARN Application（应用程序）可以是一个简单的shell脚本、MapReduce作业或其他任意类型的作业。需要运行Application时，客户端需要事先生成一个ApplicationMaster，而后客户端把application context提交给ResourceManager，随后RM向AM分配内存及运行application的容器。大体来说，此过程可以分成六个阶段。
+
+    Application初始化及提交；
+    分配内存并启动AM；
+    AM注册及资源分配；
+    启动并监控容器；
+    Application进度报告；
+    Application运行完成；
+    
+利用ambari部署hadoop集群：
+    http://www.ibm.com/developerworks/cn/opensource/os-cn-bigdata-ambari/

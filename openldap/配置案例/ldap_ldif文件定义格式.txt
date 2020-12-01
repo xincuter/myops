@@ -1,0 +1,21 @@
+定义组织OU：
+
+案例：
+dn: ou=hardware-development,dc=in,dc=cnwisdom,dc=com
+ou: hardware-development
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=system,dc=in,dc=cnwisdom,dc=com
+ou: system
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=People,dc=in,dc=cnwisdom,dc=com
+ou: People
+objectClass: top
+objectClass: organizationalUnit
+description: devops center
+
+
+

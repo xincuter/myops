@@ -1,0 +1,5 @@
+##lx-passport rest servers
+upstream passrest {
+    #server 10.206.188.37:8080 weight=10 max_fails=3 fail_timeout=10s;
+    server 10.206.188.38:8080 weight=10 max_fails=3 fail_timeout=10s;
+}

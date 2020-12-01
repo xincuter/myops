@@ -1,0 +1,23 @@
+[epel]
+name=Extra Packages for Enterprise Linux 6 - $basearch
+baseurl=http://repos.in.trc.com/epel/6/$basearch
+failovermethod=priority
+enabled=1
+gpgcheck=1
+gpgkey=http://repos.in.trc.com/epel/RPM-GPG-KEY-EPEL-6
+
+[epel-debuginfo]
+name=Extra Packages for Enterprise Linux 6 - $basearch - Debug
+baseurl=http://repos.in.trc.com/epel/6/$basearch/debug
+failovermethod=priority
+enabled=0
+gpgkey=http://repos.in.trc.com/epel/RPM-GPG-KEY-EPEL-6
+gpgcheck=1
+
+[epel-source]
+name=Extra Packages for Enterprise Linux 6 - $basearch - Source
+baseurl=http://repos.in.trc.com/pub/epel/6/SRPMS
+failovermethod=priority
+enabled=0
+gpgkey=http://repos.in.trc.com/epel/RPM-GPG-KEY-EPEL-6
+gpgcheck=1

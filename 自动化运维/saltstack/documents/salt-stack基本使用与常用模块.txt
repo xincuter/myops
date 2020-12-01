@@ -1,0 +1,83 @@
+﻿salt的基本使用：
+
+1、测试主机存活：
+salt 192.168.50.27 test.ping    【测试192.168.50.27是否在线】
+
+2、远程在一个定义好的主机组上执行命令：
+
+salt -N 'jrpay_all' cmd.run 'date'   【-N表示指定主机组，这句表示在所有jrpay_all组中的主机上执行date命令，即查看所有主机上的时间】
+
+3、远程在多台主机上执行命令：
+
+salt -L '192.168.50.12,192.168.60.53' cmd.run 'ls /usr/local/tomcat/webapps'  【-L表示指定目标地址，如果多个主机可以使用逗号或空格隔开】
+
+4、使用正则匹配多台主机执行命令：
+
+salt -E '192.168.50.*' cmd.run 'date'
+
+
+
+
+查看salt常用模块：salt -d
+
+
+salt常用模块罗列：
+
+1、归档压缩模块：
+
+（a）archive.gzip     【调用gzip命令压缩文件】
+	例子：压缩远程主机上/root/salt/text.txt文件；
+		salt -L '10.200.138.175' archive.gzip  /root/salt/text.txt   【然后查看远程主机上对应文件，变成了text.txt.gz】
+		
+（b）archive.gunzip   【调用gunzip命令解压缩文件】
+	例子：解压缩远程主机上的/root/salt/text.txt.gz文件；
+		salt -L '10.200.138.175' archive.gunzip  /root/salt/text.txt.gz 
+		
+（c）archive.tar      【调用tar命令创建归档文件或者解压一个归档文件】
+	归档例子：在远程主机10.200.138.174上归档/salt目录并压缩，tar包命名为salt_20171103.tar.gz，保存在/tmp目录下；
+		salt -L '10.200.138.174' archive.tar zcvf /tmp/salt_20171103.tar.gz /salt
+		
+	解压归档例子：将10.200.138.174上/tmp目录下的归档文件salt_20171103.tar.gz解压，解压至tmp目录下；
+		salt -L '10.200.138.174' archive.tar xf /tmp/salt_20171103.tar.gz  dest=/tmp     【dest指定解压到哪个目录】
+		
+		
+2、远程执行命令模块：
+
+（a）cmd.run      【远程执行shell命令，返回命令执行的结果，即详细输出】
+	例子：远程获取10.200.138.174上的磁盘信息及系统时间；
+		salt -L '10.200.138.174' cmd.run 'echo "disk information:";df -h;echo "system time:";date'    
+		
+（b）cmd.retcode	【远程执行shell命令，返回命令执行状态码（即相当于echo $?）】
+	例子：远程获取10.200.138.174上的负载信息
+		salt -L '10.200.138.174' cmd.retcode 'uptime'     【执行结果返回为0，即将命令执行状态码返回给master端】
+		
+（c）cmd.shell    【远程执行shell命令】
+
+
+
+3、拷贝目录与文件
+
+（a）cp.get_dir      【从master端递归拷贝目录到指定的minion端】
+	语法格式：salt '*' cp.get_dir salt://path/to/dir/ /minion/dest
+	例子：从master端拷贝salt目录到10.200.138.174的/tmp目录下；
+		salt -L '10.200.138.174' cp.get_dir salt://salt /tmp saltenv=base     【需要先编辑salt的master配置文件，设置file_roots文件服务器的路径才行，因为默认拷贝文件模块是从指定的这些目录中区读取的】
+		
+（b）cp.get_file     【从master端拷贝文件到指定的minion端】
+	语法格式：
+	例子：salt -L '192.168.60.23' cp.get_file salt://update_nodejs_trc-finance-bank-custody-prd.sh /root/xin.sh saltenv=prod       【首先，需要在/etc/salt/master定义好文件服务器，然后就可以使用cp.get_file模块推送文件，但是saltenv必须要指定，因为会去指定的环境目录中找寻传输的文件推送到远端，而且远端minion端文件名一定要指定】
+	
+	
+	
+	
+saltstack做配置管理【编写states sls（类似于ansible的playbook）】
+
+	1、查看所有states列表
+		salt '192.168.60.53' sys.list_state_modules
+		
+	2、查看指定states用法
+		salt '192.168.60.53' sys.state_doc file
+
+		
+states系统：
+	top.sls     【states.sls的入口文件，做批量部署用，非必须】
+	states.sls

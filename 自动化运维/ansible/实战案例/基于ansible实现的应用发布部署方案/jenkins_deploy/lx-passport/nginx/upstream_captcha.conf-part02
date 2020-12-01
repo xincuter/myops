@@ -1,0 +1,5 @@
+##lx-passport captcha
+upstream captcha {
+    server 10.206.188.52:8080 weight=10 max_fails=3 fail_timeout=10s;
+    #server 10.206.18.131:8080 weight=10 max_fails=3 fail_timeout=10s;
+}

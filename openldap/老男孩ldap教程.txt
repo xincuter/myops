@@ -1,0 +1,548 @@
+
+目录是一类浏览和搜索数据而设计的特殊的数据库；以树状格式存储信息；
+
+目录不支持大多数事务性数据库所支持的高吞吐量和复杂的更新操作，目录服务适合的业务应用在于提供大量的查询和搜索操作，而不是大量的写入操作；ldap可以说是活动目录（windows上的AD）在linux系统上的一个开源实现。
+
+
+目录服务还提供了主从服务器同步目录数据信息的能力，最大限度的确保基于目录业务的服务持续可用性与提供并发查询的能力。【如微软的活动目录就有主域和备份域之分】；ldap也有一主多从。【主从同步已经足够使用】
+
+DNS是一个典型的大范围分布式目录服务的例子。
+
+
+04、目录深入介绍
+
+	目录服务有两个国际标准，分别是X.500和LDAP；X.500是ITU定义的目录标准，而LDAP是基于TCP/IP的目录访问协议，是internet上通用的目录服务访问协议；
+	
+	LDAP(lightweight directory access protocol):轻量级目录访问协议，是x.500的目录访问协议的简化版本；
+	
+	x.500：实际上是一个协议族，x.500目录访问协议（DAP），位于网关与x.500服务器之间；
+	
+	单独的ldap守护进程是slapd（openldap的守护进程），可以被看做一个轻量级的x.500目录服务器，也就是说，他没有实现x.500完整的DAP协议，作为轻量级目录服务器，slapd实现仅仅是x.500模型的一个子集，即以小得多的代价实现了大多数DAP的功能。
+	
+	
+	
+09、LDAP中常用名词缩写及含义
+
+	dc：domain component；域名的部分，其格式是将完整的域名分隔成几部分，如域名为example.com要变成dc=example，dc=com；
+	
+	uid：user id；用户ID，如"oldboy";
+	
+	ou：oraganization unit；组织单位，类似于linux文件系统的子目录，它是一个容器对象，它可以包含其他各种对象（包括其他组织单元），如'tech，ops'；
+	
+	cn：common name；公共名称，如"Thomas Johansson";
+	
+	sn：surname；姓，如"Johansson";
+	
+	dn：Distinguished name；唯一辨别名，类似于linux文件系统中的绝对路径，每个对象都有一个唯一的名称，如"uid=tom,ou=market,dc=example,dc=com"，在一个目录树中DN总是唯一的；
+	
+	rdn：relative dn；相对辨别名，类似于文件系统中的相对路径，它是与目录树结构无关的部分，如"uid=tom"或者"cn=Tom";
+	
+	c：country；国家；如 "CN"或者"US";
+	o：organization；组织名；如 "example,Inc"
+	
+	
+	
+10、LDAP目录服务的特点
+
+	特点：
+		（1）跨平台；
+		（2）树形结构
+		（3）提供静态数据的快速查询
+		（4）LDAP是一个安全的协议，v3版本支持SASL、SSL和TLS，使用认证来确保事务的安全；另外提供了不同层次的访问控制，以限制不同用户的访问权限；
+		（5）C/S模型，server用于存储树，client提供操作目录信息树的工具，这些工具可以将数据库的内容以文本格式（LDAP数据交换格式，LDIF）呈现在我们面前；
+		（6）LDAP是一种开放Internet标准，基于x.500标准，支持tcp/ip（即可以分布式部署）
+	
+	
+	
+11、ldap的目录结构
+
+	LDAP目录服务是通过目录数据库来存储网络信息来提供目录服务的，为了方便用户迅速查找和定位信息，目录数据库以目录信息树（DIT）为存储方式的树形存储结构；
+	
+	在LDAP中，目录是按照属性结构组织---目录信息树（DIT），DIT是一个主要进行读操作的数据库；
+	DIT是条目（entry）组成，条目相当于关系型数据库中表的记录；
+	条目（ENTRY）是具有辨别名DN的属性-值对的集合；
+	
+	什么是dn？
+		dn即辨别名，是条目在这个目录信息树中的唯一标识，相当于关系型数据库中关键字（primary key），他是一个识别属性，通常用于检索；
+		
+		
+	dn的两种设置：
+		（1）基于cn（姓名），如cn=test,ou=auth,dc=etiantian,dc=org，最常见的cn是从/etc/group转来的条目；
+		（2）基于uid（User Id），如uid=test,ou=auth,dc=etiantian,dc=org，最常见的uid是从/etc/passwd中转来的条目；
+		
+	base dn？
+		LDAP的目录树顶端是根，这就是base dn
+		
+		
+	LDIF格式？
+		LDIF格式是用于LDAP数据导入、导出的格式，LDIF是LDAP数据库信息的一种文本格式，DBD;
+		
+		
+	
+13、什么样信息可以存储在目录中？
+	
+	LDAP的信息模型是基于条目的，一个条目就是一些具有全局唯一标识名的属性的集合；LDAP允许通过使用一种objectclass的特殊属性来控制哪些属性是条目所必须的，哪些是可选的；objectclass属性的值是由条目所必须遵从的方案（schema）来定义的。
+	
+	ldap客户端可以通过以下命令去读取ldap中的条目：
+		例子：ldapsearch -LLL -w oldboy -x -H ldap://10.0.0.8 -D "cn=admin,dc=etiantian,dc=org" -b "dc=etiantian,dc=org" "uid=*"     【-w:指定密码；-H 指定连接的ldap服务器的URI；-x：表示简单认证；-D 指定DN；-b 指定basedn，查询匹配条件的所有条目】 
+		
+	
+	
+14、ldap目录逻辑结构原理介绍
+
+	在ldap中，条目是按树状的层次结构组织的；
+	
+	类似于dns的树形机构；
+	
+	 
+	 
+	 
+	 
+15、ldap的访问及授权访问
+
+	ldap定义了一组查询和更新目录的操作，支持的操作包括从目录中添加和删除条目，更改已有的条目，更改已有条目的名字；然而大多数情况下，ldap是用于搜索目录中的信息的；
+	
+	安全机制
+	
+	
+	
+16、ldap目录数据文件内容讲解
+
+	LDIF：轻量级目录交换格式；一种Ascii文件格式，用来交换数据并使得在ldap服务器间交换数据成为可能；
+	LDIF文件最常用的功能就是向目录导入或修改信息，这些信息的格式需要按照LDAP中架构（schema）格式组织，如果不符合其要求格式就会出现错误；
+	
+	LDIF文件的特点：
+		（1）通过空行来分隔一个条目或定义；
+		（2）以#开始的行为注释行；
+		（3）所有属性的赋值方法为："属性:属性值";例如: dn: dc=etiantian,dc=org
+		（4）属性可以被重复赋值；例如：objectclass就可以有多个；
+		（5）每个属性及属性值独立一行；
+		（6）每行的结尾不允许有空格；
+	LDAP的每条记录中必须包含一个objectclass属性，且其需要赋予至少一个值，objectclass属性有等级之分，属性相当与变量，它可以被自定义赋值，值不能相同；
+	
+	
+	
+	
+17、ldap怎么工作
+	
+	ldap服务是基于客户/服务器模式的，一个或多个ldap服务器包含组成整个目录信息树（DIT）的数据，ldap客户端连接到服务器并且发出一个请求（request），然后服务器要吗以一个回答（answer）予以响应，要么给出一个指针，客户可以通过此指针获取到所需数据（通常，该指针是指向另外一个ldap服务器），无论客户端连到哪一个ldap服务器，看到的都是同一个目录视图（view），这是ldap这类全局服务的一个重要特征。
+	
+	
+	
+18、ldap的重要配置模式介绍
+
+	ldap服务的几个重要功能：
+		（1）基本的目录查询服务；【本地ldap】
+		（2）目录查询代理服务（即指针）；【类似于dns的转发服务器】
+		（3）异机复制数据（即主从同步）；
+		
+	第一种模式：
+		基本的目录查询服务；即客户端request，服务端reply；
+		
+	第二种模式：
+		即指针模式；
+		
+		配置指令：
+			referral <URI>
+			该指令指定了一个指针，当服务器的slapd找不到一个本地的数据库来处理一个请求的时候，它把指针回传给客户；
+			
+			例如：referral ldap://root.openldap.org 【这把非本地的请求"推"到openldap的根服务器上，LDAP客户端会向反馈回来的指针所指的服务器重新发出请求，但是得注意大多数客户端仅仅知道怎么样处理简单的LDAP 的URI,其中包含主机部分和可选的dn部分】
+			
+			
+	第三种模式：
+		同步复制的目录服务【类似于mysql的主从同步】
+		slurpd守护程序是用来将主slapd上的改变传播到一个或多个从slapd上。
+		
+		
+		同步复制方案：
+			inotify+ldap实时同步
+			
+	
+	ldap集群：
+		ldap + haproxy/nginx/heartbeat
+		
+		
+		
+20、ldap应用领域
+
+	一般工作中，常用ldap作为公司入职后的所有员工账号等基础信息库，例如：邮件账号、svn账号、vpn账号、服务器账号等。
+	
+	开源软件为：openldap
+	
+	
+21-22、openldap环境搭建准备
+
+	要求环境配置不高，一般ldap服务器两台，避免单点故障；
+	
+	
+	虚拟机环境：
+		至少两个虚拟机；
+		
+		ldap-server：192.168.3.137
+		ldap-client：192.168.3.150
+		
+	配置yum源；
+	
+	如果安装rpm包是希望保留rpm包，则需要作如下配置：
+		sed -i "s#keepcache=0#keepcache=1#g" /etc/yum.conf
+		
+	实验环境下，关闭selinux和iptables
+	
+	同步时间：
+		（1）echo '*/5 * * * * /usr/sbin/ntpdate time.windows.com >/dev/null 2>&1
+		（2）service ntpd start && chkconfig ntpd on
+		
+	将ldapserver本地解析添加到/etc/hosts中去：
+		echo '192.168.3.137  etiantian.org' >>/etc/hosts
+		
+		
+23、安装openldap软件
+	openldap相关依赖软件：http://www.openldap.org/doc/admin24/install.html
+	功能型软件采用yum安装即可，方便。
+	
+	安装步骤：
+		（1）查看是否安装了openldap：
+			rpm -qa | grep openldap       【如果没有安装相关组件，使用yum安装即可】
+		
+		（2）yum 安装openldap软件包；
+			yum install openldap openldap-* -y
+			yum install nscd nss-pam-ldapd nss-* pcre pcre-* -y    【这是openldap依赖的模块】
+			
+			
+		（3）配置ldap master；
+			openldap服务端主配置文件是slapd.conf；【openldap2.4不一样了】
+			
+			<1>操作之前先备份；
+				\cp /etc/openldap/slapd.conf /etc/openldap/slapd.conf.bak 
+				【注：对于centos5.x系统来说，服务端主配置路径为：/etc/openldap/slapd.conf；但是对于centos6.x之后，配置文件变成了/etc/openldap/slapd.d/cn=config下了，这是openldap2.4版本跟之前版本的区别，不过slapd.conf文件还是可以用的】
+				
+				 可以拷贝/usr/share/openldap-servers/slapd.conf.obsolete配置到/etc/openldap目录下；
+				\cp /usr/share/openldap-servers/slapd.conf.obsolete /etc/openldap/slapd.conf     【拷贝openldap-servers配置文件模板到/etc/openldap目录下】
+				
+				
+			<2>生成ldap管理员密码：
+				slappasswd -s oldboy | sed -e "s#{SSHA}#rootpw\t{SSHA}#" >>/etc/openldap/slapd.conf       【生成管理员密码，并将之添加到slapd.conf配置文件内】
+					结果为：rootpw  {SSHA}r1TMYfMMZbXIHEKxb62guJ/lbC5s8G8Q       【ldap服务器管理员密码】
+					
+				/etc/openldap/slapd.conf /etc/openldap/slapd.conf.bak     【做备份】
+				
+				
+			<3>配置ldap其他参数；
+				vim /etc/openldap/slapd.conf
+				
+				注释掉如下几行：
+				114 database        bdb
+				115 suffix          "dc=my-domain,dc=com"
+				116 checkpoint      1024 15
+				117 rootdn          "cn=Manager,dc=my-domain,dc=com"
+				
+				然后添加如下几行：
+				database	bdb                                 【指定要使用的数据库bdb】
+				suffix 		"dc=etiantian,dc=org"            【指定要搜索的后缀】
+				rootdn		"cn=admin,dc=etiantian,dc=org"		 【指定管理员dn路径，使用这个dn可以登录ldap服务器】
+				
+				配置日志参数：
+				loglevel  296
+				cachesize  1000
+				checkpoint 2048 10
+				
+				配置权限及安全相关参数：
+				###openldap 2.3 config --- by zhengxin20170628
+				access to *
+					by self write
+					by anonymous auth
+					by * read
+				###openldap 2.3 config --- by zhengxin20170628
+				
+				
+				修改完毕后保存配置；
+				
+				
+			【注：通过上述修改，我们可以得知ldap服务器的管理员账号是：admin，密码是：oldboy】
+			
+			
+			参数详解：
+				
+				database	bdb                                  【指定要使用的数据库bdb】
+				suffix 		"dc=etiantian,dc=org"            【指定要搜索的后缀】
+				rootdn		"cn=admin,dc=etiantian,dc=org"		 【指定管理员dn路径，使用这个dn可以登录ldap服务器】
+				rootpw  {SSHA}r1TMYfMMZbXIHEKxb62guJ/lbC5s8G8Q       【ldap服务器管理员密码】
+				
+				日志相关参数：
+				loglevel		296						【设置日志级别，记录日志信息方便调试，296级别是256（日志连接/操作/结果）、32（搜索过滤器处理）、8（连接管理）累加的结果】
+				cachesize		1000					【设置ldap可以缓存的记录数】
+				checkpoint		2048 	10				【ldap checkpoint项是设置把内存中的数据写回数据文件的操作，上面的设置表示每达到2048KB或者10分钟执行一次checkpoint，即写入数据文件的操作】
+				
+				授权及安全参数：
+				案例：
+				access to dn.base="" by * read
+				access to dn.base="cn=Subschema" by * read
+				access to *
+					by self write
+					by users read
+					by anonymous auth
+					
+				access to * by * read     【这条指令允许所有人具有读权限】
+				access to *
+					by self write
+					by anonymous auth
+					by * read             【这条指令允许用户修改他们自己的条目，允匿名用户鉴定这些条目，允许所有其他用户读取这些条目；注意，仅仅第一个匹配<who>子句才生效，"by * read"可以写成"by users read"】
+					
+					
+					
+
+
+			<4>配置rsyslog记录ldap日志
+
+					echo 'local4.*             /var/log/ldap.log'>>/etc/rsyslog.conf      【表示将ldap日志记录在/var/log/ldap.log文件中】
+	 
+					service rsyslog restart 
+					
+			<5>配置ldap数据库并授权
+				
+					vim /etc/openldap/slapd.conf
+					
+						添加如下语句：
+						directory        /var/lib/ldap             【配置ldap数据库目录路径】
+						
+					默认情况下，ldap数据库目录是空的；
+					
+					从/usr/share/openldap-servers目录下，将数据库样例文件cp到数据库目录下；
+						cp /usr/share/openldap-servers/DB_CONFIG.example   /var/lib/ldap/DB_CONFIG
+						
+						chown ldap. /var/lib/ldap/DB_CONFIG
+						chmod 700  /var/lib/ldap                 【修改权限】
+						
+							
+			<6>测试并启动ldap master；
+			
+					slaptest -u        【测试ldap配置是否正确，如果出现"config file testing succeeded"说明配置成功】
+					
+					/etc/init.d/slapd start				
+					
+			可以使用如下命令查看ldap数据库：
+				ldapsearch -LLL -w xin -x -H ldap://etiantian.org -D "cn=admin,dc=etiantian,dc=org" -b "dc=etiantian,dc=org" "(uid=*)"
+					
+				Enter LDAP Password:                     
+				
+				【正确执行结果返回：No such object】
+				
+				如果报错为：ldap_bind: Invalid credentials (49)      【报这个错的原因是因为openldap2.4之后配置文件变化，解决办法是删除slapd.d目录，然后再以2.3的配置文件为主去生成2.4的配置文件目录】
+				
+				解决办法：
+					rm -rf /etc/openldap/slapd.d/*     【先删除openldap2.4默认的配置文件】
+					slaptest -f /etc/openldap/slapd.conf -F /etc/openldap/slapd.d      【通过该命令以2.3的配置文件为主，再去生成2.4的配置文件】
+					chown -R ldap. /etc/openldap/slapd.d     【修改权限：指定/etc/openldap/slapd.d目录的属主属组为ldap】
+					/etc/init.d/slapd restart
+					
+					
+				这样ldapsearch -LLL -w xin -x -H ldap://etiantian.org -D "cn=admin,dc=etiantian,dc=org" -b "dc=etiantian,dc=org" "(uid=*)"可以执行了。
+				
+			
+			
+
+31、导入ldap数据的4种方案
+	（1）自己编写ldap数据文件
+	（2）根据系统用户及ldap自带的脚本来初始化数据；
+	（3）通过ldap客户端工具来初始化数据【最简单】	
+	（4）通过实现准备好的文件初始化数据
+	
+	导入数据使用ldapadd命令；
+·		
+	第二种方法案例：【即利用ldap脚本把系统组和账户转换成ldif格式的数据导入ldap数据库中去】
+		<1>添加测试用户test，并配置用户登录环境；
+			groupadd -g 5000
+			useradd -u 5001 -g 5000 test
+			
+		<2>创建根项，并使用openldap-servers自带脚本生成和导入passwd/group配置；
+			grep test /etc/passwd >passwd.in
+			grep test /etc/group >group.in
+			
+			修改/usr/share/openldap/migration/migrate_common.ph；内容如下：  【需要安装migrationtools开源工具】
+				#Default DNS domain
+				$DEFAULT_MAIL_DOMAIN = "etiantian.org"
+				
+				#Default base
+				$DEFAULT_BASE = "dc=etiantian,dc=org"
+				
+			生成ldap数据：
+			操作命令：
+				export LC_ALL=C
+				/usr/share/openldap/migration/migrate_base.pl >base01.ldif
+				/usr/share/openldap/migration/migrate_passwd.pl passwd.in passwd.ldif
+				/usr/share/openldap/migration/migrate_group.pl group.in group.ldif
+				
+				ldapadd -w oldboy -x -H ldap://etiantian.org -D "cn=admin,dc=etiantian,dc=org" -f base.ldif
+				ldapadd -x -w oldboy -H ldap://etiantian.org -D "cn=admin,dc=etiantian,dc=org" -f group.ldif
+				ldapadd -x -w oldboy -H ldap://etiantian.org -D "cn=admin,dc=etiantian,dc=org" -f passwd.ldif
+				
+				
+			查询导入结果：ldapsearch -LLL -w oldboy -x -H ldap://etiantian.org -D "cn=admin,dc=etiantian,dc=org" -b "dc=etiantian,dc=org"
+			
+			备份ldap数据：ldapsearch -LLL -w oldboy -x -H ldap://etiantian.org -D "cn=admin,dc=etiantian,dc=org" -b "dc=etiantian,dc=org" >ldap.bak
+			
+			
+			
+
+32、为ldap master配置web管理接口
+
+	ldap的客户端有很多中，有b/s架构的，web的，c/s的；
+	
+	以b/s架构的ldap-accout-manager-3.7.tar.gz软件为例讲解：
+		
+		（1）安装lamp环境；
+			yum install httpd php php-gd php-ldap -y
+			
+		（2）下载安装并配置ldap客户端软件；
+			可以到以下网址下载：
+				http://www.ldap-account-manager.org/lamcms/
+				http://lam.sourceforge.net/download/index.html
+				
+				解压到http服务的网页根目录；
+				
+				cd /var/www/html
+				tar xf ldap-account-manager-3.7.tar.gz
+				mv ldap-account-manager-3.7 ldap
+				cd ldap/config
+				cp config.cfg_sample config.cfg
+				cp lam.conf_sample lam.conf
+				sed -i "s#cn=Manager#cn=admin#g" lam.conf
+				sed -i "s#dc=my-domain#dc=etiantian#g" lam.conf
+				sed -i "s#dc=com#dc=org#g" lam.conf
+				chown -R apache. /var/www/html/ldap
+				
+		（3）启动apache，测试打开ldap；
+				http://192.168.3.137:10001/ldap     【看是否能打开主界面】
+				
+				点击LAM configuration ---> Edit general settings；
+					初始密码是：lam
+					
+		（4）登录后，添加用户zxin，添加完后使用命令行ldapsearch查询刚刚添加的用户；
+				ldapsearch -LLL -w oldboy -x -H ldap://etiantian.org -D "cn=admin,dc=etiantian,dc=org" -b "dc=etiantian,dc=org" "(uid=zxin)"
+					
+ 
+【注：man +配置文件名，可以查看服务配置等等】
+ 
+35、配置网络服务通过ldap服务进行身份认证				
+				
+	配置svn+sasl通过ldap进行认证
+	
+		sasl（simple authentication and security layer）：是一种用来扩充的C/S模式验证能力的机制；sasl是个胶合库，通过这个库把应用层和形式多样的认证系统整合在一起，有点类似于PAM，但是后者是认证方式，决定什么人可以访问什么服务，而sasl是认证过程，侧重于信任建立过程，这个过程可以调用pam来建立信任关系，在这里memcached就是上面提到的应用层，具体认证交给SASL库，sasl会根据相应的认证机制来完成验证功能。
+		
+		
+		默认情况下，redhat企业版linux会自动安装Cyrus-SASL认证包；
+		
+		（1）可以通过rpm查看是否安装；没有就使用yum安装；
+			rpm -qa | grep sasl
+			yum install -y *sasl*           【把跟sasl相关的包全部安装上，保险起见；服务端与客户端都要安装】
+			
+		
+		（2）查看密码验证机制；
+			saslauthd -v               【查看sasl支持的的验证机制列表】
+			
+			结果为：
+			saslauthd 2.1.23
+			authentication mechanisms: getpwent kerberos5 pam rimap shadow ldap       【表示支持的密码认证机制有：getpwent kerberos5 pam rimap shadow ldap】
+		
+			
+		测试使用shadow进行验证：
+			为了简单起见，使用shadow验证机制，也就是直接使用/etc/shadow文件中的用户账号及密码进行验证，因此在配置文件/etc/sysconfig/saslauthd中，应修改当前系统所采用的密码机制shadow；
+			
+				<1>首先查看当前的密码验证机制是那种方式；
+					grep -i "mech" /etc/sysconfig/saslauthd     【会看到类似这样：MECH=pam;这表示验证机制为pam】
+					
+				<2>修改密码验证机制
+					sed -i 's#MECH=pam#MECH=shadow#g' /etc/sysconfig/saslauthd    【将密码验证机制改为shadow】
+					
+				<3>修改完毕之后，重启saslauthd进程；
+					/etc/init.d/saslauthd restart
+			
+				<4>测试saslauthd的认证功能；
+					比如：有系统用户xin，密码为123456；测试出现如下结果表示saslauthd认证功能启用；
+						/usr/sbin/testsaslauthd -u xin -p 123456
+							结果为：0: OK "Success."     【这表示saslauthd认证已启用，xin为系统用户】
+					
+					使用ldap用户尝试一下；
+						/usr/sbin/testsaslauthd -u test -p test
+							结果为：0: NO "authentication failed" 【这表示还不能使用ldap认证】
+							
+		（3）配置sasl 使用ldap验证机制；
+				
+			<1>首先修改saslauthd的密码验证机制为ldap；
+				
+				sed -i 's#MECH=shadow#MECH=ldap#g' /etc/sysconfig/saslauthd
+				
+				修改完毕后，重启saslauthd进程；
+				/etc/init.d/saslauthd restart
+				
+			<2>测试现在saslauth的认证功能；
+			
+				使用系统账户xin测试；
+					/usr/sbin/testsaslauthd -u xin -p 123456  【结果为：0: NO "authentication failed"；这表示现在不支持shadow认证了，表示修改成功】
+					
+				使用ldap账号test测试：
+					/usr/sbin/testsaslauthd -u test -p test
+						结果为：0: NO "authentication failed"
+					
+					系统账户通过ldap验证失败是正常的，但是ldap账号为啥也是失败的呢？
+					
+						原因是：还没有设置ldap服务器地址啊。
+						
+			<3>配置sasl支持ldap验证
+			
+				vim /etc/saslauthd.conf
+				
+					输入以下内容：
+						ldap_servers: ldap://etiantian.org/
+						ldap_bind_dn: cn=admin,dc=etiantian,dc=org
+						ldap_bind_pw: oldboy
+						ldap_search_base: ou=People,dc=etiantian,dc=org
+						ldap_filter: uid=%U
+						ldap_password_attr: userPassword
+						
+			<4>验证sasl
+				/usr/sbin/testsaslauthd -u test -p 111111
+						结果为：0: OK "Success."
+						
+						
+		
+	配置svn通过ldap账号认证：
+	
+		（1）在/etc/sasl2/目录下创建svn.conf文件；
+			vim /etc/sasl2/svn.conf
+			
+				添加如下内容：
+				pwcheck_method: saslauthd
+				mech_list:	PLAIN LOGIN
+				
+		（2）重启saslauthd进程；
+			
+			/etc/init.d/saslauthd restart
+			
+		（3）修改svn配置文件svnserve.conf,然后重启svn；
+			
+			cd /application/svndata/sadoc/conf    【切换至项目配置文件目录】
+			
+			sed -i "s#\# use-sasl = true#use-sasl = true#g" svnserve.conf
+			
+			pkill svnserve
+			
+			svnserve -d -r /application/svndata
+			
+		（3）将ldap的用户加入到authz中去；
+		
+			vim /application/svnpasswd/authz
+			
+			添加如下内容：	
+				ldap_admin = zxin,test
+				
+				[sadoc:/]
+				@ldap_admin = rw
+				
+				
+		（4）接下即可测试使用ldap账户checkout 项目了；
+			svn checkout svn://192.168.3.137/sadoc  /tmp/sadoc  --username=zxin  --password=zxin
+
+			
+
+				

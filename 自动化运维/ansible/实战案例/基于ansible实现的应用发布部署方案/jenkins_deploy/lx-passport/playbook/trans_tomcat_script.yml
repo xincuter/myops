@@ -1,0 +1,18 @@
+- hosts: prd-lx-passport_tomcat-captcha
+  remote_user: root
+  vars:
+    script_path: /usr/local/weihu/scripts/update/tomcat/bak
+  tasks:
+    - name: copy tomcat update script to remote
+      template: src={{ script_path }}/{{ UPDATE_SCRIPT }} dest=/usr/local/weihu/tomcat-common-update.sh
+    - name: copy tomcat check script to remote
+      template: src={{ script_path }}/{{ CHECK_SCRIPT }} dest=/usr/local/weihu/check_url
+      notify:
+        - check script context
+        - show log
+  handlers:
+    - name: check script context
+      shell: ls -l /usr/local/weihu/{tomcat-common-update.sh,check_url} && grep "URL=" /usr/local/weihu/check_url
+      register: check_result
+    - name: show log
+      debug: var=check_result.stdout verbosity=0

@@ -8,3 +8,130 @@ ingress相当于七层负载
 
 定义ingress资源：
 配置字段可以参考：kubectl explain ingress
+
+配置案例：
+（1）基于deployment创建部署应用，并使用service进行服务暴露；
+vim mynginxweb.yml
+apiVersion: v1
+kind: Service
+metadata:
+    name: mynginxweb-svc
+    namespaces: default
+spec:
+    selector:
+        app: mynginxweb
+        release: canary
+    ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: mynginxweb-deploy
+    namespaces: default
+spec:
+    replicas: 3
+    selector:
+        matchLabels:
+            app: mynginxweb
+            release: canary
+    template:
+        metadata:
+            labels:
+                app: mynginxweb
+                release: canary
+        spec:
+            containers:
+            - name: mynginxweb
+              image: nginx:latest
+              ports:
+              - name: http
+                containerPort: 80
+
+
+（2）配置ingress-contorller可以接入外部流量
+安装好nginx-ingress-controller后，接下来写一个service
+
+vim nginx-ingress-svc.yml
+
+apiVersion: v1
+kind: Service
+metadata:
+    name: ingress-nginx
+    namespace: ingress-nginx
+spec:
+    type: NodePort
+    ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
+      nodePort: 30080
+    - name: https
+      port: 443
+      targetPort: 443
+      protocol: TCP
+      nodePort: 30443
+    selector:
+      app: ingress-nginx
+      
+（3）定义ingress规则
+##ingress暴露http服务
+vim ingress-mynginxweb.yml
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+    name: ingress-mynginxweb
+    namespace: default                 ##要与mynginxweb的pod服务在同一名称空间
+    annotations: 
+        kubernetes.io/ingress.class: "nginx"
+spec:
+    rules:
+    - host: myapp.magedu.com    ##定义虚拟主机名称
+      http:
+          paths: 
+          - path: /
+            backend:
+                serviceName: mynginxweb-svc
+                servicePort: 80
+    
+
+##ingress暴露https服务
+a. 生成私钥
+openssl genrsa -out tls.key 2048
+
+b. 生成自签证书
+openssl req -new -x509 -key tls.key -out tls.crt -subj /C=CN/ST=Beijing/L=Beijing/O=Devops/CN=tomcat.magedu.com
+
+c. 将证书制作成secret对象（证书对象类型）
+kubectl create secret tls tomcat-ingress-secret --cert=tls.crt --key=tls.key
+
+d. 配置https
+vim ingress-tomcat-tls.yml
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+    name: ingress-tomcat-tls
+    namespace: default                 ##要与mynginxweb的pod服务在同一名称空间
+    annotations: 
+        kubernetes.io/ingress.class: "nginx"
+spec:
+    tls:
+    - hosts:
+      - tomcat.magedu.com
+      secretName: tomcat-ingress-secret
+    rules:
+    - host: tomcat.magedu.com    ##定义虚拟主机名称
+      http:
+          paths: 
+          - path: /
+            backend:
+                serviceName: tomcat
+                servicePort: 8080
+                
+e. 查看ingress pod中nginx.conf中的虚拟主机配置，并使用https://tomcat.magedu.com:30443 访问测试

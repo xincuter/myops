@@ -1,0 +1,265 @@
+openldap server安装：
+
+（1）查看是否安装有openldap软件包；
+	rpm -qa | grep openldap
+	
+	若没有则使用yum安装：
+		yum install openldap openldap-* -y    【安装openldap软件包】
+		yum install nscd nss-pam-ldapd nss-* pcre pcre-* -y   【安装openldap依赖的软件及模块】
+		
+（2）配置openldap server：
+	因为yum默认安装的是openldap-servers-2.4.40-16.el6.x86_64，与2.3有很大不同，但是依然兼容；
+	【注：对于centos5.x系统来说，服务端主配置路径为：/etc/openldap/slapd.conf；但是对于centos6.x之后，配置文件变成了/etc/openldap/slapd.d/cn=config下了，这是openldap2.4版本跟之前版本的区别，不过slapd.conf文件还是可以用的】
+	
+	1、可以拷贝/usr/share/openldap-servers/slapd.conf.obsolete配置到/etc/openldap目录下；
+	\cp /usr/share/openldap-servers/slapd.conf.obsolete /etc/openldap/slapd.conf     【拷贝openldap-servers配置文件模板到/etc/openldap目录下】
+	
+	2、生成ldap管理员密码：
+	slappasswd -s xin | sed -e "s#{SSHA}#rootpw\t{SSHA}#" >>/etc/openldap/slapd.conf  【生成管理员密码，并将之添加到slapd.conf配置文件内】
+			结果为：rootpw  {SSHA}nEslZTI8AQoTu17ajlliNdiYQQp8pchm    【ldap服务器管理员密码】
+			
+	3、设置其他参数：
+	
+	设置案例如下：
+		设置域及dn：
+			database	bdb                                 【指定要使用的数据库bdb】
+			suffix 		"dc=etiantian,dc=org"            【指定要搜索的后缀】
+			rootdn		"cn=admin,dc=etiantian,dc=org"		 【指定管理员dn路径，使用这个dn可以登录ldap服务器】
+			
+		配置日志参数：
+			loglevel  296
+			cachesize  1000
+			checkpoint 2048 10
+			
+		配置权限及安全相关参数：
+			###openldap 2.3 config --- by zhengxin20170628
+				access to *
+					by self write
+					by anonymous auth
+					by * read
+			###openldap 2.3 config --- by zhengxin20170628
+			
+			##openldap 2.3 config --- by zhengxin20170628         【这是整合samba需要配置的安全权限】
+			access to attrs=shadowLastChange,userPassword
+				by dn="cn=admin,dc=etiantian,dc=org" write
+				by self write
+				by * auth
+
+			access to attrs=sambaLMPassword,sambaNTPassword
+				by dn="cn=admin,dc=etiantian,dc=org" write
+				by self write
+				by anonymous auth
+			##openldap 2.3 config --- by zhengxin20170628	
+			
+			
+		如果是将ldap与samba结合在一起还需要在slapd.conf配置文件添加samba.schema；
+			添加如下语句：
+			include         /etc/openldap/schema/samba.schema
+			
+			
+	4、配置rsyslog记录ldap日志
+
+			echo 'local4.*             /var/log/ldap.log'>>/etc/rsyslog.conf      【表示将ldap日志记录在/var/log/ldap.log文件中】
+			
+			*.info;mail.none;authpriv.none;cron.none;local4.none                /var/log/messages   【修改该语句，在后面加上local4.none ，这样/var/log/messages文件中就不会记录任何跟ldap相关的日志了】
+	 
+			service rsyslog restart 
+					
+	5、配置ldap数据库并授权
+				
+		vim /etc/openldap/slapd.conf
+					
+		添加如下语句：
+			directory        /var/lib/ldap             【配置ldap数据库目录路径】
+						
+		默认情况下，ldap数据库目录是空的；
+					
+		从/usr/share/openldap-servers目录下，将数据库样例文件cp到数据库目录下；
+			cp /usr/share/openldap-servers/DB_CONFIG.example   /var/lib/ldap/DB_CONFIG
+						
+			chown ldap. /var/lib/ldap/DB_CONFIG
+			chmod 700  /var/lib/ldap                 【修改权限】
+			
+		修改完毕后保存配置；
+		
+	6、测试并启动ldap master；
+			
+		    slaptest -u        【测试ldap配置是否正确，如果出现"config file testing succeeded"说明配置成功】
+					
+			/etc/init.d/slapd start	
+			
+			可以使用如下命令查看ldap数据库：
+				ldapsearch -LLL -W -x -H ldap://etiantian.org -D "cn=admin,dc=etiantian,dc=org" -b "dc=etiantian,dc=org" "(uid=*)"
+				
+				【正确执行结果返回：No such project】
+				
+				如果报错为：ldap_bind: Invalid credentials (49)      【报这个错的原因是因为openldap2.4之后配置文件变化，解决办法是删除slapd.d目录，然后再以2.3的配置文件为主去生成2.4的配置文件目录】
+				
+				解决办法：
+					rm -rf /etc/openldap/slapd.d/*     【先删除openldap2.4默认的配置文件】
+					slaptest -f /etc/openldap/slapd.conf -F /etc/openldap/slapd.d      【通过该命令以2.3的配置文件为主，再去生成2.4的配置文件】
+					chown -R ldap. /etc/openldap/slapd.d     【修改权限：指定/etc/openldap/slapd.d目录的属主属组为ldap】
+					/etc/init.d/slapd restart
+					
+					
+				这样ldapsearch -LLL -W -x -H ldap://etiantian.org -D "cn=admin,dc=etiantian,dc=org" -b "dc=etiantian,dc=org" "(uid=*)"可以执行了。
+			
+（3）导入ldap数据的4种方案
+	<1>自己编写ldap数据文件
+	<2>根据系统用户及ldap自带的脚本来初始化数据；
+	<3>通过ldap客户端工具来初始化数据【最简单】	
+	<4>通过实现准备好的文件初始化数据
+	
+	导入数据使用ldapadd命令；
+·		
+	第二种方法案例：【即利用ldap脚本把系统组和账户转换成ldif格式的数据导入ldap数据库中去】
+		<1>添加测试用户test，并配置用户登录环境；
+			groupadd -g 5000
+			useradd -u 5001 -g 5000 test
+			
+		<2>创建根项，并使用openldap-servers自带脚本生成和导入passwd/group配置；
+			grep test /etc/passwd >passwd.in
+			grep test /etc/group >group.in
+			
+			修改/usr/share/openldap/migration/migrate_common.ph；内容如下：  【需要安装migrationtools开源工具】
+				#Default DNS domain
+				$DEFAULT_MAIL_DOMAIN = "etiantian.org"
+				
+				#Default base
+				$DEFAULT_BASE = "dc=etiantian,dc=org"
+				
+			生成ldap数据：
+			操作命令：
+				export LC_ALL=C
+				/usr/share/openldap/migration/migrate_base.pl >base01.ldif
+				/usr/share/openldap/migration/migrate_passwd.pl passwd.in passwd.ldif
+				/usr/share/openldap/migration/migrate_group.pl group.in group.ldif
+				
+				ldapadd -w xin -x -H ldap://etiantian.org -D "cn=admin,dc=etiantian,dc=org" -f base.ldif
+				ldapadd -x -w xin -H ldap://etiantian.org -D "cn=admin,dc=etiantian,dc=org" -f group.ldif
+				ldapadd -x -w xin -H ldap://etiantian.org -D "cn=admin,dc=etiantian,dc=org" -f passwd.ldif
+				
+				
+			查询导入结果：ldapsearch -LLL -w oldboy -x -H ldap://etiantian.org -D "cn=admin,dc=etiantian,dc=org" -b "dc=etiantian,dc=org"
+			
+			备份ldap数据：ldapsearch -LLL -w oldboy -x -H ldap://etiantian.org -D "cn=admin,dc=etiantian,dc=org" -b "dc=etiantian,dc=org" >ldap.bak
+			
+			
+ldap同步配置：
+
+##主从同步【从服务器只能到主服务器拉取更新，无法自行更新ldap数据库】
+
+配置过程：
+（1）首先需要在server和slave上配置免秘钥登录，slave--->master/master--->slave都可以免秘钥登录；
+（2）主从服务器时间必须同步，可以在主从服务器上运行ntpd服务，同步时间；
+（2）ldap主服务器配置：
+	编辑配置文件slapd.conf修改：
+	moduleload syncprov.la    【加载同步模块】
+	modulepath /usr/lib/openldap
+	modulepath /usr/lib64/openldap    【这两项是指定openldap模块的路径，如果是64位系统则去/usr/lib64/openldap中加载】
+	
+	overlay syncprov		【设定主从同步模式，这里是overlay模式】
+	
+	设定同步条件
+	syncprov-checkpoint    100 10    【当满足修改100个条目或者10分钟的条件时主动以推的方式执行】
+	syncprov-sessionlog    100		【会话日志条目的最大数目】
+	
+	index entryCSN,entryUUID                eq
+	
+	修改完后保存并重新生成数据库配置文件；
+		rm -rf /etc/openldap/slapd.d/*
+		slaptest -f /etc/openldap/slapd.conf   -F /etc/openldap/slapd.d
+		chown -R ldap. /etc/openldap/slapd.d
+		service slapd restart
+	
+	
+（3）ldap从服务器配置：
+	编辑配置文件slapd.conf修改：
+
+    moduleload syncprov.la    【加载同步模块】
+	modulepath /usr/lib/openldap
+	modulepath /usr/lib64/openldap    【这两项是指定openldap模块的路径，如果是64位系统则去/usr/lib64/openldap中加载】
+
+	index entryCSN,entryUUID                eq
+    
+	serverID 1              【设置服务器节点id，且在整个openldap集群中唯一】
+	overlay syncprov       【设置同步工作模式为overlay】
+	syncrepl rid=001       【主从同步参数】
+        provider=ldap://192.168.6.2:389/          【指定主服务器ip地址及端口】
+        type=refreshAndPersist					  【设置类型为持续保持同步】
+        interval=00:00:00:10					  【设定同步更新时间，格式Wieinterval=day:hour:min:second】
+        retry="60 +"							  【尝试时间，切记60与+之间有空格】
+        searchbase="dc=etiantian,dc=org"		  【从主服务器域同步条目】
+        schemachecking=on						  【开启schema语法检测功能】
+        bindmethod=simple						  【设置同步验证模式为简单模式（明文），也可以设置为密文】
+        binddn="cn=admin,dc=etiantian,dc=org"	  【设置binddn，即使用admin账号连接主服务器同步条目】
+        credentials=xin							  【设置密码（为admin账号的密码）】
+        attrs="*,+"								  【表示同步所有属性】
+		
+	修改完毕后保存，并重新生成ldap数据库配置文件；
+		rm -rf /etc/openldap/slapd.d/*
+		slaptest -f /etc/openldap/slapd.conf   -F /etc/openldap/slapd.d
+		chown -R ldap. /etc/openldap/slapd.d
+		service slapd restart
+		
+
+		
+		
+##主主同步：【可以有多台从服务器】
+
+（1）首先需要在两台master上配置免秘钥登录，master--->master/master--->master都可以免秘钥登录；
+（2）主主服务器时间必须同步，可以在主主服务器上运行ntpd服务，同步时间；
+（3）master1配置如下：
+	vim /etc/openldap/slapd.conf
+	
+	##master-master sync
+	moduleload syncprov.la
+	modulepath /usr/lib/openldap
+	modulepath /usr/lib64/openldap
+
+	overlay syncprov
+	serverID 1
+	syncrepl rid=001
+        provider=ldap://192.168.6.2
+        type=refreshAndPersist
+        searchbase="dc=etiantian,dc=org"
+        schemachecking=on
+        bindmethod=simple
+        binddn="cn=admin,dc=etiantian,dc=org"
+        credentials=xin
+        retry="60 +"
+	mirrormode on
+
+	修改完毕后保存，并重新生成ldap数据库配置文件；
+		rm -rf /etc/openldap/slapd.d/*
+		slaptest -f /etc/openldap/slapd.conf   -F /etc/openldap/slapd.d
+		chown -R ldap. /etc/openldap/slapd.d
+		service slapd restart
+	
+（4）master2配置：
+
+	vim /etc/openldap/slapd.conf
+	
+	##master-master sync
+	moduleload syncprov.la
+	modulepath /usr/lib/openldap
+	modulepath /usr/lib64/openldap
+
+	overlay syncprov
+	serverID 2                  【serverID要在集群中唯一】
+	syncrepl rid=002
+        provider=ldap://192.168.6.1
+        type=refreshAndPersist
+        searchbase="dc=etiantian,dc=org"
+        schemachecking=on
+        bindmethod=simple
+        binddn="cn=admin,dc=etiantian,dc=org"
+        credentials=xin
+        retry="60 +"
+	mirrormode on
+
+	修改完毕后保存，并重新生成ldap数据库配置文件；
+		rm -rf /etc/openldap/slapd.d/*
+		slaptest -f /etc/openldap/slapd.conf   -F /etc/openldap/slapd.d
+		chown -R ldap. /etc/openldap/slapd.d
+		service slapd restart
